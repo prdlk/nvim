@@ -16,7 +16,14 @@ return {
       detector = {
         "lsp", -- highest priority is getting workspace from running language servers
         { ".git", "_darcs", ".hg", ".bzr", ".svn" }, -- next check for a version controlled parent directory
-        { "lua", "go.mod", "package.json", "Cargo.toml", "go.work", "Pipfile", "Makefile", "requirements.txt" }, -- lastly check for a file named `main`
+        {
+          "lua",
+          "Cargo.toml",
+          "go.work",
+          "Pipfile",
+          "Makefile",
+          "requirements.txt",
+        }, -- lastly check for a file named `main`
       },
       -- ignore things from root detection
       ignore = {
@@ -26,7 +33,7 @@ return {
       -- automatically update working directory (update manually with `:AstroRoot`)
       autochdir = true,
       -- scope of working directory to change ("global"|"tab"|"win")
-      scope = "tab",
+      scope = "tab", -- Changed from "win" to "global" to make directory changes apply globally
       -- show notification on every working directory change
       notify = false,
     },

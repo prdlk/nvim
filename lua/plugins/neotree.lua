@@ -9,13 +9,48 @@ return {
       auto_expand_width = true,
       git_status_async = true, -- Asynchronous git status. Improves performance.
       hide_root_node = true, -- Hide the root node.
-      retain_hidden_root_indent = false, -- IF the root node is hidden, keep the indentation anyhow.
+      retain_hidden_root_indent = true, -- IF the root node is hidden, keep the indentation anyhow.
+
+      -- Add custom title function to show host/org/repo
+      window = {
+        position = "left",
+        width = 40,
+        title = function()
+          -- Get current working directory
+          local cwd = vim.fn.getcwd()
+
+          -- Extract host/org/repo from path (assuming ghq structure)
+          -- This pattern looks for Code/host.com/org/repo in the path
+          local pattern = ".*/Code/([^/]+/[^/]+/[^/]+)"
+          local match = string.match(cwd, pattern)
+
+          if match then
+            return match
+          else
+            return "SonrVim"
+          end
+        end,
+        mappings = {
+          ["<bs>"] = "navigate_up",
+          [">"] = "set_root",
+          ["."] = "toggle_hidden",
+          ["/"] = "fuzzy_finder",
+          ["f"] = "filter_on_submit",
+          ["<c-x>"] = "clear_filter",
+          ["<CR>"] = "open_and_close_neotree",
+          ["<S-CR>"] = "open",
+        },
+        header = {
+          highlight = "NeoTreeHeader",
+        },
+      },
+
       default_component_configs = {
         container = {
           enable_character_fade = true,
         },
         indent = {
-          indent_size = 1,
+          indent_size = 2,
           padding = 1, -- extra padding on left hand side
           -- indent guides
           with_markers = true,
@@ -23,8 +58,8 @@ return {
           last_indent_marker = "└",
           highlight = "NeoTreeIndentMarker",
           -- expander config, needed for nesting files
-          expander_collapsed = "",
-          expander_expanded = "",
+          expander_collapsed = "",
+          expander_expanded = "",
           expander_highlight = "NeoTreeExpander",
         },
         name = {
@@ -36,15 +71,15 @@ return {
           symbols = {
             -- Change type
             added = "", -- or "✚", but this is redundant info if you use git_status_colors on the name
-            modified = "", -- or "", but this is redundant info if you use git_status_colors on the name
+            modified = "", -- or "", but this is redundant info if you use git_status_colors on the name
             deleted = "✖", -- this can only be used in the git_status source
             renamed = "󰁕", -- this can only be used in the git_status source
             -- Status type
-            untracked = "",
-            ignored = "",
+            untracked = "",
+            ignored = "",
             unstaged = "󰄱",
-            staged = "",
-            conflict = "",
+            staged = "",
+            conflict = "",
           },
         },
         -- If you don't want to use these columns, you can set `enabled = false` for each of them individually
@@ -72,25 +107,11 @@ return {
           enabled = false,
         },
       },
-      -- Simplified default component configs
-      window = {
-        mappings = {
-          ["<bs>"] = "navigate_up",
-          [">"] = "set_root",
-          ["."] = "toggle_hidden",
-          ["/"] = "fuzzy_finder",
-          ["f"] = "filter_on_submit",
-          ["<c-x>"] = "clear_filter",
-          ["<CR>"] = "open_and_close_neotree",
-          ["<S-CR>"] = "open",
-        },
-        header = {
-          highlight = "NeoTreeHeader",
-        },
-      },
 
       buffers = {
-        follow_current_file = true,
+        follow_current_file = {
+          enabled = true,
+        },
       },
 
       -- Filesystem specific settings
@@ -110,7 +131,7 @@ return {
         },
         bind_to_cwd = true,
         follow_current_file = {
-          enabled = true,
+          enabled = false,
           leave_dirs_open = true,
         },
         filtered_items = {
@@ -120,23 +141,24 @@ return {
           hide_dotfiles = false,
           hide_gitignored = true,
           hide_by_pattern = {
+            ".cz.toml",
             "dist",
             ".python-version",
             "*_test.go",
             "*.pb.go",
             "*_templ.go",
             "buf.gen.*",
-            "mprocs.*",
             "*config.*.js",
             "*config.js",
             "deps.mjs",
             "test_*.go",
             ".trunk",
+            ".config",
           },
           hide_by_name = {
             ".github",
+            "settings.json",
             ".taskfiles",
-            "types",
             ".gitignore",
             "analysis_options.yaml",
             "decorators",
@@ -146,14 +168,19 @@ return {
             "package-lock.json",
             ".husky",
             "translations",
-            "test",
-            "networks",
-            "go.mod",
             "LICENSE.md",
-            "CONTRIBUTING.md",
+            "node_modules",
+            ".tmuxinator.yml",
+            ".envrc",
+            ".taskfile.dist.yml",
           },
           never_show_by_pattern = {
             "PULL_REQUEST_TEMPLATE.md",
+            ".DocumentRevisions-V100",
+            ".Spotlight-V100",
+            ".TemporaryItems",
+            ".Trashes",
+            ".fseventsd",
             ".trunk",
             ".editorconfig",
             ".eslint*",
@@ -185,18 +212,6 @@ return {
             ".idea",
             ".metadata",
             ".venv",
-            "zkp",
-            "ted25519",
-            "dkg",
-            "ecies",
-            "ot",
-            "paillier",
-            "sharing",
-            "signatures",
-            "subtle",
-            "bulletproof",
-            "dkg",
-            "daed",
             ".gradle",
             "gradle.bat",
             ".aider.chat.history.md",
@@ -205,29 +220,26 @@ return {
             ".devcontainer",
             "heighliner",
             ".tmp",
-            ".zed",
-            ".vscode",
             "go.work.sum",
             ".DS_Store",
             ".git",
             "LICENSE",
-            "interchaintest",
-            ".envrc",
             "tmp",
             "sonr.log",
             "DISCUSSION_TEMPLATE",
             "ISSUE_TEMPLATE",
+            ".devbox",
+            ".timemachine",
           },
         },
       },
-
       diagnostics = {
         enable = true,
         icons = {
-          hint = "",
-          info = "",
-          warning = "",
-          error = "",
+          hint = "",
+          info = "",
+          warning = "",
+          error = "",
         },
       },
 
