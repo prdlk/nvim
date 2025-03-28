@@ -1,9 +1,3 @@
--- AstroCore provides a central place to modify mappings, vim options, autocommands, and more!
--- Configuration documentation can be found with `:h astrocore`
--- NOTE: We highly recommend setting up the Lua Language Server (`:LspInstall lua_ls`)
---       as this provides autocomplete and documentation while editing
-
----@type LazySpec
 return {
   "AstroNvim/astrocore",
   ---@type AstroCoreOpts
@@ -18,11 +12,17 @@ return {
         { ".git", "_darcs", ".hg", ".bzr", ".svn" }, -- next check for a version controlled parent directory
         {
           "lua",
+          "Taskfile.yml",
+          "devbox.json",
           "Cargo.toml",
           "go.work",
           "Pipfile",
           "Makefile",
           "requirements.txt",
+          "README.md",
+          "devbox.json",
+          "package.json",
+          "go.mod",
         }, -- lastly check for a file named `main`
       },
       -- ignore things from root detection
@@ -78,7 +78,6 @@ return {
         ["vv"] = { "gg0VG$", desc = "Select all contents in buffer" },
         ["<C-Space>"] = { "<Cmd>Telescope oldfiles<CR>", desc = "Recent Files" },
         ["<C-m>"] = { "<Cmd>OverseerRun<CR>", desc = "Overseer" },
-        ["<C-d>"] = { "<Cmd>Telescope diagnostics<CR>", desc = "Show Errors" },
         ["<C-u>"] = { "<Cmd>Telescope lsp_document_symbols<CR>", desc = "Show Symbols" },
         ["<C-c>"] = { function() vim.cmd "bd" end, desc = "Close window" },
         ["<C-q>"] = { "<Cmd>wa<CR><Cmd>qa!<CR>", desc = "Save and Quit Neovim" },
@@ -89,8 +88,24 @@ return {
       v = {
         ["<C-e>"] = { "<Cmd>Neotree toggle<CR>", desc = "Show Explorer" },
       },
+
       t = {
-        ["<Esc>"] = { [[<C-\><C-n>]], desc = "Exit terminal mode" },
+        ["<Esc>"] = {
+          function()
+            -- Check if we're in an Aider terminal buffer
+            local current_buf = vim.api.nvim_get_current_buf()
+            local buf_name = vim.api.nvim_buf_get_name(current_buf)
+
+            -- If the buffer name contains "Aider" (as seen in the screenshot)
+            if buf_name:match "Aider" then
+              vim.cmd "AiderTerminalToggle"
+            else
+              -- Default behavior: exit terminal mode
+              vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes([[<C-\><C-n>]], true, false, true), "n", false)
+            end
+          end,
+          desc = "Exit terminal mode or toggle Aider terminal",
+        },
       },
     },
   },

@@ -6,11 +6,11 @@ return {
       enable_git_status = true,
       enable_diagnostics = true,
       sort_case_insensitive = false,
-      auto_expand_width = true,
+      auto_expand_width = false,
       git_status_async = true, -- Asynchronous git status. Improves performance.
       hide_root_node = true, -- Hide the root node.
       retain_hidden_root_indent = true, -- IF the root node is hidden, keep the indentation anyhow.
-
+      use_libuv_file_watcher = true,
       -- Add custom title function to show host/org/repo
       window = {
         position = "left",
@@ -86,7 +86,7 @@ return {
         file_size = {
           enabled = true,
           width = 12, -- width of the column
-          required_width = 64, -- min width of window required to show this column
+          required_width = 48, -- min width of window required to show this column
         },
         type = {
           enabled = true,
@@ -131,20 +131,18 @@ return {
         },
         bind_to_cwd = true,
         follow_current_file = {
-          enabled = false,
+          enabled = true,
           leave_dirs_open = true,
         },
         filtered_items = {
           force_visible_in_empty_folder = true,
           group_empty = true,
           show_hidden_count = false,
-          hide_dotfiles = false,
+          hide_dotfiles = true,
           hide_gitignored = true,
           hide_by_pattern = {
-            ".cz.toml",
             "dist",
             ".python-version",
-            "*_test.go",
             "*.pb.go",
             "*_templ.go",
             "buf.gen.*",
@@ -158,23 +156,22 @@ return {
           hide_by_name = {
             ".github",
             "settings.json",
-            ".taskfiles",
             ".gitignore",
             "analysis_options.yaml",
             "decorators",
             "slumber.yml",
-            "CHANGELOG.md",
             "devbox.d",
+            "matrix",
+            "env",
             "package-lock.json",
             ".husky",
             "translations",
             "LICENSE.md",
-            "node_modules",
             ".tmuxinator.yml",
             ".envrc",
-            ".taskfile.dist.yml",
           },
           never_show_by_pattern = {
+            "node_modules",
             "PULL_REQUEST_TEMPLATE.md",
             ".DocumentRevisions-V100",
             ".Spotlight-V100",
@@ -205,7 +202,9 @@ return {
             "*.ico",
             "build",
             "PklProject.deps.json",
+            ".aider.tags.cache.v4",
             "*.iml",
+            "Icon?",
           },
           never_show = {
             ".dart_tool",
@@ -234,7 +233,7 @@ return {
         },
       },
       diagnostics = {
-        enable = true,
+        enable = false,
         icons = {
           hint = "",
           info = "",
@@ -251,7 +250,6 @@ return {
       -- Main sources
       sources = {
         "filesystem",
-        "diagnostics",
       },
     },
   },
