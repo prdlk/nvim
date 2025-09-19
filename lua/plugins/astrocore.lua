@@ -1,8 +1,5 @@
 local Terminal = require("toggleterm.terminal").Terminal
 
--- Track closed buffers
-local closed_buffers = {}
-
 -- Shared ignore patterns from neotree configuration
 local ignore_patterns = {
   -- Hidden patterns
@@ -207,7 +204,6 @@ return {
         "lsp", -- highest priority is getting workspace from running language servers
         { ".git", "_darcs", ".hg", ".bzr", ".svn" }, -- next check for a version controlled parent directory
         {
-          "go.work",
           "package.json",
           "lua",
           "Cargo.toml",
@@ -223,7 +219,7 @@ return {
       -- automatically update working directory (update manually with `:AstroRoot`)
       autochdir = true,
       -- scope of working directory to change ("global"|"tab"|"win")
-      scope = "win", -- Changed from "win" to "global" to make directory changes apply globally
+      scope = "global", -- Changed from "win" to "global" to make directory changes apply globally
       -- show notification on every working directory change
       notify = false,
     },
@@ -238,7 +234,7 @@ return {
 
     -- Diagnostics configuration (for vim.diagnostics.config({...})) when diagnostics are on
     diagnostics = {
-      virtual_text = false,
+      virtual_text = true,
       underline = true,
     },
     -- vim options can be configured here
@@ -262,33 +258,12 @@ return {
       -- first key is the mode
       n = {
         -- navigate buffer tabs
-        ["<C-c>"] = {
-          function()
-            -- Save the buffer path before closing
-            local bufname = vim.api.nvim_buf_get_name(0)
-            if bufname ~= "" then
-              table.insert(closed_buffers, bufname)
-              -- Keep only the last 10 closed buffers
-              if #closed_buffers > 10 then table.remove(closed_buffers, 1) end
-            end
-            vim.cmd "wa"
-            vim.cmd "bd"
-          end,
-          desc = "Save and close buffer",
-        },
+        ["<C-c>"] = { "<Cmd>wa<CR><Cmd>bd<CR>", desc = "Save and close buffer" }, -- Added C-x to save and close buffer
         ["F"] = { "za", desc = "Toggle fold under cursor" },
         ["L"] = { "<Cmd>BufferLineCycleNext<CR>", desc = "Next buffer" },
         ["H"] = { "<Cmd>BufferLineCyclePrev<CR>", desc = "Previous buffer" },
-        ["<C-e>"] = {
-          function() require("snacks").explorer.reveal() end,
-          desc = "Reveal file in Explorer",
-        },
+        ["<C-e>"] = { "<Cmd>Neotree toggle<CR>", desc = "Open Explorer" },
         ["<C-m>"] = { "<Cmd>OverseerRun<CR>", desc = "Run Overseer" },
-        ["<C-l>"] = { "<Cmd>b#<CR>", desc = "Return to last buffer" },
-        ["<leader>e"] = {
-          function() require("snacks").explorer.reveal() end,
-          desc = "Reveal file in Explorer",
-        },
         ["<leader><leader>"] = {
           function() require("snacks").picker.smart() end,
           desc = "Find files",
@@ -315,18 +290,6 @@ return {
             end
           end,
           desc = "Toggle all buffer groups",
-        },
-        ["<C-b>z"] = {
-          function()
-            if #closed_buffers > 0 then
-              local last_closed = table.remove(closed_buffers)
-              vim.cmd("e " .. vim.fn.fnameescape(last_closed))
-              vim.notify("Reopened: " .. vim.fn.fnamemodify(last_closed, ":t"))
-            else
-              vim.notify("No recently closed buffer found", vim.log.levels.WARN)
-            end
-          end,
-          desc = "Reopen last closed buffer",
         },
         -- Quick group toggles
         ["<C-b>l"] = {
@@ -425,10 +388,6 @@ return {
           function() require("snacks").picker.diagnostics() end,
           desc = "Find diagnostics",
         },
-        ["<C-f>l"] = {
-          function() require("snacks").picker.lines() end,
-          desc = "Find diagnostics",
-        },
         ["<C-f>f"] = {
           function() require("snacks").picker.git_files { transform = file_filter } end,
           desc = "Find files",
@@ -459,27 +418,25 @@ return {
         },
         ["<C-f>go"] = { "<Cmd>ObsidianSearch<CR>", desc = "Find in Obsidian" },
         ["<C-f>p"] = { desc = "Find Package files" },
-        ["<C-f>P"] = {
+        ["<C-f>pc"] = {
           function()
             require("snacks").picker.files {
-              dirs = { "/home/prad/code/github.com/sonr-io/sonr/proto" },
-              ft = { "proto" },
+              dirs = { "/home/prad/code/github.com/sonr-io/sonr/packages/cli" },
+              exclude = { "packages/cli/dist" },
+              ft = { "ts", "tsx", "js" },
             }
           end,
-          desc = "Find Proto files",
+          desc = "Find @sonr.io/cli files",
         },
-        ["<C-f>W"] = {
+        ["<C-f>pe"] = {
           function()
             require("snacks").picker.files {
-              dirs = {
-                "/home/prad/code/github.com/sonr-io/sonr/packages",
-                "/home/prad/code/github.com/sonr-io/sonr/web",
-              },
-              exclude = { "packages/**/dist", "web/**/dist" },
-              ft = { "ts", "tsx", "js", "html", "css", "json", "yaml" },
+              dirs = { "/home/prad/code/github.com/sonr-io/sonr/packages/es" },
+              exclude = { "packages/es/dist" },
+              ft = { "ts", "tsx", "js" },
             }
           end,
-          desc = "Find Web Dev files",
+          desc = "Find @sonr.io/es files",
         },
         ["<C-f>pp"] = {
           function()
@@ -620,37 +577,29 @@ return {
           end,
           desc = "Find dotfiles",
         },
-        ["<C-,>c"] = {
+        ["<C-f>c."] = {
           function()
             require("snacks").picker.files {
-              dirs = { "/home/prad/.local/share/chezmoi/dot_config" },
+              dirs = { "/home/prad/.local/share/chezmoi" },
             }
           end,
           desc = "Find chezmoi config files",
         },
-        ["<C-,>e"] = {
+        ["<C-f>cn"] = {
           function()
             require("snacks").picker.files {
-              dirs = { "/home/prad/.local/share/chezmoi/extensions" },
+              dirs = { "/home/prad/code/github.com/prnk28/nvim" },
             }
           end,
-          desc = "Find chezmoi extension files",
+          desc = "Find nvim files",
         },
-        ["<C-,>l"] = {
+        ["<C-f>cs"] = {
           function()
             require("snacks").picker.files {
-              dirs = { "/home/prad/.local/share/chezmoi/dot_local" },
+              dirs = { "/home/prad/.local/share/chezmoi/dot_local/share/services" },
             }
           end,
-          desc = "Find chezmoi local files",
-        },
-        ["<C-,>n"] = {
-          function()
-            require("snacks").picker.files {
-              dirs = { "/home/prad/.local/share/chezmoi/dot_config/nvim" },
-            }
-          end,
-          desc = "Find chezmoi neovim files",
+          desc = "Find Service files",
         },
         ["<C-a>a"] = { function() vim.lsp.buf.code_action() end, desc = "LSP Code Action" },
         ["<C-a>h"] = { function() vim.lsp.buf.hover() end, desc = "LSP Hover" },
@@ -674,46 +623,12 @@ return {
         ["<C-x>"] = { "<Cmd>wa<CR><Cmd>bd<CR><Esc>", desc = "Save, close buffer, and return to normal mode" }, -- Added C-x for insert mode
       },
       v = {
-        ["<C-e>"] = {
-          function()
-            -- Toggle explorer using the proper Snacks.explorer API
-            local snacks = require "snacks"
-            -- Check if there's an active explorer picker
-            local pickers = snacks.picker.get { source = "explorer" }
-            if #pickers > 0 then
-              -- Close the explorer
-              for _, picker in ipairs(pickers) do
-                picker:close()
-              end
-            else
-              -- Open the explorer
-              snacks.explorer()
-            end
-          end,
-          desc = "Toggle Explorer",
-        },
+        ["<C-e>"] = { "<Cmd>Neotree toggle<CR>", desc = "Open Explorer" },
         ["<C-c>"] = { "<Cmd>w<CR><Cmd>bd<CR>", desc = "Save and close buffer" }, -- Modified to save and close buffer
         ["<C-x>"] = { "<Cmd>w<CR><Cmd>bd<CR>", desc = "Save and close buffer" }, -- Added C-x for visual mode
       },
       t = {
-        ["<C-e>"] = {
-          function()
-            -- Toggle explorer using the proper Snacks.explorer API
-            local snacks = require "snacks"
-            -- Check if there's an active explorer picker
-            local pickers = snacks.picker.get { source = "explorer" }
-            if #pickers > 0 then
-              -- Close the explorer
-              for _, picker in ipairs(pickers) do
-                picker:close()
-              end
-            else
-              -- Open the explorer
-              snacks.explorer()
-            end
-          end,
-          desc = "Toggle Explorer",
-        },
+        ["<C-e>"] = { "<Cmd>Neotree toggle<CR>", desc = "Open Explorer" },
         ["<C-b>f"] = {
           function() require("snacks").picker.buffers() end,
           desc = "Find buffers",
