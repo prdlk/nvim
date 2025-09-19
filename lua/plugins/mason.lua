@@ -1,5 +1,3 @@
-if true then return {} end -- WARN: REMOVE THIS LINE TO ACTIVATE THIS FILE
-
 -- Customize Mason
 
 ---@type LazySpec
@@ -13,6 +11,8 @@ return {
       ensure_installed = {
         -- install language servers
         "lua-language-server",
+        "golangci-lint-langserver",
+        "pkl-lsp",
 
         -- install formatters
         "stylua",
@@ -22,6 +22,10 @@ return {
 
         -- install any other package
         "tree-sitter-cli",
+        "protols",
+        "protolint",
+        "templ",
+        "yamlfmt",
       },
     },
   },
