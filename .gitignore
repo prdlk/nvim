@@ -1,0 +1,22 @@
+# Neovim
+.cache
+.local
+.session
+.swap
+*lock.json
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+Session.vim
+Sessionx.vim
+tags
+tags.*
+*.swp
+*.swo
+
+# Temporary
+tmp
+temp
