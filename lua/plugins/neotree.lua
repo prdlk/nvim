@@ -1,9 +1,19 @@
 -- Function to read patterns from .rgignore file
 local function read_rgignore_patterns()
   local patterns = {}
-  local git_root = vim.fn.systemlist("git rev-parse --show-toplevel")[1]
+  -- Try to get the git root of the current buffer's directory
+  local current_file = vim.fn.expand "%:p"
+  local current_dir = vim.fn.fnamemodify(current_file, ":h")
 
-  if git_root and git_root ~= "" then
+  -- If no current file, use current working directory
+  if current_dir == "" then
+    current_dir = vim.fn.getcwd()
+  end
+
+  -- Get git root from current directory
+  local git_root = vim.fn.systemlist("cd " .. vim.fn.shellescape(current_dir) .. " && git rev-parse --show-toplevel 2>/dev/null")[1]
+
+  if git_root and git_root ~= "" and not git_root:match "^fatal:" then
     local rgignore_path = git_root .. "/.rgignore"
     local file = io.open(rgignore_path, "r")
 
@@ -28,9 +38,26 @@ end
 return {
   {
     "neo-tree.nvim",
+    init = function()
+      -- Autocmd to refresh neo-tree patterns when switching between repos
+      vim.api.nvim_create_autocmd({ "BufEnter", "DirChanged" }, {
+        callback = function()
+          -- Defer to let buffer settle
+          vim.defer_fn(function()
+            local ok, manager = pcall(require, "neo-tree.sources.manager")
+            if ok then
+              -- Silently refresh if neo-tree is loaded
+              pcall(manager.refresh, "filesystem")
+            end
+          end, 100)
+        end,
+      })
+    end,
     opts = function()
-      -- Get patterns from .rgignore
-      local rgignore_patterns = read_rgignore_patterns()
+      -- Function to dynamically get patterns
+      local function get_dynamic_patterns()
+        return read_rgignore_patterns()
+      end
 
       -- Default patterns
       local default_patterns = {
@@ -52,8 +79,14 @@ return {
         "*_mock.go",
       }
 
-      -- Merge patterns
-      local hide_patterns = vim.list_extend(vim.list_extend({}, default_patterns), rgignore_patterns)
+      -- Create a function to merge patterns dynamically
+      local function get_hide_patterns()
+        local rgignore_patterns = get_dynamic_patterns()
+        return vim.list_extend(vim.list_extend({}, default_patterns), rgignore_patterns)
+      end
+
+      -- Get initial patterns
+      local hide_patterns = get_hide_patterns()
 
       return {
         popup_border_style = "rounded",
@@ -73,7 +106,15 @@ return {
           width = 34,
           mappings = {
             ["H"] = "navigate_up",
-            ["L"] = "set_root",
+            ["L"] = function(state)
+              require("neo-tree.sources.filesystem.commands").set_root(state)
+              -- Refresh patterns when changing root
+              vim.defer_fn(function()
+                local new_patterns = get_hide_patterns()
+                require("neo-tree").config.filesystem.filtered_items.hide_by_pattern = new_patterns
+                require("neo-tree.sources.manager").refresh("filesystem")
+              end, 50)
+            end,
             ["<bs>"] = "toggle_hidden",
             ["."] = "toggle_hidden",
             ["/"] = "fuzzy_finder",
@@ -217,6 +258,13 @@ return {
         -- Filesystem specific settings
         filesystem = {
           commands = {
+            -- Refresh patterns when changing directories
+            refresh_patterns = function(state)
+              -- Re-read patterns when navigating
+              local new_patterns = get_hide_patterns()
+              state.filtered_items.hide_by_pattern = new_patterns
+              require("neo-tree.sources.manager").refresh("filesystem")
+            end,
             -- If item is a file it will close neotree after opening it.
             open_and_close_neotree = function(state)
               require("neo-tree.sources.filesystem.commands").open(state)
