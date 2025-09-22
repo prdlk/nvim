@@ -144,6 +144,16 @@ end
 
 local file_filter = create_file_filter()
 
+local claude = Terminal:new {
+  cmd = "claude",
+  hidden = true,
+  direction = "tab",
+  close_on_exit = true, -- function to run on opening the terminal
+  on_open = function(term)
+    vim.cmd "startinsert!"
+    vim.api.nvim_buf_set_keymap(term.bufnr, "n", "q", "<cmd>close<CR>", { noremap = true, silent = true })
+  end,
+}
 local yazi = Terminal:new {
   cmd = "yazi",
   hidden = true,
@@ -186,6 +196,7 @@ local mk = Terminal:new {
 }
 
 -- Toggle Functions (global so they can be used in other files)
+function _G.Claude_toggle() claude:toggle() end
 function _G.Lazyjournal_toggle() lazyjournal:toggle() end
 function _G.Mk_toggle() mk:toggle() end
 function _G.Scooter_toggle() scooter:toggle() end
@@ -602,6 +613,7 @@ return {
           desc = "Find Service files",
         },
         ["<C-a>a"] = { function() vim.lsp.buf.code_action() end, desc = "LSP Code Action" },
+        ["<C-a>c"] = { _G.Claude_toggle, desc = "Claude Toggle" },
         ["<C-a>h"] = { function() vim.lsp.buf.hover() end, desc = "LSP Hover" },
         ["<C-a>d"] = {
           function() require("snacks").picker.lsp_definitions() end,
