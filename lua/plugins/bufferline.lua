@@ -43,45 +43,26 @@ return {
 
             -- Module groups
             {
-              name = "",
+              name = "󰟓",
               auto_close = true,
               highlight = { fg = "#5ef1ff" },
               matcher = function(buf)
                 local bufname = vim.api.nvim_buf_get_name(buf.id)
-                return bufname:match "x/dex/.*%.go$" or bufname:match "proto/dex/.*%.proto$"
+                return bufname:match "%.go?$"
               end,
             },
             {
-              name = "DID",
+              name = "󰿘",
               auto_close = true,
-              highlight = { fg = "#5ef1ff" },
+              highlight = { fg = "#ffbd5e" },
               matcher = function(buf)
                 local bufname = vim.api.nvim_buf_get_name(buf.id)
                 return bufname:match "x/did/.*%.go$" or bufname:match "proto/did/.*%.proto$"
               end,
             },
-            {
-              name = "DWN",
-              auto_close = true,
-              highlight = { fg = "#5ef1ff" },
-              matcher = function(buf)
-                local bufname = vim.api.nvim_buf_get_name(buf.id)
-                return bufname:match "x/dwn/.*%.go$" or bufname:match "proto/dwn/.*%.proto$"
-              end,
-            },
-            {
-              name = "SVC",
-              highlight = { fg = "#5ef1ff" },
-              auto_close = true,
-              matcher = function(buf)
-                local bufname = vim.api.nvim_buf_get_name(buf.id)
-                return bufname:match "x/svc/.*%.go$" or bufname:match "proto/svc/.*%.proto$"
-              end,
-            },
-
             -- Tests
             {
-              name = "Tests",
+              name = "󰙨",
               auto_close = true,
               highlight = { fg = "#ff5ea0" },
               matcher = function(buf)
@@ -92,7 +73,7 @@ return {
 
             -- Auto-close groups
             {
-              name = "Actions",
+              name = "",
               highlight = { fg = "#ff5ef1" },
               auto_close = true,
               matcher = function(buf)
@@ -101,7 +82,7 @@ return {
               end,
             },
             {
-              name = "Claude",
+              name = "",
               highlight = { fg = "#ffbd5e" },
               auto_close = true,
               matcher = function(buf)
@@ -110,7 +91,7 @@ return {
               end,
             },
             {
-              name = "Docs",
+              name = "",
               highlight = { fg = "#ffffff" },
               auto_close = true,
               matcher = function(buf)
@@ -119,7 +100,7 @@ return {
               end,
             },
             {
-              name = "Config",
+              name = "",
               highlight = { fg = "#3c4048" },
               auto_close = true,
               matcher = function(buf)
