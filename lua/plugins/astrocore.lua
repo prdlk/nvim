@@ -412,6 +412,14 @@ return {
           function() require("snacks").picker.diagnostics() end,
           desc = "Find diagnostics",
         },
+        ["<C-f>l"] = {
+          function() require("snacks").picker.lines() end,
+          desc = "Find in line",
+        },
+        ["<C-f>w"] = {
+          function() require("snacks").picker.grep() end,
+          desc = "Find word",
+        },
         ["<C-f>f"] = {
           function() require("snacks").picker.git_files { transform = file_filter } end,
           desc = "Find files",
