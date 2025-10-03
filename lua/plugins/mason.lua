@@ -11,7 +11,6 @@ return {
       ensure_installed = {
         -- install language servers
         "lua-language-server",
-        "golangci-lint-langserver",
         "pkl-lsp",
 
         -- install formatters
