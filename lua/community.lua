@@ -15,6 +15,7 @@ return {
   { import = "astrocommunity.pack.json" },
   { import = "astrocommunity.pack.mdx" },
   { import = "astrocommunity.pack.go" },
+  { import = "astrocommunity.pack.golangci-lint" },
   { import = "astrocommunity.pack.html-css" },
   { import = "astrocommunity.pack.templ" },
   { import = "astrocommunity.pack.tailwindcss" },
