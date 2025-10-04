@@ -237,7 +237,9 @@ return {
       },
       -- ignore things from root detection
       ignore = {
-        servers = {}, -- list of language server names to ignore (Ex. { "efm" })
+        servers = {
+          "golang_lint_ls",
+        }, -- list of language server names to ignore (Ex. { "efm" })
         dirs = {}, -- list of directory patterns (Ex. { "~/.cargo/*" })
       },
       -- automatically update working directory (update manually with `:AstroRoot`)
