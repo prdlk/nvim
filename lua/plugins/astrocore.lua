@@ -238,7 +238,7 @@ return {
       -- ignore things from root detection
       ignore = {
         servers = {
-          "golang_lint_ls",
+          "golangci_lint_ls",
         }, -- list of language server names to ignore (Ex. { "efm" })
         dirs = {}, -- list of directory patterns (Ex. { "~/.cargo/*" })
       },
