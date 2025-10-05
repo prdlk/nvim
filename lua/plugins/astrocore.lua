@@ -283,6 +283,7 @@ return {
     mappings = {
       -- first key is the mode
       n = {
+        ["<C-!>"] = { "<Cmd>suspend<CR>", desc = "Suspend nvim (return with 'fg')" },
         -- navigate buffer tabs
         ["<C-c>"] = { "<Cmd>wa<CR><Cmd>bd<CR>", desc = "Save and close buffer" }, -- Added C-x to save and close buffer
         ["F"] = { "za", desc = "Toggle fold under cursor" },
