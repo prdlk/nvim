@@ -300,7 +300,7 @@ return {
           function() require("snacks").picker.buffers() end,
           desc = "Find buffers",
         },
-        ["<C-b>c"] = {
+        ["<C-b><C-c>"] = {
           function()
             local current_buffer = vim.api.nvim_get_current_buf()
             for _, buf in ipairs(vim.api.nvim_list_bufs()) do
@@ -330,16 +330,6 @@ return {
         ["<C-b>t"] = { "<Cmd>BufferLineGroupToggle Tests<CR>", desc = "Toggle Tests group" },
         ["<C-b>k"] = { "<Cmd>BufferLinePickClose<CR>", desc = "Pick buffer to close" },
         ["<C-g>o"] = { "<cmd>!gh repo view --web<CR>", desc = "Open Repo on Web" },
-        ["<C-g>h"] = {
-          function()
-            require("snacks").terminal("gh dash", {
-              hidden = true,
-              auto_close = true,
-              interactive = true,
-            })
-          end,
-          desc = "Dashboard",
-        },
         ["<C-g><C-d>"] = {
           function()
             require("snacks").terminal("gh dash", {
@@ -349,16 +339,6 @@ return {
             })
           end,
           desc = "GH Dash",
-        },
-        ["<C-g>g"] = {
-          function()
-            require("snacks").terminal("lazygit", {
-              hidden = true,
-              auto_close = true,
-              interactive = true,
-            })
-          end,
-          desc = "Lazygit",
         },
         ["<C-g><C-g>"] = {
           function()
@@ -379,59 +359,14 @@ return {
           function() require("snacks").picker.git_diff() end,
           desc = "Search git diffs",
         },
-        ["<C-g>b"] = {
+        ["<C-g><C-b>"] = {
           function() require("snacks").picker.git_branches() end,
           desc = "Search git branches",
-        },
-        ["<C-t>d"] = {
-          desc = "Devbox Services",
-        },
-        ["<C-t>du"] = {
-          function()
-            require("snacks").terminal("devbox services up", {
-              hidden = true,
-              auto_close = true,
-              start_in_insert = true,
-              interactive = true,
-            })
-          end,
-          desc = "Devbox Services Up",
-          noremap = true,
-        },
-        ["<C-t>dd"] = {
-          function()
-            require("snacks").terminal("devbox services down", {
-              hidden = true,
-              auto_close = true,
-              start_in_insert = true,
-              interactive = true,
-            })
-          end,
-          desc = "Devbox Services Down",
-          noremap = true,
-        },
-        ["<C-t>da"] = {
-          function()
-            require("snacks").terminal("devbox services attach", {
-              hidden = true,
-              auto_close = false,
-              start_in_insert = true,
-              interactive = true,
-            })
-          end,
-          desc = "Devbox Services Attach",
-          noremap = true,
-        },
-        ["<C-t>."] = { _G.Yazi_toggle, desc = "Yazi Toggle" },
-        ["<C-t>t"] = {
-          function() require("snacks").terminal() end,
-          desc = "Toggle Terminal",
         },
         ["K"] = { function() vim.diagnostic.goto_prev() end, desc = "Previous Diagnostic" },
         ["J"] = { function() vim.diagnostic.goto_next() end, desc = "Next Diagnostic" },
         ["vv"] = { "gg0VG$", desc = "Select all contents in buffer" },
         ["T"] = { "gg", desc = "Go to top of file" },
-
         ["<C-f>r"] = {
           _G.Scooter_toggle,
           desc = "Find and replace",
@@ -456,10 +391,6 @@ return {
           function() require("snacks").picker.recent() end,
           desc = "Find recent files",
         },
-        ["<C-o>"] = {
-          function() require("snacks").picker.projects() end,
-          desc = "Find projects",
-        },
         ["<C-f>gc"] = {
           function()
             local claude_dir = vim.fn.getcwd() .. "/.claude"
@@ -476,7 +407,6 @@ return {
           end,
           desc = "Find Claude files",
         },
-        ["<C-f>go"] = { "<Cmd>ObsidianSearch<CR>", desc = "Find in Obsidian" },
         ["<C-f>p"] = { desc = "Find Package files" },
         ["<C-f>pc"] = {
           function()
