@@ -20,4 +20,4 @@ tags.*
 # Temporary
 tmp
 temp
-lua/plugins
+!lua/plugins

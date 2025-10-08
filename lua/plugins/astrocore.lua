@@ -245,7 +245,7 @@ return {
       -- automatically update working directory (update manually with `:AstroRoot`)
       autochdir = true,
       -- scope of working directory to change ("global"|"tab"|"win")
-      scope = "global", -- Changed from "win" to "global" to make directory changes apply globally
+      scope = "win", -- Changed from "win" to "global" to make directory changes apply globally
       -- show notification on every working directory change
       notify = false,
     },
@@ -340,6 +340,16 @@ return {
           end,
           desc = "Dashboard",
         },
+        ["<C-g><C-d>"] = {
+          function()
+            require("snacks").terminal("gh dash", {
+              hidden = true,
+              auto_close = true,
+              interactive = true,
+            })
+          end,
+          desc = "GH Dash",
+        },
         ["<C-g>g"] = {
           function()
             require("snacks").terminal("lazygit", {
@@ -350,6 +360,21 @@ return {
           end,
           desc = "Lazygit",
         },
+        ["<C-g><C-g>"] = {
+          function()
+            require("snacks").terminal("lazygit", {
+              hidden = true,
+              auto_close = true,
+              interactive = true,
+            })
+          end,
+          desc = "Lazygit",
+        },
+        ["<C-g><C-i>"] = { "<cmd>Octo issue list<CR>", desc = "List Issues" },
+        ["<C-g><C-l>"] = { "<cmd>Octo label<CR>", desc = "Manage Labels" },
+        ["<C-g><C-p>"] = { "<cmd>Octo pr list<CR>", desc = "List PRs" },
+        ["<C-g>s"] = { "<cmd>Octo search<CR>", desc = "Octo Search" },
+        ["<C-g><C-r>"] = { "<cmd>!gh release list<CR>", desc = "List Releases" },
         ["<C-g>d"] = {
           function() require("snacks").picker.git_diff() end,
           desc = "Search git diffs",
