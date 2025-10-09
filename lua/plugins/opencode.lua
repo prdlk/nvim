@@ -21,7 +21,7 @@ return {
       { desc = "Ask about this" }
     )
     vim.keymap.set({ "n", "x" }, "<C-o>A", function() require("opencode").prompt "@this" end, { desc = "Add this" })
-    vim.keymap.set({ "n", "x" }, "<C-o>s", function() require("opencode").select() end, { desc = "Select prompt" })
+    vim.keymap.set({ "n", "x" }, "<C-o>p", function() require("opencode").select() end, { desc = "Select prompt" })
     vim.keymap.set("n", "<C-o><C-o>", function() require("opencode").toggle() end, { desc = "Toggle embedded" })
     vim.keymap.set("n", "<C-o>t", function() require("opencode").toggle() end, { desc = "Toggle embedded" })
     vim.keymap.set("n", "<C-o>n", function() require("opencode").command "session_new" end, { desc = "New session" })
