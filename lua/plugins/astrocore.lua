@@ -611,7 +611,7 @@ return {
         -- Terminal launcher
       },
       i = {
-        ["<C-s>"] = { "<Cmd>wa<CR><Esc>", desc = "Save and return to normal mode" },
+        ["<C-s>"] = { "<Cmd>w<CR><Esc>", desc = "Save current buffer and return to normal mode", noremap = true },
         ["<C-c>"] = { "<Cmd>wa<CR><Cmd>bd<CR><Esc>", desc = "Save, close buffer, and return to normal mode" },
         ["<C-x>"] = { "<Cmd>wa<CR><Cmd>bd<CR><Esc>", desc = "Save, close buffer, and return to normal mode" }, -- Added C-x for insert mode
       },
