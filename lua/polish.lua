@@ -103,3 +103,5 @@ end
 require("inc_rename").setup {
   input_buffer_type = "snacks",
 }
+
+vim.colorscheme "cyberdream"

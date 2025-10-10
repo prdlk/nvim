@@ -25,11 +25,11 @@ return {
   { import = "astrocommunity.git.octo-nvim" },
   { import = "astrocommunity.bars-and-lines.bufferline-nvim" },
   { import = "astrocommunity.code-runner.overseer-nvim" },
-  { import = "astrocommunity.colorscheme.cyberdream-nvim" },
   { import = "astrocommunity.completion.supermaven-nvim" },
   { import = "astrocommunity.completion.blink-cmp" },
   { import = "astrocommunity.editing-support.auto-save-nvim" },
   { import = "astrocommunity.editing-support.conform-nvim" },
   { import = "astrocommunity.lsp.inc-rename-nvim" },
   { import = "astrocommunity.lsp.nvim-lsp-file-operations" },
+  { import = "astrocommunity.colorscheme.cyberdream-nvim" },
 }
