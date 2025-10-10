@@ -99,3 +99,7 @@ if ok_overseer then
     end,
   }
 end
+
+require("inc_rename").setup {
+  input_buffer_type = "snacks",
+}

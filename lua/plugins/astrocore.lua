@@ -594,13 +594,15 @@ return {
         ["<C-a>a"] = { function() vim.lsp.buf.code_action() end, desc = "LSP Code Action" },
         ["<C-a>c"] = { _G.Claude_toggle, desc = "Claude Toggle" },
         ["<C-a>h"] = { function() vim.lsp.buf.hover() end, desc = "LSP Hover" },
-        ["<C-a>d"] = {
-          function() require("snacks").picker.lsp_definitions() end,
-          desc = "Find LSP definitions",
-        },
         ["<C-a>r"] = {
-          function() require("snacks").picker.lsp_references() end,
-          desc = "Find LSP references",
+          function() return ":IncRename " .. vim.fn.expand "<cword>" end,
+          expr = true,
+          desc = "Rename current symbol",
+          cond = "textDocument/rename",
+        },
+        ["<C-a>d"] = {
+          function() require("snacks").picker.diagnostics() end,
+          desc = "Find LSP diagnostics",
         },
         ["<C-a>s"] = {
           function() require("snacks").picker.lsp_symbols() end,
