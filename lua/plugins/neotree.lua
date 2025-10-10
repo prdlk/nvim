@@ -1,39 +1,9 @@
--- Function to read patterns from .rgignore file
-local function read_rgignore_patterns()
-  local patterns = {}
-  -- Try to get the git root of the current buffer's directory
-  local current_file = vim.fn.expand "%:p"
-  local current_dir = vim.fn.fnamemodify(current_file, ":h")
+--- Neo-tree configuration with dynamic pattern filtering
+--- @module plugins.neotree
 
-  -- If no current file, use current working directory
-  if current_dir == "" then
-    current_dir = vim.fn.getcwd()
-  end
-
-  -- Get git root from current directory
-  local git_root = vim.fn.systemlist("cd " .. vim.fn.shellescape(current_dir) .. " && git rev-parse --show-toplevel 2>/dev/null")[1]
-
-  if git_root and git_root ~= "" and not git_root:match "^fatal:" then
-    local rgignore_path = git_root .. "/.rgignore"
-    local file = io.open(rgignore_path, "r")
-
-    if file then
-      for line in file:lines() do
-        -- Skip comments and empty lines
-        if line ~= "" and not line:match "^#" then
-          -- Convert ripgrep patterns to neo-tree patterns
-          -- Remove leading ./ if present
-          line = line:gsub("^%./", "")
-          -- Add the pattern
-          table.insert(patterns, line)
-        end
-      end
-      file:close()
-    end
-  end
-
-  return patterns
-end
+-- Import shared modules
+local ignore_patterns = require("config.ignore_patterns")
+local terminals = require("config.terminals")
 
 return {
   {
@@ -54,41 +24,57 @@ return {
       })
     end,
     opts = function()
-      -- Function to dynamically get patterns
-      local function get_dynamic_patterns()
-        return read_rgignore_patterns()
-      end
+      -- Get all hide patterns from shared module
+      local hide_patterns = ignore_patterns.get_all_patterns()
 
-      -- Default patterns
-      local default_patterns = {
-        "chain_*.json",
-        "Library",
-        ".typecopy",
-        ".python-version",
-        "*.pb.go",
-        "*config.*.js",
-        "*config.js",
-        "deps.mjs",
-        ".parcelrc",
-        "worker-configuration.d.ts",
-        "wrangler.jsonc",
-        "*.pkl.go",
-        ".trunk",
-        ".config",
-        ".cz.toml",
-        "*_mock.go",
-      }
-
-      -- Create a function to merge patterns dynamically
-      local function get_hide_patterns()
-        local rgignore_patterns = get_dynamic_patterns()
-        return vim.list_extend(vim.list_extend({}, default_patterns), rgignore_patterns)
-      end
-
-      -- Get initial patterns
-      local hide_patterns = get_hide_patterns()
+      -- Setup LSP file operations integration
+      local events = require("neo-tree.events")
 
       return {
+        -- LSP file operation event handlers for refactoring support
+        event_handlers = {
+          {
+            event = events.BEFORE_FILE_ADD,
+            handler = function(args) require("astrolsp.file_operations").willCreateFiles(args) end,
+          },
+          {
+            event = events.FILE_ADDED,
+            handler = function(args) require("astrolsp.file_operations").didCreateFiles(args) end,
+          },
+          {
+            event = events.BEFORE_FILE_DELETE,
+            handler = function(args) require("astrolsp.file_operations").willDeleteFiles(args) end,
+          },
+          {
+            event = events.FILE_DELETED,
+            handler = function(args) require("astrolsp.file_operations").didDeleteFiles(args) end,
+          },
+          {
+            event = events.BEFORE_FILE_MOVE,
+            handler = function(args)
+              require("astrolsp.file_operations").willRenameFiles({ from = args.source, to = args.destination })
+            end,
+          },
+          {
+            event = events.BEFORE_FILE_RENAME,
+            handler = function(args)
+              require("astrolsp.file_operations").willRenameFiles({ from = args.source, to = args.destination })
+            end,
+          },
+          {
+            event = events.FILE_MOVED,
+            handler = function(args)
+              require("astrolsp.file_operations").didRenameFiles({ from = args.source, to = args.destination })
+            end,
+          },
+          {
+            event = events.FILE_RENAMED,
+            handler = function(args)
+              require("astrolsp.file_operations").didRenameFiles({ from = args.source, to = args.destination })
+            end,
+          },
+        },
+
         popup_border_style = "rounded",
         enable_git_status = true,
         enable_diagnostics = true,
@@ -110,7 +96,7 @@ return {
               require("neo-tree.sources.filesystem.commands").set_root(state)
               -- Refresh patterns when changing root
               vim.defer_fn(function()
-                local new_patterns = get_hide_patterns()
+                local new_patterns = ignore_patterns.get_all_patterns()
                 require("neo-tree").config.filesystem.filtered_items.hide_by_pattern = new_patterns
                 require("neo-tree.sources.manager").refresh("filesystem")
               end, 50)
@@ -141,8 +127,8 @@ return {
             ["<C-g>d"] = function() require("snacks").picker.git_diff() end,
             ["<C-g>b"] = function() require("snacks").picker.git_branches() end,
             -- Terminal keybindings from astrocore
-            ["<C-t>m"] = function() _G.Mk_toggle() end,
-            ["<C-t>j"] = function() _G.Lazyjournal_toggle() end,
+            ["<C-t>m"] = terminals.mk_toggle,
+            ["<C-t>j"] = terminals.lazyjournal_toggle,
             ["<C-t>l"] = function()
               require("snacks").terminal("lazydocker", {
                 hidden = true,
@@ -175,7 +161,7 @@ return {
                 interactive = true,
               })
             end,
-            ["<C-t>."] = function() _G.Yazi_toggle() end,
+            ["<C-t>."] = terminals.yazi_toggle,
             ["<C-t>t"] = function() require("snacks").terminal() end,
             -- Find keybindings from astrocore
             -- These Find keybindings are defined in astrocore.lua
@@ -261,7 +247,7 @@ return {
             -- Refresh patterns when changing directories
             refresh_patterns = function(state)
               -- Re-read patterns when navigating
-              local new_patterns = get_hide_patterns()
+              local new_patterns = ignore_patterns.get_all_patterns()
               state.filtered_items.hide_by_pattern = new_patterns
               require("neo-tree.sources.manager").refresh("filesystem")
             end,
@@ -347,76 +333,8 @@ return {
               -- "bridge",
               -- "client",
             },
-            never_show_by_pattern = {
-              "*DS_Store",
-              ".obsidian",
-              ".pkl-lsp",
-              ".tsbuildinfo",
-              "package-lock.json",
-              ".prettierrc",
-              "node_modules",
-              ".DocumentRevisions-V100",
-              ".Spotlight-V100",
-              ".TemporaryItems",
-              ".Trashes",
-              ".fseventsd",
-              ".editorconfig",
-              "*.min.js",
-              "*.lock",
-              "*lock*",
-              "*.lockb",
-              "*.pulsar.go",
-              "*.pb.gorm.go",
-              "*.pb.gw.go",
-              "*_templ.go",
-              "*.tmp",
-              "*.work.*",
-              "*.sum",
-              ".parcel-cache",
-              "*.icns",
-              "*.ico",
-              ".aider.tags.cache.v4",
-              "*.iml",
-              "Icon?",
-              "iCloud~",
-              "com~",
-              "*.icns",
-              ".conform*",
-              ".null-ls_*",
-            },
-            never_show = {
-              ".git",
-              "pnpm-lock.yaml",
-              ".next",
-              ".task",
-              ".devbox",
-              ".dart_tool",
-              ".idea",
-              ".metadata",
-              ".venv",
-              ".gradle",
-              "gradle.bat",
-              ".aider.chat.history.md",
-              ".aider.input.history",
-              ".aider.tags.cache.v3",
-              ".devcontainer",
-              "heighliner",
-              ".tmp",
-              "go.work.sum",
-              ".DS_Store",
-              ".git",
-              "LICENSE",
-              "tmp",
-              "sonr.log",
-              "DISCUSSION_TEMPLATE",
-              "ISSUE_TEMPLATE",
-              ".devbox",
-              ".timemachine",
-              "junit.xml",
-              ".jj",
-              ".spawn",
-              ".turbo",
-            },
+            never_show_by_pattern = ignore_patterns.never_show_patterns,
+            never_show = ignore_patterns.never_show,
           },
         },
         diagnostics = {

@@ -1,206 +1,16 @@
-local Terminal = require("toggleterm.terminal").Terminal
+--- AstroCore configuration
+--- Core settings, keymappings, and autocmds for AstroNvim
+--- @module plugins.astrocore
 
--- Shared ignore patterns from neotree configuration
-local ignore_patterns = {
-  -- Hidden patterns
-  "chain_*.json",
-  ".typecopy",
-  ".python-version",
-  "*.pb.go",
-  "*config.*.js",
-  "*config.js",
-  "deps.mjs",
-  ".parcelrc",
-  "worker-configuration.d.ts",
-  "wrangler.jsonc",
-  "*.pkl.go",
-  ".trunk",
-  ".config",
-  ".cz.toml",
-  "*_integration.go",
-  "*_test.go",
-  "*_query_docs.md",
-  "*_tx_docs.md",
-  "*_mock.go",
-  "biome*",
-  -- Never show patterns
-  "CLAUDE*",
-  ".pkl-lsp",
-  ".tsbuildinfo",
-  "contrib",
-  "interchaintest",
-  "package-lock.json",
-  ".prettierrc",
-  "node_modules",
-  "PULL_REQUEST_TEMPLATE.md",
-  ".DocumentRevisions-V100",
-  ".Spotlight-V100",
-  ".TemporaryItems",
-  ".Trashes",
-  ".fseventsd",
-  ".editorconfig",
-  "*.min.js",
-  ".gitpod.*",
-  "cspell.*",
-  "*.lock",
-  "*.lockb",
-  "*.pulsar.go",
-  "*.pb.gorm.go",
-  "*.pb.gw.go",
-  "*_templ.go",
-  "*.tmp",
-  "*.work.*",
-  "*.sum",
-  ".wrangler",
-  "*.wasm",
-  "*.png",
-  "*.jpg",
-  ".parcel-cache",
-  "*.icns",
-  "*.ico",
-  ".aider.tags.cache.v4",
-  "*.iml",
-  "Icon?",
-  "iCloud~",
-  "com~",
-  "readme.md",
-  ".conform*",
-  ".null-ls_*",
-  -- Additional never show items
-  ".git",
-  "pnpm-lock.yaml",
-  ".next",
-  ".task",
-  ".devbox",
-  ".dart_tool",
-  ".idea",
-  ".metadata",
-  ".venv",
-  ".gradle",
-  "gradle.bat",
-  ".aider.chat.history.md",
-  ".aider.input.history",
-  ".aider.tags.cache.v3",
-  ".devcontainer",
-  "heighliner",
-  ".tmp",
-  "go.work.sum",
-  ".DS_Store",
-  "LICENSE",
-  "tmp",
-  "sonr.log",
-  "DISCUSSION_TEMPLATE",
-  "ISSUE_TEMPLATE",
-  ".timemachine",
-  "junit.xml",
-  ".jj",
-  ".spawn",
-  ".turbo",
-}
+-- Import shared modules
+local ignore_patterns = require("config.ignore_patterns")
+local terminals = require("config.terminals")
 
--- Create a custom transform function to filter out ignored files
-local function create_file_filter()
-  return function(item)
-    if not item or not item.file then return item end
+-- Initialize terminals
+terminals.setup()
 
-    local file = item.file
-    local basename = vim.fn.fnamemodify(file, ":t")
-    local dir = vim.fn.fnamemodify(file, ":h:t")
-
-    -- Check each ignore pattern
-    for _, pattern in ipairs(ignore_patterns) do
-      -- Convert glob pattern to Lua pattern
-      local lua_pattern = pattern:gsub("%.", "%%."):gsub("%*", ".*"):gsub("%?", ".")
-
-      -- Check if the pattern matches the basename or path
-      if basename:match("^" .. lua_pattern .. "$") or file:match(lua_pattern) then
-        return nil -- Filter out this item
-      end
-    end
-
-    -- Also filter out specific directory names
-    local ignored_dirs = {
-      "contracts",
-      "crypto",
-      "api",
-      "chains",
-      "test",
-      "examples",
-      "scripts",
-      "bridge",
-      "client",
-      "translations",
-      "env",
-      ".husky",
-    }
-
-    for _, ignored in ipairs(ignored_dirs) do
-      if dir == ignored or file:match("/" .. ignored .. "/") then return nil end
-    end
-
-    return item
-  end
-end
-
-local file_filter = create_file_filter()
-
-local claude = Terminal:new {
-  cmd = "claude",
-  hidden = true,
-  direction = "tab",
-  close_on_exit = true, -- function to run on opening the terminal
-  on_open = function(term)
-    vim.cmd "startinsert!"
-    vim.api.nvim_buf_set_keymap(term.bufnr, "n", "q", "<cmd>close<CR>", { noremap = true, silent = true })
-  end,
-}
-local yazi = Terminal:new {
-  cmd = "yazi",
-  hidden = true,
-  direction = "tab",
-  close_on_exit = true, -- function to run on opening the terminal
-  on_open = function(term)
-    vim.cmd "startinsert!"
-    vim.api.nvim_buf_set_keymap(term.bufnr, "n", "q", "<cmd>close<CR>", { noremap = true, silent = true })
-  end,
-}
-
-local scooter = Terminal:new {
-  cmd = "scooter",
-  hidden = true,
-  direction = "vertical", -- function to run on opening the terminal
-  on_open = function(term)
-    vim.cmd "startinsert!"
-    vim.api.nvim_buf_set_keymap(term.bufnr, "n", "q", "<cmd>close<CR>", { noremap = true, silent = true })
-  end,
-}
-
-local lazyjournal = Terminal:new {
-  cmd = "lazyjournal",
-  hidden = true,
-  direction = "float", -- function to run on opening the terminal
-  on_open = function(term)
-    vim.cmd "startinsert!"
-    vim.api.nvim_buf_set_keymap(term.bufnr, "n", "q", "<cmd>close<CR>", { noremap = true, silent = true })
-  end,
-}
-
-local mk = Terminal:new {
-  cmd = "mk",
-  hidden = true,
-  direction = "vertical", -- function to run on opening the terminal
-  on_open = function(term)
-    vim.cmd "startinsert!"
-    vim.api.nvim_buf_set_keymap(term.bufnr, "n", "q", "<cmd>close<CR>", { noremap = true, silent = true })
-  end,
-}
-
--- Toggle Functions (global so they can be used in other files)
-function _G.Claude_toggle() claude:toggle() end
-function _G.Lazyjournal_toggle() lazyjournal:toggle() end
-function _G.Mk_toggle() mk:toggle() end
-function _G.Scooter_toggle() scooter:toggle() end
-function _G.Yazi_toggle() yazi:toggle() end
+-- Get file filter for pickers
+local file_filter = ignore_patterns.create_picker_filter()
 
 return {
   "AstroNvim/astrocore",
@@ -363,12 +173,10 @@ return {
           function() require("snacks").picker.git_branches() end,
           desc = "Search git branches",
         },
-        ["K"] = { function() vim.diagnostic.goto_prev() end, desc = "Previous Diagnostic" },
-        ["J"] = { function() vim.diagnostic.goto_next() end, desc = "Next Diagnostic" },
         ["vv"] = { "gg0VG$", desc = "Select all contents in buffer" },
         ["T"] = { "gg", desc = "Go to top of file" },
         ["<C-f>r"] = {
-          _G.Scooter_toggle,
+          terminals.scooter_toggle,
           desc = "Find and replace",
         },
         ["<C-f>d"] = {
@@ -591,29 +399,12 @@ return {
           end,
           desc = "Find Service files",
         },
-        ["<C-a>a"] = { function() vim.lsp.buf.code_action() end, desc = "LSP Code Action" },
-        ["<C-a>c"] = { _G.Claude_toggle, desc = "Claude Toggle" },
-        ["<C-a>h"] = { function() vim.lsp.buf.hover() end, desc = "LSP Hover" },
-        ["<C-a>r"] = {
-          function() return ":IncRename " .. vim.fn.expand "<cword>" end,
-          expr = true,
-          desc = "Rename current symbol",
-          cond = "textDocument/rename",
-        },
-        ["<C-a>d"] = {
-          function() require("snacks").picker.diagnostics() end,
-          desc = "Find LSP diagnostics",
-        },
-        ["<C-a>s"] = {
-          function() require("snacks").picker.lsp_symbols() end,
-          desc = "Find LSP symbols",
-        },
-        -- Terminal launcher
+        -- AI/Assistant mappings
+        ["<C-a>c"] = { terminals.claude_toggle, desc = "Claude Toggle" },
       },
       i = {
-        ["<C-s>"] = { "<Cmd>w<CR><Esc>", desc = "Save current buffer and return to normal mode", noremap = true },
         ["<C-c>"] = { "<Cmd>wa<CR><Cmd>bd<CR><Esc>", desc = "Save, close buffer, and return to normal mode" },
-        ["<C-x>"] = { "<Cmd>wa<CR><Cmd>bd<CR><Esc>", desc = "Save, close buffer, and return to normal mode" }, -- Added C-x for insert mode
+        ["<C-s>"] = { "<Cmd>wa<CR><Cmd>bd<CR><Esc>", desc = "Save, close buffer, and return to normal mode" }, -- Added C-x for insert mode
       },
       v = {
         ["<C-e>"] = { "<Cmd>Neotree toggle<CR>", desc = "Open Explorer" },

@@ -1,4 +1,7 @@
--- Bufferline configuration with AstroNvim integration
+--- Bufferline configuration with AstroNvim integration
+--- Provides enhanced buffer/tab management with diagnostics and custom close handlers
+--- @module plugins.bufferline
+
 return {
   "akinsho/bufferline.nvim",
   version = "*",
