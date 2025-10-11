@@ -50,6 +50,16 @@ if ok_overseer then
         desc = "The devbox script to run",
       },
     },
+    strategy = {
+      "toggleterm",
+      use_shell = true,
+      auto_scroll = true,
+      close_on_exit = true,
+      direction = "tab",
+      quit_on_exit = "success",
+      open_on_start = true,
+      hidden = true,
+    },
     condition = {
       callback = function()
         if vim.fn.executable "git" == 0 then return false, "git not found" end
