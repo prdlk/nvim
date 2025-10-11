@@ -3,8 +3,8 @@
 --- @module plugins.astrocore
 
 -- Import shared modules
-local ignore_patterns = require("config.ignore_patterns")
-local terminals = require("config.terminals")
+local ignore_patterns = require "config.ignore_patterns"
+local terminals = require "config.terminals"
 
 -- Initialize terminals
 terminals.setup()
@@ -404,7 +404,7 @@ return {
       },
       i = {
         ["<C-c>"] = { "<Cmd>wa<CR><Cmd>bd<CR><Esc>", desc = "Save, close buffer, and return to normal mode" },
-        ["<C-s>"] = { "<Cmd>wa<CR><Cmd>bd<CR><Esc>", desc = "Save, close buffer, and return to normal mode" }, -- Added C-x for insert mode
+        ["<C-x>"] = { "<Cmd>wa<CR><Cmd>bd<CR><Esc>", desc = "Save, close buffer, and return to normal mode" }, -- Added C-x for insert mode
       },
       v = {
         ["<C-e>"] = { "<Cmd>Neotree toggle<CR>", desc = "Open Explorer" },
