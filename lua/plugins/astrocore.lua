@@ -400,7 +400,7 @@ return {
           desc = "Find Service files",
         },
         -- AI/Assistant mappings
-        ["<C-a>c"] = { terminals.claude_toggle, desc = "Claude Toggle" },
+        ["<C-a><C-a>"] = { terminals.claude_toggle, desc = "Claude Toggle" },
       },
       i = {
         ["<C-c>"] = { "<Cmd>wa<CR><Cmd>bd<CR><Esc>", desc = "Save, close buffer, and return to normal mode" },
@@ -416,6 +416,14 @@ return {
         ["<C-b>f"] = {
           function() require("snacks").picker.buffers() end,
           desc = "Find buffers",
+        },
+        -- Exit terminal mode and close window
+        ["<C-q>"] = {
+          function()
+            vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes([[<C-\><C-n>]], true, false, true), "n", false)
+            vim.cmd "close"
+          end,
+          desc = "Exit terminal and close window",
         },
         -- Exit terminal mode and close window
         ["<C-c>"] = {
