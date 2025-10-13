@@ -406,7 +406,6 @@ return {
         },
         -- AI/Assistant mappings
         ["<C-a><C-a>"] = { terminals.claude_toggle, desc = "Claude Toggle" },
-        ["<C-o><C-o>"] = { terminals.opencode_toggle, desc = "Opencode Toggle" },
         ["<C-t><C-t>"] = { terminals.mk_toggle, desc = "Taskfile Toggle" },
       },
       i = {
@@ -456,10 +455,7 @@ return {
                 vim.cmd(string.format([[%%s/%s/%s/ge]], escaped, escaped_replacement))
 
                 -- Show notification
-                vim.notify(
-                  string.format("Replaced '%s' with '%s'", selection, replacement),
-                  vim.log.levels.INFO
-                )
+                vim.notify(string.format("Replaced '%s' with '%s'", selection, replacement), vim.log.levels.INFO)
               end
             end)
           end,
