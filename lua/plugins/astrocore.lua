@@ -401,6 +401,7 @@ return {
         },
         -- AI/Assistant mappings
         ["<C-a><C-a>"] = { terminals.claude_toggle, desc = "Claude Toggle" },
+        ["<C-o><C-o>"] = { terminals.opencode_toggle, desc = "Opencode Toggle" },
       },
       i = {
         ["<C-c>"] = { "<Cmd>wa<CR><Cmd>bd<CR><Esc>", desc = "Save, close buffer, and return to normal mode" },

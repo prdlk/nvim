@@ -22,65 +22,65 @@ function M.setup()
   local Terminal = require("toggleterm.terminal").Terminal
 
   -- Claude terminal configuration
-  local claude = Terminal:new({
-    cmd = "claude",
+  local claude = Terminal:new {
+    cmd = "claude --dangerously-skip-permissions",
     hidden = true,
     direction = "tab",
     close_on_exit = true,
     on_open = function(term)
-      vim.cmd("startinsert!")
+      vim.cmd "startinsert!"
       vim.api.nvim_buf_set_keymap(term.bufnr, "n", "q", "<cmd>close<CR>", { noremap = true, silent = true })
     end,
-  })
+  }
 
   -- Yazi file manager terminal
-  local yazi = Terminal:new({
-    cmd = "yazi",
+  local opencode = Terminal:new {
+    cmd = "opencode",
     hidden = true,
     direction = "tab",
     close_on_exit = true,
     on_open = function(term)
-      vim.cmd("startinsert!")
+      vim.cmd "startinsert!"
       vim.api.nvim_buf_set_keymap(term.bufnr, "n", "q", "<cmd>close<CR>", { noremap = true, silent = true })
     end,
-  })
+  }
 
   -- Scooter find and replace terminal
-  local scooter = Terminal:new({
+  local scooter = Terminal:new {
     cmd = "scooter",
     hidden = true,
     direction = "vertical",
     on_open = function(term)
-      vim.cmd("startinsert!")
+      vim.cmd "startinsert!"
       vim.api.nvim_buf_set_keymap(term.bufnr, "n", "q", "<cmd>close<CR>", { noremap = true, silent = true })
     end,
-  })
+  }
 
   -- Lazyjournal terminal
-  local lazyjournal = Terminal:new({
+  local lazyjournal = Terminal:new {
     cmd = "lazyjournal",
     hidden = true,
     direction = "float",
     on_open = function(term)
-      vim.cmd("startinsert!")
+      vim.cmd "startinsert!"
       vim.api.nvim_buf_set_keymap(term.bufnr, "n", "q", "<cmd>close<CR>", { noremap = true, silent = true })
     end,
-  })
+  }
 
   -- Mk (make) terminal
-  local mk = Terminal:new({
+  local mk = Terminal:new {
     cmd = "mk",
     hidden = true,
     direction = "vertical",
     on_open = function(term)
-      vim.cmd("startinsert!")
+      vim.cmd "startinsert!"
       vim.api.nvim_buf_set_keymap(term.bufnr, "n", "q", "<cmd>close<CR>", { noremap = true, silent = true })
     end,
-  })
+  }
 
   -- Export toggle functions to module instead of global namespace
   M.claude_toggle = function() claude:toggle() end
-  M.yazi_toggle = function() yazi:toggle() end
+  M.opencode_toggle = function() opencode:toggle() end
   M.scooter_toggle = function() scooter:toggle() end
   M.lazyjournal_toggle = function() lazyjournal:toggle() end
   M.mk_toggle = function() mk:toggle() end
