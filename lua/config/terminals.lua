@@ -37,7 +37,7 @@ function M.setup()
   local opencode = Terminal:new {
     cmd = "opencode",
     hidden = true,
-    direction = "tab",
+    direction = "vertical",
     close_on_exit = true,
     on_open = function(term)
       vim.cmd "startinsert!"
@@ -59,7 +59,7 @@ function M.setup()
   local mk = Terminal:new {
     cmd = "mk -t",
     hidden = true,
-    direction = "vertical",
+    direction = "horizontal",
     on_open = function(term)
       vim.cmd "startinsert!"
       vim.api.nvim_buf_set_keymap(term.bufnr, "n", "q", "<cmd>close<CR>", { noremap = true, silent = true })

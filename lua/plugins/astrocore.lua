@@ -434,13 +434,6 @@ return {
           desc = "Exit terminal and close window",
         },
         -- Exit terminal mode and close window
-        ["<C-c>"] = {
-          function()
-            vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes([[<C-\><C-n>]], true, false, true), "n", false)
-            vim.cmd "close"
-          end,
-          desc = "Exit terminal and close window",
-        },
         ["<C-h>"] = {
           function()
             vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes([[<C-\><C-n><C-w>h]], true, false, true), "n", false)
