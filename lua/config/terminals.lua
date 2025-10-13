@@ -57,9 +57,9 @@ function M.setup()
   }
   -- Mk (make) terminal
   local mk = Terminal:new {
-    cmd = "mk -t",
+    cmd = "task",
     hidden = true,
-    direction = "horizontal",
+    direction = "tab",
     on_open = function(term)
       vim.cmd "startinsert!"
       vim.api.nvim_buf_set_keymap(term.bufnr, "n", "q", "<cmd>close<CR>", { noremap = true, silent = true })
