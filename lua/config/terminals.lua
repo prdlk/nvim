@@ -55,21 +55,9 @@ function M.setup()
       vim.api.nvim_buf_set_keymap(term.bufnr, "n", "q", "<cmd>close<CR>", { noremap = true, silent = true })
     end,
   }
-
-  -- Lazyjournal terminal
-  local lazyjournal = Terminal:new {
-    cmd = "lazyjournal",
-    hidden = true,
-    direction = "float",
-    on_open = function(term)
-      vim.cmd "startinsert!"
-      vim.api.nvim_buf_set_keymap(term.bufnr, "n", "q", "<cmd>close<CR>", { noremap = true, silent = true })
-    end,
-  }
-
   -- Mk (make) terminal
   local mk = Terminal:new {
-    cmd = "mk",
+    cmd = "mk -t",
     hidden = true,
     direction = "vertical",
     on_open = function(term)
@@ -82,7 +70,6 @@ function M.setup()
   M.claude_toggle = function() claude:toggle() end
   M.opencode_toggle = function() opencode:toggle() end
   M.scooter_toggle = function() scooter:toggle() end
-  M.lazyjournal_toggle = function() lazyjournal:toggle() end
   M.mk_toggle = function() mk:toggle() end
 end
 

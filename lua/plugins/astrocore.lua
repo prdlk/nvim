@@ -110,6 +110,7 @@ return {
           function() require("snacks").picker.buffers() end,
           desc = "Find buffers",
         },
+
         ["<C-b><C-c>"] = {
           function()
             local current_buffer = vim.api.nvim_get_current_buf()
@@ -184,6 +185,10 @@ return {
           desc = "Find diagnostics",
         },
         ["<C-f>l"] = {
+          function() require("snacks").picker.lines() end,
+          desc = "Find in line",
+        },
+        ["<C-f>t"] = {
           function() require("snacks").picker.lines() end,
           desc = "Find in line",
         },
@@ -402,6 +407,7 @@ return {
         -- AI/Assistant mappings
         ["<C-a><C-a>"] = { terminals.claude_toggle, desc = "Claude Toggle" },
         ["<C-o><C-o>"] = { terminals.opencode_toggle, desc = "Opencode Toggle" },
+        ["<C-t><C-t>"] = { terminals.mk_toggle, desc = "Taskfile Toggle" },
       },
       i = {
         ["<C-c>"] = { "<Cmd>wa<CR><Cmd>bd<CR><Esc>", desc = "Save, close buffer, and return to normal mode" },
@@ -413,6 +419,7 @@ return {
         ["<C-x>"] = { "<Cmd>w<CR><Cmd>bd<CR>", desc = "Save and close buffer" }, -- Added C-x for visual mode
       },
       t = {
+        ["<C-t><C-t>"] = { terminals.mk_toggle, desc = "Taskfile Toggle" },
         ["<C-e>"] = { "<Cmd>Neotree toggle<CR>", desc = "Open Explorer" },
         ["<C-b>f"] = {
           function() require("snacks").picker.buffers() end,
