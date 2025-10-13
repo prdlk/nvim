@@ -417,6 +417,54 @@ return {
         ["<C-e>"] = { "<Cmd>Neotree toggle<CR>", desc = "Open Explorer" },
         ["<C-c>"] = { "<Cmd>w<CR><Cmd>bd<CR>", desc = "Save and close buffer" }, -- Modified to save and close buffer
         ["<C-x>"] = { "<Cmd>w<CR><Cmd>bd<CR>", desc = "Save and close buffer" }, -- Added C-x for visual mode
+        ["D"] = {
+          function()
+            -- Yank the visual selection to register v
+            vim.cmd 'normal! "vy'
+            local selection = vim.fn.getreg "v"
+
+            -- Escape special regex characters
+            local escaped = vim.fn.escape(selection, [[/\.*$^~[]])
+
+            -- Delete all occurrences in the buffer (e flag suppresses errors if no match)
+            vim.cmd(string.format([[%%s/%s//ge]], escaped))
+
+            -- Show notification of what was deleted
+            vim.notify(string.format("Deleted all occurrences of: %s", selection), vim.log.levels.INFO)
+          end,
+          desc = "Delete all occurrences of selected text",
+        },
+        ["R"] = {
+          function()
+            -- Yank the visual selection to register v
+            vim.cmd 'normal! "vy'
+            local selection = vim.fn.getreg "v"
+
+            -- Escape special regex characters for search pattern
+            local escaped = vim.fn.escape(selection, [[/\.*$^~[]])
+
+            -- Show input prompt using snacks.input
+            require("snacks").input({
+              prompt = string.format("Replace '%s' with:", selection),
+              default = "",
+            }, function(replacement)
+              if replacement then
+                -- Escape special characters for replacement string
+                local escaped_replacement = vim.fn.escape(replacement, [[/\&~]])
+
+                -- Replace all occurrences in the buffer
+                vim.cmd(string.format([[%%s/%s/%s/ge]], escaped, escaped_replacement))
+
+                -- Show notification
+                vim.notify(
+                  string.format("Replaced '%s' with '%s'", selection, replacement),
+                  vim.log.levels.INFO
+                )
+              end
+            end)
+          end,
+          desc = "Replace all occurrences of selected text",
+        },
       },
       t = {
         ["<C-t><C-t>"] = { terminals.mk_toggle, desc = "Taskfile Toggle" },

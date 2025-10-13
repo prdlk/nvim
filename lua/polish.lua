@@ -110,10 +110,6 @@ if ok_overseer then
   }
 end
 
-require("inc_rename").setup {
-  input_buffer_type = "snacks",
-}
-
 require("cyberdream").setup {
   variant = "default", -- use "light" for the light variant. Also accepts "auto" to set dark or light colors based on the current value of `vim.o.background`
   transparent = true,

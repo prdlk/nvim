@@ -22,6 +22,7 @@ return {
   { import = "astrocommunity.pack.tailwindcss" },
   { import = "astrocommunity.pack.typescript-all-in-one" },
   { import = "astrocommunity.pack.yaml" },
+  { import = "astrocommunity.utility.noice-nvim" },
   { import = "astrocommunity.git.octo-nvim" },
   { import = "astrocommunity.bars-and-lines.bufferline-nvim" },
   { import = "astrocommunity.code-runner.overseer-nvim" },
