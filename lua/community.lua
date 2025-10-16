@@ -6,7 +6,6 @@
 return {
   "AstroNvim/astrocommunity",
   version = false, -- Use latest astrocommunity
-  { import = "astrocommunity.ai.opencode-nvim" },
   { import = "astrocommunity.pack.astro" },
   { import = "astrocommunity.pack.bash" },
   { import = "astrocommunity.pack.biome" },

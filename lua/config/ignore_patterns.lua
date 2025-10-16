@@ -46,6 +46,9 @@ M.patterns = {
   "*.work.*",
   "package-lock.json",
   "pnpm-lock.yaml",
+  ".gitattributes",
+  ".oxlintrc.json",
+  "tsconfig*",
 
   -- Temporary and cache files
   "*.tmp",
@@ -196,7 +199,7 @@ M.ignored_directories = {
 --- @return table patterns List of patterns from .rgignore
 function M.read_rgignore()
   local patterns = {}
-  local current_file = vim.fn.expand("%:p")
+  local current_file = vim.fn.expand "%:p"
   local current_dir = vim.fn.fnamemodify(current_file, ":h")
 
   if current_dir == "" then current_dir = vim.fn.getcwd() end
@@ -204,13 +207,13 @@ function M.read_rgignore()
   local git_root =
     vim.fn.systemlist("cd " .. vim.fn.shellescape(current_dir) .. " && git rev-parse --show-toplevel 2>/dev/null")[1]
 
-  if git_root and git_root ~= "" and not git_root:match("^fatal:") then
+  if git_root and git_root ~= "" and not git_root:match "^fatal:" then
     local rgignore_path = git_root .. "/.rgignore"
     local file = io.open(rgignore_path, "r")
 
     if file then
       for line in file:lines() do
-        if line ~= "" and not line:match("^#") then
+        if line ~= "" and not line:match "^#" then
           line = line:gsub("^%./", "")
           table.insert(patterns, line)
         end

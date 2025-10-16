@@ -1,3 +1,1 @@
---- OpenCode integration for Neovim
---- Provides AI-powered code assistance directly within the editor
---- @module plugins.opencode
+
