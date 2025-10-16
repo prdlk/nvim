@@ -201,14 +201,6 @@ return {
       })
     end,
   },
-
-  -- React/JSX snippets and helpers
-  {
-    "dsznajder/vscode-es7-react-js-snippets",
-    build = "yarn install --frozen-lockfile && yarn compile",
-    ft = { "javascript", "typescript", "javascriptreact", "typescriptreact" },
-  },
-
   -- Auto-close and auto-rename JSX tags
   {
     "windwp/nvim-ts-autotag",

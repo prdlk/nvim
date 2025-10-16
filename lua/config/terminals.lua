@@ -33,23 +33,11 @@ function M.setup()
     end,
   }
 
-  -- Yazi file manager terminal
-  local opencode = Terminal:new {
-    cmd = "opencode",
-    hidden = true,
-    direction = "vertical",
-    close_on_exit = true,
-    on_open = function(term)
-      vim.cmd "startinsert!"
-      vim.api.nvim_buf_set_keymap(term.bufnr, "n", "q", "<cmd>close<CR>", { noremap = true, silent = true })
-    end,
-  }
-
   -- Scooter find and replace terminal
   local scooter = Terminal:new {
     cmd = "scooter",
     hidden = true,
-    direction = "vertical",
+    direction = "tab",
     on_open = function(term)
       vim.cmd "startinsert!"
       vim.api.nvim_buf_set_keymap(term.bufnr, "n", "q", "<cmd>close<CR>", { noremap = true, silent = true })
@@ -59,7 +47,17 @@ function M.setup()
   local mk = Terminal:new {
     cmd = "task",
     hidden = true,
-    direction = "tab",
+    direction = "horizontal",
+    on_open = function(term)
+      vim.cmd "startinsert!"
+      vim.api.nvim_buf_set_keymap(term.bufnr, "n", "q", "<cmd>close<CR>", { noremap = true, silent = true })
+    end,
+  }
+  -- Mk (make) terminal
+  local lazygit = Terminal:new {
+    cmd = "lazygit",
+    hidden = true,
+    direction = "float",
     on_open = function(term)
       vim.cmd "startinsert!"
       vim.api.nvim_buf_set_keymap(term.bufnr, "n", "q", "<cmd>close<CR>", { noremap = true, silent = true })
@@ -68,9 +66,9 @@ function M.setup()
 
   -- Export toggle functions to module instead of global namespace
   M.claude_toggle = function() claude:toggle() end
-  M.opencode_toggle = function() opencode:toggle() end
   M.scooter_toggle = function() scooter:toggle() end
   M.mk_toggle = function() mk:toggle() end
+  M.lazygit_toggle = function() lazygit:toggle() end
 end
 
 return M

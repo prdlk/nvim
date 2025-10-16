@@ -152,14 +152,8 @@ return {
           desc = "GH Dash",
         },
         ["<C-g><C-g>"] = {
-          function()
-            require("snacks").terminal("lazygit", {
-              hidden = true,
-              auto_close = true,
-              interactive = true,
-            })
-          end,
-          desc = "Lazygit",
+          terminals.lazygit_toggle,
+          desc = "Lazygit Toggle",
         },
         ["<C-g><C-i>"] = { "<cmd>Octo issue list<CR>", desc = "List Issues" },
         ["<C-g><C-l>"] = { "<cmd>Octo label<CR>", desc = "Manage Labels" },
