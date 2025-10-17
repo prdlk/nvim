@@ -25,7 +25,7 @@ function M.setup()
   local claude = Terminal:new {
     cmd = "claude --dangerously-skip-permissions",
     hidden = true,
-    direction = "tab",
+    direction = "vertical",
     close_on_exit = true,
     on_open = function(term)
       vim.cmd "startinsert!"
