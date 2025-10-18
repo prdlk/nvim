@@ -60,11 +60,8 @@ return {
       config = {
         yamlls = {
           on_new_config = function(config)
-            config.settings.yaml.schemas = vim.tbl_deep_extend(
-              "force",
-              config.settings.yaml.schemas or {},
-              require("schemastore").yaml.schemas()
-            )
+            config.settings.yaml.schemas =
+              vim.tbl_deep_extend("force", config.settings.yaml.schemas or {}, require("schemastore").yaml.schemas())
           end,
           settings = {
             yaml = {
@@ -185,30 +182,6 @@ return {
       }
     end,
   },
-
-  -- REST client for testing Workers/APIs
-  {
-    "rest-nvim/rest.nvim",
-    ft = "http",
-    dependencies = { "nvim-lua/plenary.nvim" },
-    opts = {
-      result_split_horizontal = false,
-      skip_ssl_verification = false,
-      encode_url = true,
-      highlight = {
-        enabled = true,
-        timeout = 150,
-      },
-      result = {
-        show_url = true,
-        show_curl_command = true,
-        show_http_info = true,
-        show_headers = true,
-      },
-      jump_to_request = false,
-    },
-  },
-
   -- Seamless navigation between build errors
   {
     "folke/trouble.nvim",
