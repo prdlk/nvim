@@ -151,6 +151,10 @@ return {
           end,
           desc = "GH Dash",
         },
+        ["<C-g><C-c>"] = {
+          terminals.smartCommit_toggle,
+          desc = "SmartCommit Toggle",
+        },
         ["<C-g><C-g>"] = {
           terminals.lazygit_toggle,
           desc = "Lazygit Toggle",
