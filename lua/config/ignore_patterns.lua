@@ -9,6 +9,7 @@ local M = {}
 --- These patterns use glob syntax (* for wildcards)
 M.patterns = {
   -- Build artifacts and generated files
+  ".github",
   "chain_*.json",
   "*.pb.go",
   "*.pkl.go",
