@@ -167,6 +167,25 @@ return {
             -- These Find keybindings are defined in astrocore.lua
             -- NeoTree only needs the basic navigation and terminal bindings
             -- Mappings for Mason and formatting
+            ["N"] = function(state)
+              local node = state.tree:get_node()
+              local path = node.type == "directory" and node.path or vim.fn.fnamemodify(node.path, ":h")
+
+              -- Check if running on Arch Linux
+              local is_arch = vim.fn.filereadable("/etc/arch-release") == 1
+
+              if is_arch then
+                -- Use uwsm to launch alacritty with yazi on Arch Linux
+                vim.fn.jobstart(string.format("uwsm app -- alacritty --working-directory %s -e yazi", vim.fn.shellescape(path)), {
+                  detach = true,
+                })
+              else
+                -- Fallback to direct alacritty launch with yazi on other systems
+                vim.fn.jobstart(string.format("alacritty --working-directory %s -e yazi", vim.fn.shellescape(path)), {
+                  detach = true,
+                })
+              end
+            end,
           },
           header = {
             highlight = "NeoTreeHeader",

@@ -8,7 +8,6 @@ return {
   version = false, -- Use latest astrocommunity
   { import = "astrocommunity.pack.astro" },
   { import = "astrocommunity.pack.bash" },
-  { import = "astrocommunity.pack.biome" },
   { import = "astrocommunity.pack.chezmoi" },
   { import = "astrocommunity.pack.lua" },
   { import = "astrocommunity.pack.markdown" },
@@ -18,7 +17,6 @@ return {
   { import = "astrocommunity.pack.golangci-lint" },
   { import = "astrocommunity.pack.html-css" },
   { import = "astrocommunity.pack.oxlint" },
-  { import = "astrocommunity.pack.prettier" },
   { import = "astrocommunity.pack.toml" },
   { import = "astrocommunity.pack.templ" },
   { import = "astrocommunity.pack.tailwindcss" },
@@ -26,7 +24,6 @@ return {
   { import = "astrocommunity.pack.yaml" },
   { import = "astrocommunity.utility.noice-nvim" },
   { import = "astrocommunity.git.octo-nvim" },
-  { import = "astrocommunity.programming-langauge-support.kuala-nvim" },
   { import = "astrocommunity.bars-and-lines.bufferline-nvim" },
   { import = "astrocommunity.code-runner.overseer-nvim" },
   { import = "astrocommunity.completion.supermaven-nvim" },

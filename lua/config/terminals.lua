@@ -20,18 +20,6 @@ function M.setup()
   end
 
   local Terminal = require("toggleterm.terminal").Terminal
-
-  -- Claude terminal configuration
-  local claude = Terminal:new {
-    cmd = "claude --dangerously-skip-permissions",
-    hidden = true,
-    direction = "vertical",
-    close_on_exit = true,
-    on_open = function(term)
-      vim.cmd "startinsert!"
-      vim.api.nvim_buf_set_keymap(term.bufnr, "n", "q", "<cmd>close<CR>", { noremap = true, silent = true })
-    end,
-  }
   -- Scooter find and replace terminal
   local smartCommit = Terminal:new {
     cmd = "smartcommit",
@@ -79,7 +67,6 @@ function M.setup()
   }
 
   -- Export toggle functions to module instead of global namespace
-  M.claude_toggle = function() claude:toggle() end
   M.scooter_toggle = function() scooter:toggle() end
   M.mk_toggle = function() mk:toggle() end
   M.lazygit_toggle = function() lazygit:toggle() end

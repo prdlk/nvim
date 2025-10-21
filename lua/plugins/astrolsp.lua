@@ -43,11 +43,10 @@ return {
           "lua",
         },
       },
-      -- Disable LSP formatting for these (use conform.nvim/biome instead)
+      -- Disable LSP formatting for these (use conform.nvim/oxfmt instead)
       disabled = {
-        "tsserver", -- Use biome/prettier via conform
-        "vtsls", -- Use biome/prettier via conform
-        "eslint", -- Diagnostics only, not formatting
+        "tsserver", -- Use oxfmt via conform
+        "vtsls", -- Use oxfmt via conform
         "html", -- Use conform
         "cssls", -- Use conform
         "tailwindcss", -- Doesn't format
@@ -175,19 +174,6 @@ return {
             },
           },
         },
-      },
-
-      -- ESLint configuration
-      eslint = {
-        settings = {
-          workingDirectories = { mode = "auto" },
-          format = false, -- Don't use ESLint for formatting
-        },
-        on_attach = function(client, bufnr)
-          -- Disable formatting capability (use conform.nvim)
-          client.server_capabilities.documentFormattingProvider = false
-          client.server_capabilities.documentRangeFormattingProvider = false
-        end,
       },
 
       -- Tailwind for React components

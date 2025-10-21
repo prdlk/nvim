@@ -74,15 +74,6 @@ return {
         html = {
           filetypes = { "html", "typescriptreact", "javascriptreact" },
         },
-        -- ESLint LSP
-        eslint = {
-          settings = {
-            workingDirectories = { mode = "auto" },
-            experimental = {
-              useFlatConfig = true,
-            },
-          },
-        },
       },
     },
   },
@@ -196,7 +187,6 @@ return {
         "tailwindcss",
         "cssls",
         "html",
-        "eslint",
         "jsonls",
       })
     end,

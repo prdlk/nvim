@@ -1,5 +1,5 @@
 --- Linting and formatting configuration
---- Includes oxlint, prettier, and ESLint integration
+--- Includes oxlint and oxfmt integration
 --- @module plugins.linting
 
 return {
@@ -10,17 +10,17 @@ return {
     cmd = { "ConformInfo" },
     opts = {
       formatters_by_ft = {
-        typescript = { "prettier" },
-        typescriptreact = { "prettier" },
-        javascript = { "prettier" },
-        javascriptreact = { "prettier" },
-        json = { "prettier" },
-        jsonc = { "prettier" },
-        css = { "prettier" },
-        scss = { "prettier" },
-        html = { "prettier" },
-        markdown = { "prettier" },
-        yaml = { "prettier" },
+        typescript = { "oxfmt" },
+        typescriptreact = { "oxfmt" },
+        javascript = { "oxfmt" },
+        javascriptreact = { "oxfmt" },
+        json = { "oxfmt" },
+        jsonc = { "oxfmt" },
+        css = { "oxfmt" },
+        scss = { "oxfmt" },
+        html = { "oxfmt" },
+        markdown = { "oxfmt" },
+        yaml = { "oxfmt" },
         lua = { "stylua" },
         rust = { "rustfmt" },
         toml = { "taplo" },
@@ -34,11 +34,7 @@ return {
         }
       end,
       formatters = {
-        prettier = {
-          prepend_args = {
-            "--plugin=prettier-plugin-tailwindcss",
-          },
-        },
+        -- oxfmt uses default configuration
       },
     },
     config = function(_, opts)
@@ -136,15 +132,13 @@ return {
     opts = {
       ensure_installed = {
         -- Formatters
-        "prettier",
         "stylua",
         "rustfmt",
         "taplo",
         -- Linters
-        "eslint_d",
         "stylelint",
         "markdownlint",
-        -- Note: oxlint should be installed via cargo/npm separately
+        -- Note: oxlint and oxfmt should be installed via cargo/npm separately
       },
       auto_update = false,
       run_on_start = true,

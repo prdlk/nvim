@@ -403,7 +403,6 @@ return {
           desc = "Find Service files",
         },
         -- AI/Assistant mappings
-        ["<C-a><C-a>"] = { terminals.claude_toggle, desc = "Claude Toggle" },
         ["<C-t><C-t>"] = { terminals.mk_toggle, desc = "Taskfile Toggle" },
       },
       i = {
