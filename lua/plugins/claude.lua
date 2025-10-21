@@ -1,24 +1,39 @@
 return {
   "coder/claudecode.nvim",
   dependencies = { "folke/snacks.nvim" },
-  config = true,
+  config = function()
+    require("claudecode").setup()
+
+    -- Helper function to get git root and change directory
+    local function ensure_git_root()
+      local git_root = vim.fn.systemlist("git rev-parse --show-toplevel")[1]
+      if git_root and vim.v.shell_error == 0 then
+        vim.api.nvim_set_current_dir(git_root)
+      end
+    end
+
+    -- Wrapper function to run commands at git root
+    _G.claude_at_root = function(cmd)
+      return function()
+        ensure_git_root()
+        vim.cmd(cmd)
+      end
+    end
+
+    -- Create autocommand to ensure we're at git root when opening Claude Code
+    vim.api.nvim_create_autocmd("User", {
+      pattern = "ClaudeCodeOpen",
+      callback = ensure_git_root,
+      desc = "Change to git root when opening Claude Code",
+    })
+  end,
+  -- Filetype-specific keybindings (kept here since they require ft detection)
   keys = {
-    { "<C-a>", nil, desc = "AI/Claude Code" },
-    { "<C-a><C-a>", "<cmd>ClaudeCode<cr>", desc = "Toggle Claude" },
-    { "<C-a>f", "<cmd>ClaudeCodeFocus<cr>", desc = "Focus Claude" },
-    { "<C-a>C", "<cmd>ClaudeCode --resume<cr>", desc = "Resume Claude" },
-    { "<C-a>c", "<cmd>ClaudeCode --continue<cr>", desc = "Continue Claude" },
-    { "<C-a>m", "<cmd>ClaudeCodeSelectModel<cr>", desc = "Select Claude model" },
-    { "<C-a>b", "<cmd>ClaudeCodeAdd %<cr>", desc = "Add current buffer" },
-    { "<C-a>", "<cmd>ClaudeCodeSend<cr>", mode = "v", desc = "Send to Claude" },
     {
       "<C-a>",
       "<cmd>ClaudeCodeTreeAdd<cr>",
-      desc = "Add file",
+      desc = "Add file from explorer",
       ft = { "NvimTree", "neo-tree", "oil", "minifiles", "netrw" },
     },
-    -- Diff management
-    { "<C-a>y", "<cmd>ClaudeCodeDiffAccept<cr>", desc = "Accept diff" },
-    { "<C-a>n", "<cmd>ClaudeCodeDiffDeny<cr>", desc = "Deny diff" },
   },
 }

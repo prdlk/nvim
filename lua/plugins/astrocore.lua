@@ -402,7 +402,17 @@ return {
           end,
           desc = "Find Service files",
         },
-        -- AI/Assistant mappings
+        -- AI/Assistant mappings (Claude Code)
+        ["<C-a>"] = { nil, desc = "AI/Claude Code" },
+        ["<C-a><C-a>"] = { function() _G.claude_at_root("ClaudeCode")() end, desc = "Toggle Claude" },
+        ["<C-a>f"] = { function() _G.claude_at_root("ClaudeCodeFocus")() end, desc = "Focus Claude" },
+        ["<C-a>C"] = { function() _G.claude_at_root("ClaudeCode --resume")() end, desc = "Resume Claude" },
+        ["<C-a>c"] = { function() _G.claude_at_root("ClaudeCode --continue")() end, desc = "Continue Claude" },
+        ["<C-a>m"] = { "<cmd>ClaudeCodeSelectModel<cr>", desc = "Select Claude model" },
+        ["<C-a>b"] = { "<cmd>ClaudeCodeAdd %<cr>", desc = "Add current buffer" },
+        ["<C-a>y"] = { "<cmd>ClaudeCodeDiffAccept<cr>", desc = "Accept diff" },
+        ["<C-a>n"] = { "<cmd>ClaudeCodeDiffDeny<cr>", desc = "Deny diff" },
+        -- Taskfile
         ["<C-t><C-t>"] = { terminals.mk_toggle, desc = "Taskfile Toggle" },
       },
       i = {
@@ -413,6 +423,8 @@ return {
         ["<C-e>"] = { "<Cmd>Neotree toggle<CR>", desc = "Open Explorer" },
         ["<C-c>"] = { "<Cmd>w<CR><Cmd>bd<CR>", desc = "Save and close buffer" }, -- Modified to save and close buffer
         ["<C-x>"] = { "<Cmd>w<CR><Cmd>bd<CR>", desc = "Save and close buffer" }, -- Added C-x for visual mode
+        -- Claude Code visual mode
+        ["<C-a>"] = { "<cmd>ClaudeCodeSend<cr>", desc = "Send to Claude" },
         ["D"] = {
           function()
             -- Yank the visual selection to register v
