@@ -2,8 +2,8 @@
 --- @module plugins.neotree
 
 -- Import shared modules
-local ignore_patterns = require("config.ignore_patterns")
-local terminals = require("config.terminals")
+local ignore_patterns = require "config.ignore_patterns"
+local terminals = require "config.terminals"
 
 return {
   {
@@ -28,7 +28,7 @@ return {
       local hide_patterns = ignore_patterns.get_all_patterns()
 
       -- Setup LSP file operations integration
-      local events = require("neo-tree.events")
+      local events = require "neo-tree.events"
 
       return {
         -- LSP file operation event handlers for refactoring support
@@ -52,25 +52,25 @@ return {
           {
             event = events.BEFORE_FILE_MOVE,
             handler = function(args)
-              require("astrolsp.file_operations").willRenameFiles({ from = args.source, to = args.destination })
+              require("astrolsp.file_operations").willRenameFiles { from = args.source, to = args.destination }
             end,
           },
           {
             event = events.BEFORE_FILE_RENAME,
             handler = function(args)
-              require("astrolsp.file_operations").willRenameFiles({ from = args.source, to = args.destination })
+              require("astrolsp.file_operations").willRenameFiles { from = args.source, to = args.destination }
             end,
           },
           {
             event = events.FILE_MOVED,
             handler = function(args)
-              require("astrolsp.file_operations").didRenameFiles({ from = args.source, to = args.destination })
+              require("astrolsp.file_operations").didRenameFiles { from = args.source, to = args.destination }
             end,
           },
           {
             event = events.FILE_RENAMED,
             handler = function(args)
-              require("astrolsp.file_operations").didRenameFiles({ from = args.source, to = args.destination })
+              require("astrolsp.file_operations").didRenameFiles { from = args.source, to = args.destination }
             end,
           },
         },
@@ -98,7 +98,7 @@ return {
               vim.defer_fn(function()
                 local new_patterns = ignore_patterns.get_all_patterns()
                 require("neo-tree").config.filesystem.filtered_items.hide_by_pattern = new_patterns
-                require("neo-tree.sources.manager").refresh("filesystem")
+                require("neo-tree.sources.manager").refresh "filesystem"
               end, 50)
             end,
             ["<bs>"] = "toggle_hidden",
@@ -172,13 +172,16 @@ return {
               local path = node.type == "directory" and node.path or vim.fn.fnamemodify(node.path, ":h")
 
               -- Check if running on Arch Linux
-              local is_arch = vim.fn.filereadable("/etc/arch-release") == 1
+              local is_arch = vim.fn.filereadable "/etc/arch-release" == 1
 
               if is_arch then
                 -- Use uwsm to launch alacritty with yazi on Arch Linux
-                vim.fn.jobstart(string.format("uwsm app -- alacritty --working-directory %s -e yazi", vim.fn.shellescape(path)), {
-                  detach = true,
-                })
+                vim.fn.jobstart(
+                  string.format("uwsm app -- alacritty --working-directory %s -e yazi", vim.fn.shellescape(path)),
+                  {
+                    detach = true,
+                  }
+                )
               else
                 -- Fallback to direct alacritty launch with yazi on other systems
                 vim.fn.jobstart(string.format("alacritty --working-directory %s -e yazi", vim.fn.shellescape(path)), {
@@ -200,7 +203,7 @@ return {
             padding = 1, -- extra padding on left hand side
             -- indent guides
             with_markers = true,
-            indent_marker = "│",
+            indent_marker = "",
             last_indent_marker = "└",
             highlight = "NeoTreeIndentMarker",
             -- expander config, needed for nesting files
@@ -268,7 +271,7 @@ return {
               -- Re-read patterns when navigating
               local new_patterns = ignore_patterns.get_all_patterns()
               state.filtered_items.hide_by_pattern = new_patterns
-              require("neo-tree.sources.manager").refresh("filesystem")
+              require("neo-tree.sources.manager").refresh "filesystem"
             end,
             -- If item is a file it will close neotree after opening it.
             open_and_close_neotree = function(state)

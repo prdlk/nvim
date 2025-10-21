@@ -18,7 +18,7 @@ return {
         close_command = function(n) require("astrocore.buffer").close(n) end,
         right_mouse_command = function(n) require("astrocore.buffer").close(n) end,
         separator_style = "thick",
-        indicator = { style = "icon", icon = "▎" },
+        indicator = { style = "none", icon = "" },
         diagnostics = "nvim_lsp",
         diagnostics_indicator = function(_, _, diagnostics_dict)
           local s = " "
