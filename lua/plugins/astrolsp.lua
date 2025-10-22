@@ -1,4 +1,5 @@
---- AstroLSP configuration optimized for tech stack:
+--- Comprehensive LSP, formatting, and linting configuration
+--- Optimized for tech stack:
 --- - Cloudflare Workers/Pages
 --- - Golang (Cosmos SDK)
 --- - TypeScript/React/Vite
@@ -7,9 +8,13 @@
 --- @module plugins.astrolsp
 
 return {
-  "AstroNvim/astrolsp",
-  ---@type AstroLSPOpts
-  opts = {
+  -- ============================================================================
+  -- AstroLSP - Core LSP Configuration
+  -- ============================================================================
+  {
+    "AstroNvim/astrolsp",
+    ---@type AstroLSPOpts
+    opts = {
     -- Enable LSP features
     features = {
       autoformat = true,
@@ -176,8 +181,17 @@ return {
         },
       },
 
-      -- Tailwind for React components
+      -- Volar for Vue (also helpful for some React scenarios)
+      volar = {
+        filetypes = { "vue", "typescript", "javascript", "typescriptreact", "javascriptreact" },
+      },
+
+      -- Tailwind CSS for React/shadcn components
       tailwindcss = {
+        root_dir = function(fname)
+          local util = require "lspconfig.util"
+          return util.root_pattern("tailwind.config.js", "tailwind.config.ts", "postcss.config.js")(fname)
+        end,
         settings = {
           tailwindCSS = {
             experimental = {
@@ -202,8 +216,12 @@ return {
         },
       },
 
+      -- CSS LSP
+      cssls = {},
+
       -- HTML for React/templates
       html = {
+        filetypes = { "html", "typescriptreact", "javascriptreact" },
         settings = {
           html = {
             format = {
@@ -377,6 +395,370 @@ return {
             end
           end,
         },
+      },
+    },
+  },
+
+  -- ============================================================================
+  -- Formatting - Conform.nvim
+  -- ============================================================================
+  {
+    "stevearc/conform.nvim",
+    event = "BufWritePre",
+    cmd = { "ConformInfo" },
+    opts = {
+      formatters_by_ft = {
+        typescript = { "oxfmt" },
+        typescriptreact = { "oxfmt" },
+        javascript = { "oxfmt" },
+        javascriptreact = { "oxfmt" },
+        json = { "oxfmt" },
+        jsonc = { "oxfmt" },
+        css = { "oxfmt" },
+        scss = { "oxfmt" },
+        html = { "oxfmt" },
+        markdown = { "oxfmt" },
+        yaml = { "oxfmt" },
+        lua = { "stylua" },
+        rust = { "rustfmt" },
+        toml = { "taplo" },
+      },
+      format_on_save = function(bufnr)
+        -- Disable with a global or buffer-local variable
+        if vim.g.disable_autoformat or vim.b[bufnr].disable_autoformat then return end
+        return {
+          timeout_ms = 500,
+          lsp_fallback = true,
+        }
+      end,
+      formatters = {
+        -- oxfmt uses default configuration
+      },
+    },
+    config = function(_, opts)
+      require("conform").setup(opts)
+
+      -- Command to toggle format on save
+      vim.api.nvim_create_user_command("FormatToggle", function(args)
+        if args.bang then
+          -- Toggle buffer-local setting
+          vim.b.disable_autoformat = not vim.b.disable_autoformat
+        else
+          -- Toggle global setting
+          vim.g.disable_autoformat = not vim.g.disable_autoformat
+        end
+        local status = vim.g.disable_autoformat and "disabled" or "enabled"
+        vim.notify("Format on save " .. status, vim.log.levels.INFO)
+      end, {
+        desc = "Toggle format on save",
+        bang = true,
+      })
+    end,
+  },
+
+  -- ============================================================================
+  -- Linting - nvim-lint
+  -- ============================================================================
+  {
+    "mfussenegger/nvim-lint",
+    event = { "BufReadPre", "BufNewFile" },
+    config = function()
+      local lint = require "lint"
+
+      -- Configure oxlint for TypeScript/JavaScript
+      lint.linters.oxlint = {
+        cmd = "oxlint",
+        stdin = false,
+        args = {
+          "--format=json",
+        },
+        stream = "stdout",
+        ignore_exitcode = true,
+        parser = function(output)
+          if output == "" or output == nil then return {} end
+
+          local ok, decoded = pcall(vim.fn.json_decode, output)
+          if not ok then return {} end
+
+          local diagnostics = {}
+          for _, item in ipairs(decoded) do
+            if item.diagnostics then
+              for _, diagnostic in ipairs(item.diagnostics) do
+                table.insert(diagnostics, {
+                  lnum = diagnostic.start.line - 1,
+                  end_lnum = diagnostic["end"].line - 1,
+                  col = diagnostic.start.column - 1,
+                  end_col = diagnostic["end"].column - 1,
+                  severity = vim.diagnostic.severity.WARN,
+                  source = "oxlint",
+                  message = diagnostic.message,
+                  code = diagnostic.rule_id,
+                })
+              end
+            end
+          end
+          return diagnostics
+        end,
+      }
+
+      -- Configure linters per filetype
+      lint.linters_by_ft = {
+        typescript = { "oxlint" },
+        typescriptreact = { "oxlint" },
+        javascript = { "oxlint" },
+        javascriptreact = { "oxlint" },
+        css = { "stylelint" },
+        scss = { "stylelint" },
+        markdown = { "markdownlint" },
+      }
+
+      -- Auto-lint on save and text changed
+      local lint_augroup = vim.api.nvim_create_augroup("lint", { clear = true })
+      vim.api.nvim_create_autocmd({ "BufEnter", "BufWritePost", "InsertLeave", "TextChanged" }, {
+        group = lint_augroup,
+        callback = function()
+          -- Only lint if file exists on disk
+          if vim.fn.filereadable(vim.api.nvim_buf_get_name(0)) == 1 then lint.try_lint() end
+        end,
+      })
+    end,
+  },
+
+  -- ============================================================================
+  -- Treesitter Configuration
+  -- ============================================================================
+  {
+    "nvim-treesitter/nvim-treesitter",
+    optional = true,
+    opts = function(_, opts)
+      if opts.ensure_installed ~= "all" then
+        opts.ensure_installed = require("astrocore").list_insert_unique(opts.ensure_installed, {
+          "typescript",
+          "tsx",
+          "javascript",
+          "jsdoc",
+          "json",
+          "jsonc",
+          "css",
+          "scss",
+          "html",
+          "markdown",
+          "markdown_inline",
+          "regex",
+          "bash",
+          "vim",
+          "lua",
+        })
+      end
+    end,
+  },
+
+  -- Treesitter context for React component awareness
+  {
+    "nvim-treesitter/nvim-treesitter-context",
+    event = { "BufReadPost", "BufNewFile" },
+    opts = {
+      enable = true,
+      max_lines = 3,
+      patterns = {
+        default = {
+          "class",
+          "function",
+          "method",
+          "for",
+          "while",
+          "if",
+          "switch",
+          "case",
+          "interface",
+          "struct",
+          "enum",
+        },
+        typescript = {
+          "class_declaration",
+          "abstract_class_declaration",
+          "function_declaration",
+          "method_definition",
+          "arrow_function",
+          "function_expression",
+          "lexical_declaration",
+          "variable_declaration",
+        },
+        typescriptreact = {
+          "class_declaration",
+          "function_declaration",
+          "method_definition",
+          "arrow_function",
+          "function_expression",
+          "jsx_element",
+          "jsx_self_closing_element",
+        },
+      },
+    },
+  },
+
+  -- ============================================================================
+  -- TypeScript Tooling
+  -- ============================================================================
+  {
+    "pmizio/typescript-tools.nvim",
+    ft = { "typescript", "typescriptreact", "javascript", "javascriptreact" },
+    dependencies = { "nvim-lua/plenary.nvim", "neovim/nvim-lspconfig" },
+    opts = {
+      settings = {
+        separate_diagnostic_server = true,
+        publish_diagnostic_on = "insert_leave",
+        expose_as_code_action = "all",
+        tsserver_file_preferences = {
+          includeInlayParameterNameHints = "all",
+          includeInlayParameterNameHintsWhenArgumentMatchesName = true,
+          includeInlayFunctionParameterTypeHints = true,
+          includeInlayVariableTypeHints = true,
+          includeInlayVariableTypeHintsWhenTypeMatchesName = true,
+          includeInlayPropertyDeclarationTypeHints = true,
+          includeInlayFunctionLikeReturnTypeHints = true,
+          includeInlayEnumMemberValueHints = true,
+        },
+        tsserver_format_options = {
+          allowIncompleteCompletions = false,
+          allowRenameOfImportPath = true,
+        },
+      },
+    },
+  },
+
+  -- Auto-close and auto-rename JSX tags
+  {
+    "windwp/nvim-ts-autotag",
+    event = { "BufReadPost", "BufNewFile" },
+    ft = {
+      "html",
+      "javascript",
+      "typescript",
+      "javascriptreact",
+      "typescriptreact",
+      "xml",
+      "vue",
+      "svelte",
+    },
+    opts = {
+      autotag = {
+        enable = true,
+        enable_rename = true,
+        enable_close = true,
+        enable_close_on_slash = true,
+      },
+    },
+  },
+
+  -- ============================================================================
+  -- Mason Configuration
+  -- ============================================================================
+  {
+    "williamboman/mason-lspconfig.nvim",
+    optional = true,
+    opts = function(_, opts)
+      opts.ensure_installed = require("astrocore").list_insert_unique(opts.ensure_installed, {
+        "tsserver",
+        "tailwindcss",
+        "cssls",
+        "html",
+        "jsonls",
+      })
+    end,
+  },
+
+  -- Mason tool installer for linters/formatters
+  {
+    "WhoIsSethDaniel/mason-tool-installer.nvim",
+    dependencies = { "williamboman/mason.nvim" },
+    cmd = { "MasonToolsInstall", "MasonToolsUpdate" },
+    opts = {
+      ensure_installed = {
+        -- Formatters
+        "stylua",
+        "rustfmt",
+        "taplo",
+        -- Linters
+        "stylelint",
+        "markdownlint",
+        -- Note: oxlint and oxfmt should be installed via cargo/npm separately
+      },
+      auto_update = false,
+      run_on_start = true,
+    },
+  },
+
+  -- ============================================================================
+  -- Package Management Tools
+  -- ============================================================================
+  {
+    "vuki656/package-info.nvim",
+    event = "BufRead package.json",
+    dependencies = { "MunifTanjim/nui.nvim" },
+    opts = {},
+  },
+
+  -- Crates.io integration (useful for Rust tooling in Workers)
+  {
+    "saecki/crates.nvim",
+    event = "BufRead Cargo.toml",
+    dependencies = { "nvim-lua/plenary.nvim" },
+    opts = {
+      lsp = {
+        enabled = true,
+        actions = true,
+        completion = true,
+        hover = true,
+      },
+    },
+  },
+
+  -- ============================================================================
+  -- Diagnostics UI
+  -- ============================================================================
+  {
+    "folke/trouble.nvim",
+    optional = true,
+    opts = {
+      modes = {
+        lsp = {
+          win = { position = "right" },
+        },
+      },
+    },
+  },
+
+  -- Inline linting hints
+  {
+    "https://git.sr.ht/~whynothugo/lsp_lines.nvim",
+    event = { "BufReadPost", "BufNewFile" },
+    config = function()
+      require("lsp_lines").setup()
+      -- Disable virtual_text since lsp_lines will show diagnostics
+      vim.diagnostic.config { virtual_text = false }
+
+      -- Toggle command
+      vim.api.nvim_create_user_command("LspLinesToggle", function()
+        local new_value = not require("lsp_lines").toggle()
+        vim.diagnostic.config { virtual_text = new_value }
+      end, { desc = "Toggle LSP lines" })
+    end,
+  },
+
+  -- Better quickfix for showing lint errors
+  {
+    "kevinhwang91/nvim-bqf",
+    ft = "qf",
+    opts = {
+      auto_resize_height = true,
+      func_map = {
+        vsplit = "v",
+        split = "s",
+        tab = "t",
+        tabb = "T",
+        tabc = "<C-t>",
+        ptogglemode = "z,",
       },
     },
   },

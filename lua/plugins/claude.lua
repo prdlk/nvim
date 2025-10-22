@@ -1,3 +1,8 @@
+--- Claude Code integration for AI-powered development
+--- Provides commands and keybindings for Claude Code assistant
+--- @module plugins.claude
+
+---@type LazySpec
 return {
   "coder/claudecode.nvim",
   dependencies = { "folke/snacks.nvim" },

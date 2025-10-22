@@ -2,6 +2,7 @@
 --- Provides enhanced buffer/tab management with diagnostics and custom close handlers
 --- @module plugins.bufferline
 
+---@type LazySpec
 return {
   "akinsho/bufferline.nvim",
   version = "*",

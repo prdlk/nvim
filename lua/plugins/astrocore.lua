@@ -94,6 +94,7 @@ return {
       -- first key is the mode
       n = {
         ["<C-!>"] = { "<Cmd>suspend<CR>", desc = "Suspend nvim (return with 'fg')" },
+        ["<C-q>Q"] = { "<Cmd>wqa<CR>", desc = "Save all buffers and quit Neovim" },
         -- navigate buffer tabs
         ["<C-c>"] = { "<Cmd>wa<CR><Cmd>bd<CR>", desc = "Save and close buffer" }, -- Added C-x to save and close buffer
         ["F"] = { "za", desc = "Toggle fold under cursor" },
@@ -412,8 +413,90 @@ return {
         ["<C-a>b"] = { "<cmd>ClaudeCodeAdd %<cr>", desc = "Add current buffer" },
         ["<C-a>y"] = { "<cmd>ClaudeCodeDiffAccept<cr>", desc = "Accept diff" },
         ["<C-a>n"] = { "<cmd>ClaudeCodeDiffDeny<cr>", desc = "Deny diff" },
+        ["<C-a><C-t>"] = { "<cmd>TemplateSnacks<cr>", desc = "Open template picker" },
         -- Taskfile
         ["<C-t><C-t>"] = { terminals.mk_toggle, desc = "Taskfile Toggle" },
+        -- UI Toggles with Snacks
+        ["<leader>u"] = { desc = "UI Toggles" },
+        ["<leader>ud"] = {
+          function() require("snacks").toggle.diagnostics():toggle() end,
+          desc = "Toggle Diagnostics",
+        },
+        ["<leader>un"] = {
+          function() require("snacks").toggle.line_number():toggle() end,
+          desc = "Toggle Line Numbers",
+        },
+        ["<leader>ur"] = {
+          function() require("snacks").toggle.option("relativenumber"):toggle() end,
+          desc = "Toggle Relative Numbers",
+        },
+        ["<leader>uw"] = {
+          function() require("snacks").toggle.option("wrap"):toggle() end,
+          desc = "Toggle Line Wrap",
+        },
+        ["<leader>us"] = {
+          function() require("snacks").toggle.option("spell"):toggle() end,
+          desc = "Toggle Spelling",
+        },
+        ["<leader>ui"] = {
+          function() require("snacks").toggle.inlay_hints():toggle() end,
+          desc = "Toggle Inlay Hints",
+        },
+        ["<leader>ut"] = {
+          function() require("snacks").toggle.treesitter():toggle() end,
+          desc = "Toggle Treesitter",
+        },
+        ["<leader>uc"] = {
+          function() require("snacks").toggle.option("conceallevel", { off = 0, on = 2 }):toggle() end,
+          desc = "Toggle Conceal",
+        },
+        ["<leader>uI"] = {
+          function() require("snacks").toggle.indent():toggle() end,
+          desc = "Toggle Indent Guides",
+        },
+        ["<leader>uz"] = {
+          function() require("snacks").toggle.zen():toggle() end,
+          desc = "Toggle Zen Mode",
+        },
+        ["<leader>uZ"] = {
+          function() require("snacks").toggle.zoom():toggle() end,
+          desc = "Toggle Zoom",
+        },
+        ["<leader>ua"] = {
+          function() require("snacks").toggle.animate():toggle() end,
+          desc = "Toggle Animations",
+        },
+        ["<leader>uS"] = {
+          function() require("snacks").toggle.scroll():toggle() end,
+          desc = "Toggle Smooth Scroll",
+        },
+        ["<leader>up"] = {
+          function() require("snacks").toggle.profiler():toggle() end,
+          desc = "Toggle Profiler",
+        },
+        ["<leader>uh"] = {
+          function() require("snacks").toggle.profiler_highlights():toggle() end,
+          desc = "Toggle Profiler Highlights",
+        },
+        ["<leader>ux"] = {
+          function() require("snacks").toggle.dim():toggle() end,
+          desc = "Toggle Dim Inactive",
+        },
+        ["<leader>uf"] = {
+          function()
+            vim.g.disable_autoformat = not vim.g.disable_autoformat
+            local status = vim.g.disable_autoformat and "disabled" or "enabled"
+            vim.notify("Format on save " .. status, vim.log.levels.INFO)
+          end,
+          desc = "Toggle Format on Save",
+        },
+        ["<leader>ul"] = {
+          function()
+            local new_value = not require("lsp_lines").toggle()
+            vim.diagnostic.config { virtual_text = new_value }
+          end,
+          desc = "Toggle LSP Lines",
+        },
       },
       i = {
         ["<C-c>"] = { "<Cmd>wa<CR><Cmd>bd<CR><Esc>", desc = "Save, close buffer, and return to normal mode" },

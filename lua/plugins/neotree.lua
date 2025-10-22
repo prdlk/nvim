@@ -5,6 +5,7 @@
 local ignore_patterns = require "config.ignore_patterns"
 local terminals = require "config.terminals"
 
+---@type LazySpec
 return {
   {
     "neo-tree.nvim",
@@ -65,12 +66,14 @@ return {
             event = events.FILE_MOVED,
             handler = function(args)
               require("astrolsp.file_operations").didRenameFiles { from = args.source, to = args.destination }
+              require("snacks").rename.on_rename_file(args.source, args.destination)
             end,
           },
           {
             event = events.FILE_RENAMED,
             handler = function(args)
               require("astrolsp.file_operations").didRenameFiles { from = args.source, to = args.destination }
+              require("snacks").rename.on_rename_file(args.source, args.destination)
             end,
           },
         },

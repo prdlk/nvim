@@ -2,6 +2,7 @@
 --- Includes support for bun, vite, and modern JS tooling
 --- @module plugins.buildtools
 
+---@type LazySpec
 return {
   -- Vim support for various config files
   {
