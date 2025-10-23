@@ -73,6 +73,39 @@ return {
       virtual_text = true,
       underline = true,
     },
+
+    -- Autocmds can be configured here
+    autocmds = {
+      -- Custom title formatting for ghq repos
+      custom_title = {
+        {
+          event = { "BufEnter", "DirChanged" },
+          desc = "Update terminal title with org/repo format",
+          callback = function()
+            local filepath = vim.fn.expand "%:p"
+            local filename = vim.fn.expand "%:t"
+
+            -- If no file is open, show Nvim only
+            if filename == "" then
+              vim.opt.titlestring = "Nvim"
+              return
+            end
+
+            -- Check if path contains github.com (ghq structure)
+            local github_match = filepath:match "github%.com/([^/]+/[^/]+)"
+
+            if github_match then
+              -- Format: filename (org/repo) | Nvim
+              vim.opt.titlestring = string.format("%s (%s) | Nvim", filename, github_match)
+            else
+              -- Fallback: filename | Nvim
+              vim.opt.titlestring = string.format("%s | Nvim", filename)
+            end
+          end,
+        },
+      },
+    },
+
     -- vim options can be configured here
     options = {
       opt = { -- vim.opt.<key>
@@ -81,6 +114,8 @@ return {
         spell = false, -- sets vim.opt.spell
         wrap = true, -- sets vim.opt.wrap
         clipboard = "unnamedplus", -- use system clipboard for all operations
+        title = true, -- enable title string
+        titlestring = "", -- will be set dynamically by autocommand
       },
       g = { -- vim.g.<key>
         -- configure global vim variables (vim.g)
