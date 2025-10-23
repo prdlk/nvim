@@ -1,0 +1,22 @@
+[
+  {
+    "scope": "templates",
+    "path": "templates"
+  },
+  {
+    "scope": "config",
+    "path": "lua/config"
+  },
+  {
+    "scope": "plugins",
+    "path": "lua/plugins"
+  },
+  {
+    "scope": "lua",
+    "path": "lua"
+  },
+  {
+    "scope": "nvim",
+    "path": "."
+  }
+]
