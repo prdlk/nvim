@@ -29,6 +29,47 @@ return {
         filetypes = { "gitcommit", "gitrebase" }, -- filetypes to ignore sessions
         buftypes = {}, -- buffer types to ignore sessions
       },
+      -- Store pinned buffers in session data
+      before_save = function()
+        local pinned = {}
+        for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+          if vim.api.nvim_buf_is_valid(buf) and vim.api.nvim_buf_get_option(buf, "buflisted") then
+            local bufname = vim.api.nvim_buf_get_name(buf)
+            if bufname ~= "" then
+              -- Check if buffer is pinned using BufferLine's API
+              local ok, bufferline = pcall(require, "bufferline")
+              if ok and bufferline.get_elements then
+                local elements = bufferline.get_elements()
+                for _, element in ipairs(elements) do
+                  if element.id == buf and element.pinned then
+                    table.insert(pinned, bufname)
+                    break
+                  end
+                end
+              end
+            end
+          end
+        end
+        vim.g.session_pinned_buffers = pinned
+      end,
+      -- Restore pinned buffers after session load
+      after_load = function()
+        if vim.g.session_pinned_buffers then
+          vim.defer_fn(function()
+            for _, bufname in ipairs(vim.g.session_pinned_buffers) do
+              -- Find the buffer by name
+              for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+                if vim.api.nvim_buf_is_valid(buf) and vim.api.nvim_buf_get_name(buf) == bufname then
+                  -- Pin the buffer using BufferLine command
+                  vim.cmd("BufferLineTogglePin " .. buf)
+                  break
+                end
+              end
+            end
+            vim.g.session_pinned_buffers = nil
+          end, 100)
+        end
+      end,
     },
     rooter = {
       -- list of detectors in order of prevalence, elements can be:
@@ -160,6 +201,8 @@ return {
         -- navigate buffer tabs
         ["<C-c>"] = { "<Cmd>wa<CR><Cmd>bd<CR>", desc = "Save and close buffer" }, -- Added C-x to save and close buffer
         ["F"] = { "za", desc = "Toggle fold under cursor" },
+        ["J"] = { function() vim.diagnostic.goto_next() end, desc = "Next diagnostic" },
+        ["K"] = { function() vim.diagnostic.goto_prev() end, desc = "Previous diagnostic" },
         ["L"] = { "<Cmd>BufferLineCycleNext<CR>", desc = "Next buffer" },
         ["H"] = { "<Cmd>BufferLineCyclePrev<CR>", desc = "Previous buffer" },
         ["<C-e>"] = { "<Cmd>Neotree toggle<CR>", desc = "Open Explorer" },
