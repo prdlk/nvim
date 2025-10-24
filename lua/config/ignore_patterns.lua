@@ -14,6 +14,7 @@ M.patterns = {
   ".gitignore",
   "turbo.json",
   "vite.config.ts",
+  "bunfig.toml",
   "*.pb.go",
   "*.pkl.go",
   "*.pulsar.go",
