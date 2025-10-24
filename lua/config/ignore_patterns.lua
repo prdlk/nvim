@@ -11,6 +11,9 @@ M.patterns = {
   -- Build artifacts and generated files
   ".github",
   "chain_*.json",
+  ".gitignore",
+  "turbo.json",
+  "vite.config.ts",
   "*.pb.go",
   "*.pkl.go",
   "*.pulsar.go",
@@ -94,6 +97,7 @@ M.never_show = {
   "node_modules",
   ".wrangler",
   "CODEOWNERS",
+  ".golangci.yml",
 
   -- Build outputs
   ".next",
