@@ -16,6 +16,7 @@ return {
   "AstroNvim/astrocore",
   ---@type AstroCoreOpts
   opts = {
+  
     sessions = {
       -- Configure auto saving
       autosave = {
@@ -101,6 +102,76 @@ return {
               -- Fallback: filename | Nvim
               vim.opt.titlestring = string.format("%s | Nvim", filename)
             end
+          end,
+        },
+      },
+      -- Show recent files or git repos on startup
+      startup_picker = {
+        {
+          event = "VimEnter",
+          desc = "Show recent files for git repo or git repos picker on startup",
+          callback = function()
+            -- Skip if opening with arguments (files, directories, stdin)
+            if vim.fn.argc() > 0 then return end
+
+            -- Skip if current buffer has content
+            local lines = vim.api.nvim_buf_get_lines(0, 0, -1, false)
+            if #lines > 1 or (#lines == 1 and lines[1] ~= "") then return end
+
+            -- Delay to ensure everything is loaded
+            vim.defer_fn(function()
+              -- Check if we're in a git repo
+              local git_dir = vim.fn.systemlist("git rev-parse --git-dir 2>/dev/null")[1]
+              local is_git_repo = vim.v.shell_error == 0 and git_dir ~= nil and git_dir ~= ""
+
+              if is_git_repo then
+                -- In a git repo: show recent files
+                require("snacks").picker.recent()
+              else
+                -- Not in a git repo: show git repos using ghq
+                if vim.fn.executable "ghq" == 1 then
+                  -- Get list of repos from ghq
+                  local repos = vim.fn.systemlist "ghq list --full-path"
+                  if #repos > 0 then
+                    -- Build items list with formatted display
+                    local items = {}
+                    for _, repo_path in ipairs(repos) do
+                      -- Extract org/repo from path
+                      local display = repo_path:match "github%.com/([^/]+/[^/]+)" or vim.fn.fnamemodify(repo_path, ":t")
+                      table.insert(items, {
+                        text = display,
+                        path = repo_path,
+                      })
+                    end
+
+                    -- Use snacks picker to show repos
+                    require("snacks").picker({
+                      title = "Git Repositories",
+                      layout = { preview = false },
+                      items = items,
+                      format = function(item)
+                        return { { item.text } }
+                      end,
+                      confirm = function(picker, item)
+                        picker:close()
+                        -- Change to the selected repo directory
+                        vim.cmd("cd " .. item.path)
+                        -- Show recent files from the new directory
+                        vim.defer_fn(function()
+                          require("snacks").picker.recent()
+                        end, 50)
+                      end,
+                    })
+                  else
+                    -- Fallback to recent files if no repos found
+                    require("snacks").picker.recent()
+                  end
+                else
+                  -- ghq not available, just show recent files
+                  require("snacks").picker.recent()
+                end
+              end
+            end, 10)
           end,
         },
       },
