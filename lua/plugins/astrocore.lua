@@ -449,6 +449,11 @@ return {
         ["<C-a>y"] = { "<cmd>ClaudeCodeDiffAccept<cr>", desc = "Accept diff" },
         ["<C-a>n"] = { "<cmd>ClaudeCodeDiffDeny<cr>", desc = "Deny diff" },
         ["<C-a><C-t>"] = { "<cmd>TemplateSnacks<cr>", desc = "Open template picker" },
+        ["<C-a>t"] = {
+          function() vim.fn.feedkeys ":TemplateCreate " end,
+          desc = "Create new template",
+        },
+        ["<C-a>T"] = { "<cmd>TemplateTelescope type=insert<cr>", desc = "Template picker (Telescope)" },
         -- Taskfile
         ["<C-t><C-t>"] = { terminals.mk_toggle, desc = "Taskfile Toggle" },
         -- UI Toggles with Snacks
@@ -499,8 +504,7 @@ return {
         },
         ["<leader>ua"] = {
           function() require("snacks").toggle.animate():toggle() end,
-          desc = "Toggle Animations",
-        },
+          desc = "Toggle Animations", },
         ["<leader>uS"] = {
           function() require("snacks").toggle.scroll():toggle() end,
           desc = "Toggle Smooth Scroll",

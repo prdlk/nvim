@@ -5,8 +5,8 @@
 ---@type LazySpec
 return {
   "glepnir/template.nvim",
-  cmd = { "Template", "TemProject" },
-  dependencies = { "folke/snacks.nvim" },
+  cmd = { "Template", "TemProject", "TemplateSnacks", "TemplateCreate" },
+  dependencies = { "folke/snacks.nvim", "nvim-telescope/telescope.nvim" },
   config = function()
     local template = require "template"
 
@@ -16,6 +16,12 @@ return {
       author = "Prad",
       email = "prad@sonr.io",
     }
+
+    -- Register custom template expressions
+    template.register("{{_path_}}", function() return vim.fn.expand "%:p" end)
+    template.register("{{_relative_path_}}", function() return vim.fn.expand "%:." end)
+    template.register("{{_dir_}}", function() return vim.fn.expand "%:p:h" end)
+    template.register("{{_project_}}", function() return vim.fn.fnamemodify(vim.fn.getcwd(), ":t") end)
 
     -- Custom template picker using Snacks
     vim.api.nvim_create_user_command("TemplateSnacks", function(opts)
@@ -65,10 +71,12 @@ return {
 
       -- Use Snacks picker
       require("snacks").picker.pick {
+        source = "template",
+        title = "Templates",
         items = templates,
-        format = function(item) return item.text end,
-        confirm = function(item)
+        confirm = function(picker, item)
           if not item then return end
+          picker:close()
 
           -- Read template content
           local content = vim.fn.readfile(item.path)
@@ -91,17 +99,19 @@ return {
 
           -- Prompt for variable if needed
           if needs_variable then
-            require("snacks").input({ prompt = "Variable name:" }, function(input)
-              if not input then return end
-              variable_name = input
+            vim.schedule(function()
+              require("snacks").input({ prompt = "Variable name:" }, function(input)
+                if not input then return end
+                variable_name = input
 
-              -- Replace variable in content
-              for i, line in ipairs(processed) do
-                processed[i] = line:gsub("{{_variable_}}", variable_name)
-              end
+                -- Replace variable in content
+                for i, line in ipairs(processed) do
+                  processed[i] = line:gsub("{{_variable_}}", variable_name)
+                end
 
-              -- Insert template
-              insert_template(processed)
+                -- Insert template
+                insert_template(processed)
+              end)
             end)
           else
             insert_template(processed)
@@ -157,5 +167,83 @@ return {
         vim.api.nvim_win_set_cursor(0, { row + cursor_line - 1, 0 })
       end
     end
+
+    -- Command to create new templates easily
+    vim.api.nvim_create_user_command("TemplateCreate", function(opts)
+      local temp_dir = vim.fn.stdpath "config" .. "/templates"
+      local args = vim.split(opts.args, "%s+")
+
+      if #args < 1 then
+        vim.notify("Usage: TemplateCreate <category/filename> [filetype]", vim.log.levels.ERROR)
+        return
+      end
+
+      local template_path = args[1]
+      local filetype = args[2] or vim.bo.filetype
+
+      -- Ensure .tpl extension
+      if not template_path:match "%.tpl$" then template_path = template_path .. ".tpl" end
+
+      local full_path = temp_dir .. "/" .. template_path
+      local dir = vim.fn.fnamemodify(full_path, ":h")
+
+      -- Create directory if needed
+      if vim.fn.isdirectory(dir) == 0 then vim.fn.mkdir(dir, "p") end
+
+      -- Create template file with filetype marker
+      local initial_content = { ";; " .. filetype, "", "{{_cursor_}}" }
+      vim.fn.writefile(initial_content, full_path)
+
+      -- Open the new template
+      vim.cmd.edit(full_path)
+      vim.notify("Created template: " .. template_path, vim.log.levels.INFO)
+    end, {
+      nargs = "+",
+      complete = function(_, line)
+        local temp_dir = vim.fn.stdpath "config" .. "/templates"
+        local categories = {}
+
+        -- Get existing categories
+        for _, entry in ipairs(vim.fn.readdir(temp_dir)) do
+          local path = temp_dir .. "/" .. entry
+          if vim.fn.isdirectory(path) == 1 then table.insert(categories, entry .. "/") end
+        end
+
+        return categories
+      end,
+      desc = "Create a new template file",
+    })
+
+    -- Telescope integration (uses telescope-nvim-snacks recipe)
+    vim.defer_fn(function()
+      local has_telescope, telescope = pcall(require, "telescope")
+      if has_telescope then
+        local ok = pcall(telescope.load_extension, "find_template")
+        if ok then
+          -- Add Telescope template picker command
+          vim.api.nvim_create_user_command("TemplateTelescope", function(opts)
+            local args = vim.split(opts.args or "", "%s+")
+            local cmd_opts = {}
+
+            -- Parse arguments
+            for _, arg in ipairs(args) do
+              local key, value = arg:match "^(%w+)=(.+)$"
+              if key == "type" then
+                cmd_opts.type = value
+              elseif key == "name" then
+                cmd_opts.name = value
+              elseif key == "filter_ft" then
+                cmd_opts.filter_ft = value == "true"
+              end
+            end
+
+            telescope.extensions.find_template.find_template(cmd_opts)
+          end, {
+            nargs = "*",
+            desc = "Open Telescope template picker",
+          })
+        end
+      end
+    end, 100)
   end,
 }
