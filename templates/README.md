@@ -5,13 +5,18 @@ Essential templates for modern development with Cosmos SDK, Protobuf, and Vite+C
 ## 🚀 Usage
 
 ### Quick Access
-- Press `<C-a><C-t>` to open the template picker
-- Or use `:TemplateSnacks` command
+- **`<C-a><C-t>`** - Open Snacks template picker (primary)
+- **`<C-a>t`** - Create a new template file
+- **`<C-a>T`** - Open Telescope template picker (alternative)
+- `:TemplateSnacks` - Command for Snacks picker
+- `:TemplateCreate <category/filename> [filetype]` - Create new template
+- `:TemplateTelescope` - Command for Telescope picker
 
 ### Template Variables
 
 Templates support the following placeholders:
 
+#### Built-in Variables
 - `{{_date_}}` - Current date and time
 - `{{_cursor_}}` - Cursor position after insertion
 - `{{_file_name_}}` - Current file name (without extension)
@@ -21,6 +26,12 @@ Templates support the following placeholders:
 - `{{_email_}}` - Email address (configured in plugin)
 - `{{_variable_}}` - Prompts for custom variable name
 - `{{_lua:<expr>_}}` - Execute Lua expression
+
+#### Custom Registered Variables
+- `{{_path_}}` - Full path to current file
+- `{{_relative_path_}}` - Relative path to current file
+- `{{_dir_}}` - Directory of current file
+- `{{_project_}}` - Current project/directory name
 
 ## 📁 Available Templates
 
@@ -139,6 +150,18 @@ Creates a TanStack Query API client with CRUD operations.
 
 ### Adding Your Own Templates
 
+#### Quick Method (Recommended)
+1. Press `<C-a>t` to start the TemplateCreate command
+2. Type category and filename (e.g., `vite/form.tsx`)
+3. Optional: specify filetype (defaults to current buffer's filetype)
+4. Template file is created automatically and opens for editing
+
+Example command:
+```vim
+:TemplateCreate vite/form.tsx typescriptreact
+```
+
+#### Manual Method
 1. Create a new `.tpl` file in the templates directory
 2. Add filetype marker as first line: `;; <filetype>`
 3. Use template variables as needed
@@ -150,6 +173,8 @@ Example:
 /**
  * {{_file_name_}}
  * @author {{_author_}}
+ * @project {{_project_}}
+ * @path {{_relative_path_}}
  */
 
 export const {{_camel_case_file_}} = {{_cursor_}}
