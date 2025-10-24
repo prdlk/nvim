@@ -11,8 +11,16 @@ Integrated template.nvim with custom Snacks picker for quick code scaffolding ac
 
 ## ⚡ Quick Start
 
-### Open Template Picker
-Press `<C-a><C-t>` or run `:TemplateSnacks`
+### Keybindings
+- **`<C-a><C-t>`** - Open Snacks template picker (primary)
+- **`<C-a>t`** - Create a new template file
+- **`<C-a>T`** - Open Telescope template picker (alternative)
+
+### Commands
+- `:TemplateSnacks` - Open Snacks picker for templates
+- `:TemplateCreate <category/filename> [filetype]` - Create new template
+- `:TemplateTelescope [type=insert|name=template] [filter_ft=true|false]` - Telescope picker
+- `:Template <name>` - Use native template.nvim command
 
 ### Usage Flow
 1. Press `<C-a><C-t>` to open picker
@@ -33,11 +41,13 @@ Features:
 - ✅ Custom template markers
 - ✅ Interactive variable prompts
 
-### Keybinding
+### Keybindings
 Location: `/home/prad/.config/nvim/lua/plugins/astrocore.lua`
 
 ```lua
 ["<C-a><C-t>"] = { "<cmd>TemplateSnacks<cr>", desc = "Open template picker" }
+["<C-a>t"] = { function() vim.fn.feedkeys(":TemplateCreate ") end, desc = "Create new template" }
+["<C-a>T"] = { "<cmd>TemplateTelescope type=insert<cr>", desc = "Template picker (Telescope)" }
 ```
 
 ## 📁 Template Structure
@@ -73,6 +83,12 @@ Location: `/home/prad/.config/nvim/lua/plugins/astrocore.lua`
 - `{{_author_}}` → `Prad`
 - `{{_email_}}` → `prad@sonr.io`
 - `{{_cursor_}}` → Cursor position after insertion
+
+### Custom Registered Variables (New!)
+- `{{_path_}}` → `/full/path/to/current/file.go`
+- `{{_relative_path_}}` → `src/services/file.go`
+- `{{_dir_}}` → `/full/path/to/current`
+- `{{_project_}}` → `nvim` (current directory name)
 
 ### Interactive Variables
 - `{{_variable_}}` → Prompts for custom input
@@ -331,6 +347,18 @@ function DashboardPage() {
 
 ### Adding New Templates
 
+#### Quick Method (Recommended)
+1. Press `<C-a>t` to start TemplateCreate command
+2. Type category and filename: `vite/form.tsx` or `cosmos/store.go`
+3. Optional: specify filetype as second argument (defaults to current buffer's filetype)
+4. Template file is created with filetype marker and opens automatically
+
+Example:
+```vim
+:TemplateCreate vite/form.tsx typescriptreact
+```
+
+#### Manual Method
 1. **Create template file** in templates directory:
 ```bash
 nvim ~/.config/nvim/templates/vite/form.tsx.tpl
@@ -362,10 +390,25 @@ export function {{_camel_case_file_}}Form() {
 ### Modifying Configuration
 
 Edit `lua/plugins/template.lua` to change:
-- Author name
-- Email address
-- Template directory
+- Author name and email
+- Template directory location
 - Custom variable processors
+
+#### Adding Custom Variables
+```lua
+-- In lua/plugins/template.lua, add after setup:
+template.register("{{_custom_var_}}", function()
+  return "your value here"
+end)
+```
+
+Example:
+```lua
+-- Add project root detection
+template.register("{{_git_root_}}", function()
+  return vim.fn.systemlist("git rev-parse --show-toplevel")[1]
+end)
+```
 
 ## 📊 Template Statistics
 
@@ -391,11 +434,14 @@ Edit `lua/plugins/template.lua` to change:
 
 ## 🔥 Pro Tips
 
-1. **Filetype Filtering:** Templates auto-filter by current filetype
-2. **Variable Naming:** Use descriptive names for `{{_variable_}}`
-3. **Nested Directories:** Organize templates in subdirectories
-4. **Custom Markers:** Add your own `{{_custom_}}` variables
+1. **Filetype Filtering:** Templates auto-filter by current filetype in Snacks picker
+2. **Variable Naming:** Use descriptive names for `{{_variable_}}` prompts
+3. **Nested Directories:** Organize templates in subdirectories (shown as `[category] filename`)
+4. **Custom Markers:** Register your own variables with `template.register()`
 5. **Lua Expressions:** Use `{{_lua:vim.fn.getcwd()_}}` for dynamic content
+6. **Quick Template Creation:** Use `<C-a>t` to quickly create new templates with auto-completion
+7. **Telescope Alternative:** Use `<C-a>T` for Telescope picker with Snacks backend
+8. **Path Variables:** Use new `{{_path_}}`, `{{_relative_path_}}`, `{{_dir_}}`, `{{_project_}}` variables
 
 ---
 
