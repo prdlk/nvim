@@ -92,6 +92,8 @@ M.never_show = {
 
   -- Dependencies
   "node_modules",
+  ".wrangler",
+  "CODEOWNERS",
 
   -- Build outputs
   ".next",
