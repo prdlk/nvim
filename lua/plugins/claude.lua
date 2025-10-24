@@ -12,9 +12,7 @@ return {
     -- Helper function to get git root and change directory
     local function ensure_git_root()
       local git_root = vim.fn.systemlist("git rev-parse --show-toplevel")[1]
-      if git_root and vim.v.shell_error == 0 then
-        vim.api.nvim_set_current_dir(git_root)
-      end
+      if git_root and vim.v.shell_error == 0 then vim.api.nvim_set_current_dir(git_root) end
     end
 
     -- Wrapper function to run commands at git root

@@ -16,7 +16,7 @@ return {
   { import = "astrocommunity.pack.go" },
   { import = "astrocommunity.pack.golangci-lint" },
   { import = "astrocommunity.pack.html-css" },
-  { import = "astrocommunity.pack.oxlint" },
+  -- oxlint configured manually in astrolsp.lua via nvim-lint
   { import = "astrocommunity.pack.toml" },
   { import = "astrocommunity.pack.templ" },
   { import = "astrocommunity.pack.tailwindcss" },

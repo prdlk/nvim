@@ -23,6 +23,52 @@ return {
     template.register("{{_dir_}}", function() return vim.fn.expand "%:p:h" end)
     template.register("{{_project_}}", function() return vim.fn.fnamemodify(vim.fn.getcwd(), ":t") end)
 
+    -- Helper function to insert template
+    local function insert_template(lines)
+      local cursor_line = nil
+      local processed = {}
+
+      for i, line in ipairs(lines) do
+        -- Replace template markers
+        line = line:gsub("{{_date_}}", os.date "%Y-%m-%d %H:%M:%S")
+        line = line:gsub("{{_author_}}", "Prad")
+        line = line:gsub("{{_email_}}", "prad@sonr.io")
+        line = line:gsub("{{_file_name_}}", vim.fn.expand "%:t:r")
+        line = line:gsub("{{_upper_file_}}", vim.fn.expand("%:t:r"):upper())
+
+        -- Convert snake_case to CamelCase
+        local file_name = vim.fn.expand "%:t:r"
+        local camel_case = file_name:gsub("_(%w)", function(c) return c:upper() end)
+        camel_case = camel_case:gsub("^%w", string.upper)
+        line = line:gsub("{{_camel_case_file_}}", camel_case)
+
+        -- Handle lua expressions
+        line = line:gsub("{{_lua:(.-)_}}", function(expr)
+          local func = load("return " .. expr)
+          if func then
+            local ok, result = pcall(func)
+            if ok then return tostring(result) end
+          end
+          return ""
+        end)
+
+        -- Track cursor position
+        if line:match "{{_cursor_}}" then
+          cursor_line = i
+          line = line:gsub("{{_cursor_}}", "")
+        end
+
+        table.insert(processed, line)
+      end
+
+      -- Insert lines at cursor
+      local row = vim.api.nvim_win_get_cursor(0)[1]
+      vim.api.nvim_buf_set_lines(0, row - 1, row - 1, false, processed)
+
+      -- Set cursor position if marker found
+      if cursor_line then vim.api.nvim_win_set_cursor(0, { row + cursor_line - 1, 0 }) end
+    end
+
     -- Custom template picker using Snacks
     vim.api.nvim_create_user_command("TemplateSnacks", function(opts)
       local temp_dir = vim.fn.stdpath "config" .. "/templates"
@@ -36,7 +82,6 @@ return {
       for _, file in ipairs(template_files) do
         if vim.fn.isdirectory(file) == 0 then
           local filename = vim.fn.fnamemodify(file, ":t")
-          local relative_path = vim.fn.fnamemodify(file, ":~:.")
           local category = vim.fn.fnamemodify(file, ":h:t")
 
           -- Extract filetype from template
@@ -90,9 +135,7 @@ return {
             -- Skip filetype marker line
             if not line:match "^;; %w+" then
               -- Check for variable placeholder
-              if line:match "{{_variable_}}" and not variable_name then
-                needs_variable = true
-              end
+              if line:match "{{_variable_}}" and not variable_name then needs_variable = true end
               table.insert(processed, line)
             end
           end
@@ -119,54 +162,6 @@ return {
         end,
       }
     end, { nargs = "?", desc = "Open template picker" })
-
-    -- Helper function to insert template
-    function insert_template(lines)
-      local cursor_line = nil
-      local processed = {}
-
-      for i, line in ipairs(lines) do
-        -- Replace template markers
-        line = line:gsub("{{_date_}}", os.date "%Y-%m-%d %H:%M:%S")
-        line = line:gsub("{{_author_}}", "Prad")
-        line = line:gsub("{{_email_}}", "prad@sonr.io")
-        line = line:gsub("{{_file_name_}}", vim.fn.expand "%:t:r")
-        line = line:gsub("{{_upper_file_}}", vim.fn.expand("%:t:r"):upper())
-
-        -- Convert snake_case to CamelCase
-        local file_name = vim.fn.expand "%:t:r"
-        local camel_case = file_name:gsub("_(%w)", function(c) return c:upper() end)
-        camel_case = camel_case:gsub("^%w", string.upper)
-        line = line:gsub("{{_camel_case_file_}}", camel_case)
-
-        -- Handle lua expressions
-        line = line:gsub("{{_lua:(.-)_}}", function(expr)
-          local func, err = load("return " .. expr)
-          if func then
-            local ok, result = pcall(func)
-            if ok then return tostring(result) end
-          end
-          return ""
-        end)
-
-        -- Track cursor position
-        if line:match "{{_cursor_}}" then
-          cursor_line = i
-          line = line:gsub("{{_cursor_}}", "")
-        end
-
-        table.insert(processed, line)
-      end
-
-      -- Insert lines at cursor
-      local row = vim.api.nvim_win_get_cursor(0)[1]
-      vim.api.nvim_buf_set_lines(0, row - 1, row - 1, false, processed)
-
-      -- Set cursor position if marker found
-      if cursor_line then
-        vim.api.nvim_win_set_cursor(0, { row + cursor_line - 1, 0 })
-      end
-    end
 
     -- Command to create new templates easily
     vim.api.nvim_create_user_command("TemplateCreate", function(opts)
@@ -199,7 +194,7 @@ return {
       vim.notify("Created template: " .. template_path, vim.log.levels.INFO)
     end, {
       nargs = "+",
-      complete = function(_, line)
+      complete = function(_, _line)
         local temp_dir = vim.fn.stdpath "config" .. "/templates"
         local categories = {}
 
