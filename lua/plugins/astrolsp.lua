@@ -241,13 +241,6 @@ return {
           },
         },
 
-        -- Protobuf LSP
-        bufls = {
-          settings = {
-            -- Add any buf-specific settings
-          },
-        },
-
         -- JSON/JSONC for config files
         jsonls = {
           settings = {
@@ -516,6 +509,7 @@ return {
             "bash",
             "vim",
             "lua",
+            "proto", -- Protobuf syntax highlighting
           })
         end
       end,
