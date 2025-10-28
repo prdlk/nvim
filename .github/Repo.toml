@@ -1,0 +1,6 @@
+[scopes]
+config = ["lua/config"]
+lua = ["lua"]
+nvim = ["."]
+plugins = ["lua/plugins"]
+templates = ["templates"]
