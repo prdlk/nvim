@@ -166,9 +166,7 @@ return {
             if #lines > 1 or (#lines == 1 and lines[1] ~= "") then return end
 
             -- Delay to ensure everything is loaded
-            vim.defer_fn(function()
-              require("snacks").picker.smart()
-            end, 50)
+            vim.defer_fn(function() require("snacks").picker.smart() end, 50)
           end,
         },
       },
@@ -508,6 +506,7 @@ return {
           end,
           desc = "Find Service files",
         },
+        ["<C-j><C-j>"] = { function() terminals.scratch_toggle() end, desc = "Open Scratch Terminal" },
         -- AI/Assistant mappings (Claude Code)
         ["<C-a>"] = { nil, desc = "AI/Claude Code" },
         ["<C-a><C-a>"] = { function() _G.claude_at_root "ClaudeCode"() end, desc = "Toggle Claude" },
