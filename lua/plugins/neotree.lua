@@ -316,6 +316,15 @@ return {
             hide_dotfiles = false,
             hide_gitignored = true,
             hide_by_pattern = hide_patterns,
+            always_show = {},
+            always_show_by_pattern = {},
+            visible = function(item)
+              -- Hide all symlinks
+              if item.type == "link" then
+                return false
+              end
+              return true
+            end,
             hide_by_name = {
               -- "contracts",
               -- "crypto",
