@@ -93,6 +93,7 @@ M.patterns = {
 M.never_show = {
   -- Version control
   ".git",
+  ".claude",
 
   -- Dependencies
   "node_modules",
