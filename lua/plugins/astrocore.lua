@@ -182,6 +182,7 @@ return {
         clipboard = "unnamedplus", -- use system clipboard for all operations
         title = true, -- enable title string
         titlestring = "", -- will be set dynamically by autocommand
+        laststatus = 0, -- disable statusline (0 = never show)
       },
       g = { -- vim.g.<key>
         -- configure global vim variables (vim.g)
