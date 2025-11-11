@@ -33,3 +33,12 @@ claude/todos/
 claude/history.jsonl
 claude/settings.local.json
 claude/statsig/
+claude/debug
+claude/debug
+claude/file-history
+claude/ide
+claude/statsig
+claude/.claude.json
+claude/.claude.json.backup
+claude/.credentials.json
+claude/history.jsonl
