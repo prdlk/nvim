@@ -574,7 +574,7 @@ return {
         ["<C-a>C"] = { "<cmd>ClaudeCode --resume<cr>", desc = "Resume Claude" },
         ["<C-a>c"] = { "<cmd>ClaudeCode --continue<cr>", desc = "Continue Claude" },
         ["<C-a>m"] = { "<cmd>ClaudeCodeSelectModel<cr>", desc = "Select Claude model" },
-        ["<C-a>b"] = { "<cmd>ClaudeCodeAdd %<cr>", desc = "Add current buffer" },
+        ["<C-a>a"] = { "<cmd>ClaudeCodeAdd %<cr>", desc = "Add current buffer" },
         ["<C-y>"] = { "<cmd>ClaudeCodeDiffAccept<cr>", desc = "Accept diff" },
         ["<C-n>"] = { "<cmd>ClaudeCodeDiffDeny<cr>", desc = "Deny diff" },
         -- UI Toggles with Snacks
@@ -718,10 +718,13 @@ return {
       t = {
         ["<C-t><C-t>"] = { terminals.mk_toggle, desc = "Taskfile Toggle" },
         ["<C-e>"] = { "<Cmd>Neotree toggle<CR>", desc = "Open Explorer" },
+        -- Paste from system clipboard
+        ["<C-p>"] = { "<cmd>ClaudeCodePaste<cr>", desc = "Paste from system clipboard" },
         ["<C-b>f"] = {
           function() require("snacks").picker.buffers() end,
           desc = "Find buffers",
         },
+        ["<C-j><C-j>"] = { function() terminals.scratch_toggle() end, desc = "Open Scratch Terminal" },
         -- Exit terminal mode and close window
         ["<C-q>"] = {
           function()
