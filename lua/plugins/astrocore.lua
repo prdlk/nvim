@@ -26,6 +26,11 @@ return {
         "ibhagwan/fzf-lua",
         "coder/claudecode.nvim",
       },
+      init = function()
+        -- Remove problematic Chinese help file to avoid encoding error
+        local zh_doc = vim.fn.stdpath "data" .. "/lazy/claude-fzf.nvim/doc/claude-fzf-zh.txt"
+        if vim.fn.filereadable(zh_doc) == 1 then vim.fn.delete(zh_doc) end
+      end,
       opts = {
         auto_context = true,
         batch_size = 10,
