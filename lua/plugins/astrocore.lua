@@ -518,14 +518,6 @@ return {
         ["<C-a>b"] = { "<cmd>ClaudeCodeAdd %<cr>", desc = "Add current buffer" },
         ["<C-a>y"] = { "<cmd>ClaudeCodeDiffAccept<cr>", desc = "Accept diff" },
         ["<C-a>n"] = { "<cmd>ClaudeCodeDiffDeny<cr>", desc = "Deny diff" },
-        ["<C-a><C-t>"] = { "<cmd>TemplateSnacks<cr>", desc = "Open template picker" },
-        ["<C-a>t"] = {
-          function() vim.fn.feedkeys ":TemplateCreate " end,
-          desc = "Create new template",
-        },
-        ["<C-a>T"] = { "<cmd>TemplateTelescope type=insert<cr>", desc = "Template picker (Telescope)" },
-        -- Taskfile
-        ["<C-t><C-t>"] = { terminals.mk_toggle, desc = "Taskfile Toggle" },
         -- UI Toggles with Snacks
         ["<leader>u"] = { desc = "UI Toggles" },
         ["<leader>ud"] = {
