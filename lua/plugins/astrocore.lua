@@ -14,6 +14,39 @@ local file_filter = ignore_patterns.create_picker_filter()
 
 return {
   "AstroNvim/astrocore",
+  dependencies = {
+    {
+      "coder/claudecode.nvim",
+      dependencies = { "folke/snacks.nvim" },
+      config = true,
+    },
+    {
+      "pittcat/claude-fzf.nvim",
+      dependencies = {
+        "ibhagwan/fzf-lua",
+        "coder/claudecode.nvim",
+      },
+      opts = {
+        auto_context = true,
+        batch_size = 10,
+      },
+      cmd = {
+        "ClaudeFzf",
+        "ClaudeFzfFiles",
+        "ClaudeFzfGrep",
+        "ClaudeFzfBuffers",
+        "ClaudeFzfGitFiles",
+        "ClaudeFzfDirectory",
+      },
+      keys = {
+        { "<C-a><C-f>", "<cmd>ClaudeFzfFiles<cr>", desc = "Claude: Add files" },
+        { "<C-a><C-f>g", "<cmd>ClaudeFzfGrep<cr>", desc = "Claude: Search and add" },
+        { "<C-a><C-f>b", "<cmd>ClaudeFzfBuffers<cr>", desc = "Claude: Add buffers" },
+        { "<C-a><C-f>G", "<cmd>ClaudeFzfGitFiles<cr>", desc = "Claude: Add Git files" },
+        { "<C-a><C-f>d", "<cmd>ClaudeFzfDirectory<cr>", desc = "Claude: Add directory files" },
+      },
+    },
+  },
   ---@type AstroCoreOpts
   opts = {
 
