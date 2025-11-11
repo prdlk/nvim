@@ -19,6 +19,27 @@ return {
       "coder/claudecode.nvim",
       dependencies = { "folke/snacks.nvim" },
       config = true,
+      opts = {
+        auto_start = true,
+        focus_after_send = true,
+        track_selection = true,
+        terminal = {
+          split_side = "right", -- "left" or "right"
+          split_width_percentage = 0.30,
+          provider = "auto", -- "auto", "snacks", "native", "external", "none", or custom provider table
+          auto_close = true,
+          snacks_win_opts = {}, -- Opts to pass to `Snacks.terminal.open()` - see Floating Window section below
+
+          -- Provider-specific options
+          provider_opts = {
+            -- Command for external terminal provider. Can be:
+            -- 1. String with %s placeholder: "alacritty -e %s" (backward compatible)
+            -- 2. String with two %s placeholders: "alacritty --working-directory %s -e %s" (cwd, command)
+            -- 3. Function returning command: function(cmd, env) return "alacritty -e " .. cmd end
+            external_terminal_cmd = nil,
+          },
+        },
+      },
     },
     {
       "pittcat/claude-fzf.nvim",
@@ -135,7 +156,7 @@ return {
       -- automatically update working directory (update manually with `:AstroRoot`)
       autochdir = true,
       -- scope of working directory to change ("global"|"tab"|"win")
-      scope = "win", -- Changed from "win" to "global" to make directory changes apply globally
+      scope = "global", -- Changed from "win" to "global" to make directory changes apply globally
       -- show notification on every working directory change
       notify = false,
     },
@@ -554,8 +575,8 @@ return {
         ["<C-a>c"] = { "<cmd>ClaudeCode --continue<cr>", desc = "Continue Claude" },
         ["<C-a>m"] = { "<cmd>ClaudeCodeSelectModel<cr>", desc = "Select Claude model" },
         ["<C-a>b"] = { "<cmd>ClaudeCodeAdd %<cr>", desc = "Add current buffer" },
-        ["<C-a>y"] = { "<cmd>ClaudeCodeDiffAccept<cr>", desc = "Accept diff" },
-        ["<C-a>n"] = { "<cmd>ClaudeCodeDiffDeny<cr>", desc = "Deny diff" },
+        ["<C-y>"] = { "<cmd>ClaudeCodeDiffAccept<cr>", desc = "Accept diff" },
+        ["<C-n>"] = { "<cmd>ClaudeCodeDiffDeny<cr>", desc = "Deny diff" },
         -- UI Toggles with Snacks
         ["<leader>u"] = { desc = "UI Toggles" },
         ["<leader>ud"] = {
