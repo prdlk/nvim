@@ -22,6 +22,14 @@ tags.*
 tmp
 temp
 !lua/plugins
-.claude
-.claude/settings.local.json
-.claude
+
+# Claude Code
+.claude/
+claude/debug/
+claude/projects/
+claude/session-env/
+claude/shell-snapshots/
+claude/todos/
+claude/history.jsonl
+claude/settings.local.json
+claude/statsig/
