@@ -22,6 +22,7 @@ tags.*
 tmp
 temp
 !lua/plugins
+lua/plugins/local.lua
 
 # Claude Code
 .claude/
