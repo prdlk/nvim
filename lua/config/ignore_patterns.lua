@@ -25,23 +25,10 @@ M.patterns = {
   "*_test.go",
 
   -- Configuration files
-  "*config.*.js",
-  "*config.js",
-  "deps.mjs",
-  ".parcelrc",
-  "worker-configuration.d.ts",
-  "wrangler.jsonc",
-  "biome*",
-  ".cz.toml",
   ".editorconfig",
   ".gitpod.*",
-  "cspell.*",
 
-  -- Documentation
-  "*_query_docs.md",
-  "*_tx_docs.md",
-  "readme.md",
-  "CLAUDE*",
+
 
   -- Lock files and dependencies
   "*.lock",
@@ -65,10 +52,6 @@ M.patterns = {
   ".tsbuildinfo",
   ".wrangler",
   ".parcel-cache",
-  ".aider.tags.cache.v4",
-  ".aider.tags.cache.v3",
-  ".aider.chat.history.md",
-  ".aider.input.history",
   ".conform*",
   ".null-ls_*",
 
@@ -92,7 +75,7 @@ M.patterns = {
 M.never_show = {
   -- Version control
   ".git",
-  ".claude",
+  ".ai",
 
   -- Dependencies
   "node_modules",
@@ -177,7 +160,6 @@ M.never_show_patterns = {
   ".parcel-cache",
   "*.icns",
   "*.ico",
-  ".aider.tags.cache.v4",
   "*.iml",
   "Icon?",
   "iCloud~",

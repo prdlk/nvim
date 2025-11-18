@@ -95,8 +95,13 @@ return {
     opts = {
       strategy = {
         "toggleterm",
-        direction = "horizontal",
-        open_on_start = false,
+        use_shell = false,
+        auto_scroll = true,
+        close_on_exit = false,
+        direction = "tab",
+        quit_on_exit = "success",
+        open_on_start = true,
+        hidden = true,
       },
       templates = {
         "builtin",
@@ -180,6 +185,75 @@ return {
             return vim.fn.filereadable "vite.config.ts" == 1 or vim.fn.filereadable "vite.config.js" == 1
           end,
         },
+      }
+
+      -- Register Devbox template for Overseer
+      overseer.register_template {
+        name = "devbox",
+        params = {
+          script = {
+            type = "string",
+            optional = false,
+            desc = "The devbox script to run",
+          },
+        },
+        strategy = {
+          "toggleterm",
+          use_shell = true,
+          auto_scroll = true,
+          close_on_exit = true,
+          direction = "tab",
+          quit_on_exit = "success",
+          open_on_start = true,
+          hidden = true,
+        },
+        condition = {
+          callback = function()
+            if vim.fn.executable "git" == 0 then return false, "git not found" end
+            local git_root = vim.fn.systemlist("git rev-parse --show-toplevel")[1]
+            if vim.v.shell_error ~= 0 or not git_root or git_root == "" then return false, "Not in a git repository" end
+            local devbox_file = git_root .. "/devbox.json"
+            if vim.fn.filereadable(devbox_file) == 0 then return false, "No devbox.json found in git root" end
+            if vim.fn.executable "devbox" == 0 then return false, "devbox command not found" end
+            return true
+          end,
+        },
+        generator = function(_, cb)
+          local git_root = vim.fn.systemlist("git rev-parse --show-toplevel")[1]
+          if vim.v.shell_error ~= 0 or not git_root or git_root == "" then
+            cb {}
+            return
+          end
+          local devbox_file = git_root .. "/devbox.json"
+
+          local file = io.open(devbox_file, "r")
+          if not file then
+            cb {}
+            return
+          end
+          local content = file:read "*all"
+          file:close()
+          local ok, data = pcall(vim.json.decode, content)
+          if not ok or not data then
+            cb {}
+            return
+          end
+
+          local tasks = {}
+          if data.shell and data.shell.scripts then
+            for script_name, _ in pairs(data.shell.scripts) do
+              table.insert(tasks, {
+                name = "devbox run " .. script_name,
+                builder = function() return { cmd = { "devbox" }, args = { "run", script_name }, cwd = git_root } end,
+              })
+            end
+          end
+          table.insert(tasks, {
+            name = "devbox shell",
+            builder = function() return { cmd = { "devbox" }, args = { "shell" }, cwd = git_root } end,
+          })
+          cb(tasks)
+        end,
       }
     end,
   },

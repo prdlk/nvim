@@ -275,10 +275,11 @@ return {
                 enable = true,
                 url = "https://www.schemastore.org/api/json/catalog.json",
               },
-              schemas = {
-                ["https://json.schemastore.org/github-workflow.json"] = ".github/workflows/*.yml",
-                ["https://raw.githubusercontent.com/compose-spec/compose-spec/master/schema/compose-spec.json"] = "docker-compose*.yml",
-              },
+               schemas = {
+                 ["https://json.schemastore.org/github-workflow.json"] = ".github/workflows/*.yml",
+                 ["https://raw.githubusercontent.com/compose-spec/compose-spec/master/schema/compose-spec.json"] =
+                   "docker-compose*.yml",
+               },
               validate = true,
               hover = true,
               completion = true,
@@ -670,19 +671,6 @@ return {
     },
 
     -- ============================================================================
-    -- Diagnostics UI
-    -- ============================================================================
-    {
-      "folke/trouble.nvim",
-      optional = true,
-      opts = {
-        modes = {
-          lsp = {
-            win = { position = "right" },
-          },
-        },
-      },
-    },
 
     -- Inline linting hints
     {

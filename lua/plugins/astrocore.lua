@@ -314,120 +314,22 @@ return {
           },
           ["<C-f>gc"] = {
             function()
-              local claude_dir = vim.fn.getcwd() .. "/.claude"
+              local ai_dir = vim.fn.getcwd() .. "/.ai"
               -- Check if directory exists
-              if vim.fn.isdirectory(claude_dir) == 0 then
-                vim.notify("No .claude directory found in current project", vim.log.levels.WARN)
+              if vim.fn.isdirectory(ai_dir) == 0 then
+                vim.notify("No .ai directory found in current project", vim.log.levels.WARN)
                 return
               end
-              -- Use files picker to find Claude files
+              -- Use files picker to find AI files
               require("snacks").picker.files {
-                cwd = claude_dir,
+                cwd = ai_dir,
                 transform = file_filter,
               }
             end,
-            desc = "Find Claude files",
+            desc = "Find AI files",
           },
           ["<C-f>p"] = { desc = "Find Package files" },
-          ["<C-f>pc"] = {
-            function()
-              require("snacks").picker.files {
-                dirs = { "/home/prad/code/github.com/sonr-io/sonr/packages/cli" },
-                exclude = { "packages/cli/dist" },
-                ft = { "ts", "tsx", "js" },
-              }
-            end,
-            desc = "Find @sonr.io/cli files",
-          },
-          ["<C-f>pe"] = {
-            function()
-              require("snacks").picker.files {
-                dirs = { "/home/prad/code/github.com/sonr-io/sonr/packages/es" },
-                exclude = { "packages/es/dist" },
-                ft = { "ts", "tsx", "js" },
-              }
-            end,
-            desc = "Find @sonr.io/es files",
-          },
-          ["<C-f>pp"] = {
-            function()
-              require("snacks").picker.files {
-                dirs = { "/home/prad/code/github.com/sonr-io/sonr/packages/pkl" },
-                exclude = { "packages/pkl/dist" },
-                ft = { "ts", "tsx", "js" },
-              }
-            end,
-            desc = "Find @sonr.io/es files",
-          },
-          ["<C-f>ps"] = {
-            function()
-              require("snacks").picker.files {
-                dirs = { "/home/prad/code/github.com/sonr-io/sonr/packages/sdk" },
-                exclude = { "packages/sdk/dist" },
-                ft = { "ts", "tsx", "js" },
-              }
-            end,
-            desc = "Find @sonr.io/sdk files",
-          },
-          ["<C-f>pu"] = {
-            function()
-              require("snacks").picker.files {
-                dirs = { "/home/prad/code/github.com/sonr-io/sonr/packages/ui" },
-                exclude = { "packages/ui/dist" },
-                ft = { "ts", "tsx", "js" },
-              }
-            end,
-            desc = "Find @sonr.io/ui files",
-          },
           ["<C-f>m"] = { desc = "Find Module files" },
-          ["<C-f>me"] = {
-            function()
-              require("snacks").picker.files {
-                dirs = {
-                  "/home/prad/code/github.com/sonr-io/sonr/proto/dex",
-                  "/home/prad/code/github.com/sonr-io/sonr/x/dex",
-                },
-                ft = { "go", "md", "proto" },
-              }
-            end,
-            desc = "Find x/dex files",
-          },
-          ["<C-f>mi"] = {
-            function()
-              require("snacks").picker.files {
-                dirs = {
-                  "/home/prad/code/github.com/sonr-io/sonr/proto/did",
-                  "/home/prad/code/github.com/sonr-io/sonr/x/did",
-                },
-                ft = { "go", "md", "proto" },
-              }
-            end,
-            desc = "Find x/did files",
-          },
-          ["<C-f>md"] = {
-            function()
-              require("snacks").picker.files {
-                dirs = {
-                  "/home/prad/code/github.com/sonr-io/sonr/proto/dwn",
-                  "/home/prad/code/github.com/sonr-io/sonr/x/dwn",
-                },
-                ft = { "go", "md", "proto" },
-              }
-            end,
-            desc = "Find x/dwn files",
-          },
-          ["<C-f>ms"] = {
-            function()
-              require("snacks").picker.files {
-                dirs = {
-                  "/home/prad/code/github.com/sonr-io/sonr/proto/svc",
-                  "/home/prad/code/github.com/sonr-io/sonr/x/svc",
-                },
-                ft = { "go", "md", "proto" },
-              }
-            end,
-            desc = "Find x/svc files",
-          },
           ["<C-f>g"] = {
             desc = "Find by Group",
           },
@@ -480,38 +382,7 @@ return {
             end,
             desc = "Find Package.json files",
           },
-          ["<C-f>."] = {
-            function()
-              require("snacks").picker.files {
-                dirs = { "/home/prad/.local/share/chezmoi" },
-              }
-            end,
-            desc = "Find dotfiles",
-          },
-          ["<C-f>c."] = {
-            function()
-              require("snacks").picker.files {
-                dirs = { "/home/prad/.local/share/chezmoi" },
-              }
-            end,
-            desc = "Find chezmoi config files",
-          },
-          ["<C-f>cn"] = {
-            function()
-              require("snacks").picker.files {
-                dirs = { "/home/prad/code/github.com/prnk28/nvim" },
-              }
-            end,
-            desc = "Find nvim files",
-          },
-          ["<C-f>cs"] = {
-            function()
-              require("snacks").picker.files {
-                dirs = { "/home/prad/.local/share/chezmoi/dot_local/share/services" },
-              }
-            end,
-            desc = "Find Service files",
-          },
+
           ["<C-j><C-j>"] = { function() terminals.scratch_toggle() end, desc = "Open Scratch Terminal" },
           -- AI/Assistant mappings (Avante)
           ["<C-a>"] = { nil, desc = "Avante AI" },

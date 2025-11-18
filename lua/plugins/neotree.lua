@@ -28,55 +28,7 @@ return {
       -- Get all hide patterns from shared module
       local hide_patterns = ignore_patterns.get_all_patterns()
 
-      -- Setup LSP file operations integration
-      local events = require "neo-tree.events"
-
       return {
-        -- LSP file operation event handlers for refactoring support
-        event_handlers = {
-          {
-            event = events.BEFORE_FILE_ADD,
-            handler = function(args) require("astrolsp.file_operations").willCreateFiles(args) end,
-          },
-          {
-            event = events.FILE_ADDED,
-            handler = function(args) require("astrolsp.file_operations").didCreateFiles(args) end,
-          },
-          {
-            event = events.BEFORE_FILE_DELETE,
-            handler = function(args) require("astrolsp.file_operations").willDeleteFiles(args) end,
-          },
-          {
-            event = events.FILE_DELETED,
-            handler = function(args) require("astrolsp.file_operations").didDeleteFiles(args) end,
-          },
-          {
-            event = events.BEFORE_FILE_MOVE,
-            handler = function(args)
-              require("astrolsp.file_operations").willRenameFiles { from = args.source, to = args.destination }
-            end,
-          },
-          {
-            event = events.BEFORE_FILE_RENAME,
-            handler = function(args)
-              require("astrolsp.file_operations").willRenameFiles { from = args.source, to = args.destination }
-            end,
-          },
-          {
-            event = events.FILE_MOVED,
-            handler = function(args)
-              require("astrolsp.file_operations").didRenameFiles { from = args.source, to = args.destination }
-              require("snacks").rename.on_rename_file(args.source, args.destination)
-            end,
-          },
-          {
-            event = events.FILE_RENAMED,
-            handler = function(args)
-              require("astrolsp.file_operations").didRenameFiles { from = args.source, to = args.destination }
-              require("snacks").rename.on_rename_file(args.source, args.destination)
-            end,
-          },
-        },
 
         popup_border_style = "rounded",
         enable_git_status = true,
@@ -109,9 +61,11 @@ return {
             ["/"] = "fuzzy_finder",
             ["f"] = "filter_on_submit",
             ["<c-x>"] = "clear_filter",
-            ["<CR>"] = "open_and_close_neotree",
-            ["<S-CR>"] = "open",
-            -- Git keybindings from astrocore
+             ["<CR>"] = "open_and_close_neotree",
+             ["<S-CR>"] = "open",
+             -- Avante integration
+             ["<C-a>"] = "avante_add_files",
+             -- Git keybindings from astrocore
             ["<C-g>o"] = function() vim.cmd "!gh repo view --web" end,
             ["<C-g>h"] = function()
               require("snacks").terminal("gh dash", {
@@ -131,7 +85,6 @@ return {
             ["<C-g>b"] = function() require("snacks").picker.git_branches() end,
             -- Terminal keybindings from astrocore
             ["<C-t>m"] = terminals.mk_toggle,
-            ["<C-t>j"] = terminals.lazyjournal_toggle,
             ["<C-t>l"] = function()
               require("snacks").terminal("lazydocker", {
                 hidden = true,
@@ -269,6 +222,28 @@ return {
         -- Filesystem specific settings
         filesystem = {
           commands = {
+            -- Avante integration: Add files to avante selected files
+            avante_add_files = function(state)
+              local node = state.tree:get_node()
+              local filepath = node:get_id()
+              local relative_path = require('avante.utils').relative_path(filepath)
+
+              local sidebar = require('avante').get()
+
+              local open = sidebar:is_open()
+              -- ensure avante sidebar is open
+              if not open then
+                require('avante.api').ask()
+                sidebar = require('avante').get()
+              end
+
+              sidebar.file_selector:add_selected_file(relative_path)
+
+              -- remove neo tree buffer
+              if not open then
+                sidebar.file_selector:remove_selected_file('neo-tree filesystem [1]')
+              end
+            end,
             -- Refresh patterns when changing directories
             refresh_patterns = function(state)
               -- Re-read patterns when navigating
