@@ -13,7 +13,6 @@ return {
   { import = "astrocommunity.pack.go" },
   { import = "astrocommunity.pack.golangci-lint" },
   { import = "astrocommunity.pack.html-css" },
-  -- oxlint configured manually in astrolsp.lua via nvim-lint
   { import = "astrocommunity.pack.toml" },
   { import = "astrocommunity.pack.typescript" },
   { import = "astrocommunity.pack.yaml" },
@@ -26,5 +25,5 @@ return {
   { import = "astrocommunity.lsp.inc-rename-nvim" },
   { import = "astrocommunity.lsp.nvim-lsp-file-operations" },
   { import = "astrocommunity.colorscheme.cyberdream-nvim" },
-  { import = "astrocommunity.recipes.vscode-icons" },
+  { import = "astrocommunity.completion.copilot-vim-cmp" },
 }
