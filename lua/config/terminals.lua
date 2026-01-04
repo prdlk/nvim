@@ -65,6 +65,16 @@ function M.setup()
       vim.api.nvim_buf_set_keymap(term.bufnr, "n", "q", "<cmd>close<CR>", { noremap = true, silent = true })
     end,
   }
+  -- Mk (make) terminal
+  local lazydocker = Terminal:new {
+    cmd = "lazydocker",
+    hidden = true,
+    direction = "float",
+    on_open = function(term)
+      vim.cmd "startinsert!"
+      vim.api.nvim_buf_set_keymap(term.bufnr, "n", "q", "<cmd>close<CR>", { noremap = true, silent = true })
+    end,
+  }
 
   -- Scratch terminal
   local scratch = Terminal:new {
@@ -80,6 +90,7 @@ function M.setup()
   M.scooter_toggle = function() scooter:toggle() end
   M.mk_toggle = function() mk:toggle() end
   M.lazygit_toggle = function() lazygit:toggle() end
+  M.lazydocker_toggle = function() lazydocker:toggle() end
   M.smartCommit_toggle = function() smartCommit:toggle() end
   M.scratch_toggle = function() scratch:toggle() end
 end
