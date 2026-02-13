@@ -102,11 +102,12 @@ function M.setup()
           vim.fn.chansend(term.job_id, "\x10") -- raw Ctrl-P
         end,
       })
-      vim.api.nvim_buf_set_keymap(term.bufnr, "t", "<S-CR>", "", {
+
+      vim.api.nvim_buf_set_keymap(term.bufnr, "t", "<C-j>", "", {
         noremap = true,
         silent = true,
         callback = function()
-          vim.fn.chansend(term.job_id, "\x1b[13;2u") -- kitty protocol Shift+Enter
+          vim.fn.chansend(term.job_id, "\x0a") -- Ctrl+J / LF — always works in opencode
         end,
       })
       vim.api.nvim_buf_set_keymap(
