@@ -87,7 +87,7 @@ function M.setup()
     count = 99, -- fixed ID so toggleterm never creates a duplicate
     on_open = function(term)
       vim.cmd "startinsert!"
-      vim.api.nvim_buf_set_keymap(term.bufnr, "n", "q", "<cmd>close<CR>", { noremap = true, silent = true })
+      vim.api.nvim_buf_set_keymap(term.bufnr, "n", "q", "<cmd>tabprevious<CR>", { noremap = true, silent = true })
       vim.api.nvim_buf_set_keymap(
         term.bufnr,
         "t",
@@ -95,6 +95,20 @@ function M.setup()
         "<cmd>tabprevious<CR>",
         { noremap = true, silent = true }
       )
+      vim.api.nvim_buf_set_keymap(term.bufnr, "t", "<C-p>", "", {
+        noremap = true,
+        silent = true,
+        callback = function()
+          vim.fn.chansend(term.job_id, "\x10") -- raw Ctrl-P
+        end,
+      })
+      vim.api.nvim_buf_set_keymap(term.bufnr, "t", "<S-CR>", "", {
+        noremap = true,
+        silent = true,
+        callback = function()
+          vim.fn.chansend(term.job_id, "\x1b[13;2u") -- kitty protocol Shift+Enter
+        end,
+      })
       vim.api.nvim_buf_set_keymap(
         term.bufnr,
         "n",
@@ -102,6 +116,24 @@ function M.setup()
         "<cmd>tabprevious<CR>",
         { noremap = true, silent = true }
       )
+      vim.api.nvim_buf_set_keymap(term.bufnr, "t", "<C-o>", "<cmd>tabprevious<CR>", { noremap = true, silent = true })
+      vim.api.nvim_buf_set_keymap(term.bufnr, "n", "<C-o>", "<cmd>tabprevious<CR>", { noremap = true, silent = true })
+      vim.api.nvim_buf_set_keymap(term.bufnr, "t", "<C-c>", "", {
+        noremap = true,
+        silent = true,
+        callback = function()
+          term:shutdown()
+          vim.cmd "tabprevious"
+        end,
+      })
+      vim.api.nvim_buf_set_keymap(term.bufnr, "n", "<C-c>", "", {
+        noremap = true,
+        silent = true,
+        callback = function()
+          term:shutdown()
+          vim.cmd "tabprevious"
+        end,
+      })
     end,
   }
   -- Scratch terminal
