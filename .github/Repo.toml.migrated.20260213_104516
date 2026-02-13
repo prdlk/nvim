@@ -1,0 +1,6 @@
+[scopes]
+config = [".github", ".neoconf.json", ".luarc.json", ".stylua.toml", "selene.toml", "lazy-lock.json", "neovim.yml"]
+docs = ["README.md"]
+core = ["init.lua", "lua/config", "lua/plugins", "lua/lazy_setup.lua", "lua/polish.lua", "lua/community.lua"]
+claude = ["claude/agents", "claude/commands", "claude/skills"]
+docker = ["Dockerfile"]
