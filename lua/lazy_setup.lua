@@ -12,7 +12,6 @@ require("lazy").setup({
   },
   { import = "community" },
   { import = "plugins" },
-  { import = "plugins.local" },
 } --[[@as LazySpec]], {
   install = { colorscheme = { "cyberdream" } },
   ui = { backdrop = 100 },

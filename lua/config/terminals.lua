@@ -76,6 +76,34 @@ function M.setup()
     end,
   }
 
+  -- Opencode Terminal Tab
+
+  -- Opencode Terminal Tab (persistent)
+  local opencode = Terminal:new {
+    cmd = "opencode",
+    hidden = true,
+    direction = "tab",
+    close_on_exit = false,
+    count = 99, -- fixed ID so toggleterm never creates a duplicate
+    on_open = function(term)
+      vim.cmd "startinsert!"
+      vim.api.nvim_buf_set_keymap(term.bufnr, "n", "q", "<cmd>close<CR>", { noremap = true, silent = true })
+      vim.api.nvim_buf_set_keymap(
+        term.bufnr,
+        "t",
+        "<C-a><C-a>",
+        "<cmd>tabprevious<CR>",
+        { noremap = true, silent = true }
+      )
+      vim.api.nvim_buf_set_keymap(
+        term.bufnr,
+        "n",
+        "<C-a><C-a>",
+        "<cmd>tabprevious<CR>",
+        { noremap = true, silent = true }
+      )
+    end,
+  }
   -- Scratch terminal
   local scratch = Terminal:new {
     cmd = "zsh",
@@ -93,6 +121,23 @@ function M.setup()
   M.lazydocker_toggle = function() lazydocker:toggle() end
   M.smartCommit_toggle = function() smartCommit:toggle() end
   M.scratch_toggle = function() scratch:toggle() end
+  M.opencode_toggle = function()
+    if not opencode:is_open() then
+      opencode:open()
+    elseif opencode:is_focused() then
+      vim.cmd "tabprevious"
+    else
+      -- Find and switch to the opencode tab
+      local bufnr = opencode.bufnr
+      for _, win in ipairs(vim.api.nvim_list_wins()) do
+        if vim.api.nvim_win_get_buf(win) == bufnr then
+          vim.api.nvim_set_current_win(win)
+          vim.cmd "startinsert!"
+          return
+        end
+      end
+    end
+  end
 end
 
 return M

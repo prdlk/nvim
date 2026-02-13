@@ -390,15 +390,7 @@ return {
 
         ["<C-j><C-j>"] = { function() terminals.scratch_toggle() end, desc = "Open Scratch Terminal" },
         -- AI/Assistant mappings (Avante)
-        ["<C-a>"] = { nil, desc = "Avante AI" },
-        ["<C-a><C-a>"] = { "<cmd>AvanteToggle<cr>", desc = "Toggle Avante" },
-        ["<C-a>a"] = { "<cmd>AvanteAsk<cr>", desc = "Ask Avante" },
-        ["<C-a>e"] = { "<cmd>AvanteEdit<cr>", desc = "Edit with Avante" },
-        ["<C-a>r"] = { "<cmd>AvanteRefresh<cr>", desc = "Refresh Avante" },
-        ["<C-a>f"] = { "<cmd>AvanteFocus<cr>", desc = "Focus Avante" },
-        ["<C-a>c"] = { "<cmd>AvanteChat<cr>", desc = "Avante Chat" },
-        ["<C-a>s"] = { "<cmd>AvanteSwitchProvider<cr>", desc = "Switch Provider" },
-        ["<C-a>C"] = { "<cmd>AvanteClear<cr>", desc = "Clear Avante" },
+        ["<C-a><C-a>"] = { terminals.opencode_toggle, desc = "Toggle OpenCode" },
         -- UI Toggles with Snacks
         ["<leader>u"] = { desc = "UI Toggles" },
         ["<leader>ud"] = {
@@ -540,6 +532,7 @@ return {
         },
       },
       t = {
+        ["<C-a><C-a>"] = { terminals.opencode_toggle, desc = "Toggle OpenCode" },
         ["<C-t><C-t>"] = { terminals.mk_toggle, desc = "Taskfile Toggle" },
         ["<C-e>"] = { "<Cmd>Neotree toggle<CR>", desc = "Open Explorer" },
         -- Paste from system clipboard
