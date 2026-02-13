@@ -387,7 +387,19 @@ return {
           end,
           desc = "Find Package.json files",
         },
-
+        ["<C-p>"] = {
+          function()
+            -- Pass through to TUI if in opencode
+            if vim.b.toggle_number == 99 then
+              vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<C-p>", true, false, true), "t", false)
+              return
+            end
+            -- Paste from clipboard in other terminals
+            local content = vim.fn.getreg "+"
+            vim.api.nvim_paste(content, true, -1)
+          end,
+          desc = "Paste from system clipboard",
+        },
         ["<C-j><C-j>"] = { function() terminals.scratch_toggle() end, desc = "Open Scratch Terminal" },
         -- AI/Assistant mappings (Avante)
         ["<C-a><C-a>"] = { terminals.opencode_toggle, desc = "Toggle OpenCode" },
