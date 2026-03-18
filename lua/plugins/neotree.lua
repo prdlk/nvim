@@ -61,11 +61,11 @@ return {
             ["/"] = "fuzzy_finder",
             ["f"] = "filter_on_submit",
             ["<c-x>"] = "clear_filter",
-             ["<CR>"] = "open_and_close_neotree",
-             ["<S-CR>"] = "open",
-             -- Avante integration
-             ["<C-a>"] = "avante_add_files",
-             -- Git keybindings from astrocore
+            ["<CR>"] = "open_and_close_neotree",
+            ["<S-CR>"] = "open",
+            -- Avante integration
+            ["<C-a>"] = "avante_add_files",
+            -- Git keybindings from astrocore
             ["<C-g>o"] = function() vim.cmd "!gh repo view --web" end,
             ["<C-g>h"] = function()
               require("snacks").terminal("gh dash", {
@@ -226,23 +226,21 @@ return {
             avante_add_files = function(state)
               local node = state.tree:get_node()
               local filepath = node:get_id()
-              local relative_path = require('avante.utils').relative_path(filepath)
+              local relative_path = require("avante.utils").relative_path(filepath)
 
-              local sidebar = require('avante').get()
+              local sidebar = require("avante").get()
 
               local open = sidebar:is_open()
               -- ensure avante sidebar is open
               if not open then
-                require('avante.api').ask()
-                sidebar = require('avante').get()
+                require("avante.api").ask()
+                sidebar = require("avante").get()
               end
 
               sidebar.file_selector:add_selected_file(relative_path)
 
               -- remove neo tree buffer
-              if not open then
-                sidebar.file_selector:remove_selected_file('neo-tree filesystem [1]')
-              end
+              if not open then sidebar.file_selector:remove_selected_file "neo-tree filesystem [1]" end
             end,
             -- Refresh patterns when changing directories
             refresh_patterns = function(state)
@@ -295,9 +293,7 @@ return {
             always_show_by_pattern = {},
             visible = function(item)
               -- Hide all symlinks
-              if item.type == "link" then
-                return false
-              end
+              if item.type == "link" then return false end
               return true
             end,
             hide_by_name = {

@@ -35,14 +35,3 @@ vim.api.nvim_create_autocmd("VimResume", {
   end,
   desc = "Check for file changes after Screen reattach/resume",
 })
-
-
-
-require("cyberdream").setup {
-  variant = "default", -- use "light" for the light variant. Also accepts "auto" to set dark or light colors based on the current value of `vim.o.background`
-  transparent = true,
-  italic_comments = true,
-  hide_fillchars = true,
-  borderless_pickers = true,
-  terminal_colors = true,
-}
