@@ -20,6 +20,7 @@ return {
   { import = "astrocommunity.icon.mini-icons" },
   { import = "astrocommunity.bars-and-lines.bufferline-nvim" },
   { import = "astrocommunity.completion.blink-cmp" },
+  { import = "astrocommunity.colorscheme.cyberdream-nvim" },
   { import = "astrocommunity.editing-support.auto-save-nvim" },
   { import = "astrocommunity.editing-support.conform-nvim" },
   { import = "astrocommunity.lsp.inc-rename-nvim" },
