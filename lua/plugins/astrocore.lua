@@ -205,10 +205,10 @@ return {
         ["L"] = { "<Cmd>BufferLineCycleNext<CR>", desc = "Next buffer" },
         ["H"] = { "<Cmd>BufferLineCyclePrev<CR>", desc = "Previous buffer" },
         -- Window navigation
-        ["<C-h>"] = { "<C-w>h", desc = "Navigate to left window" },
-        ["<C-j>"] = { "<C-w>j", desc = "Navigate to bottom window" },
-        ["<C-k>"] = { "<C-w>k", desc = "Navigate to top window" },
-        ["<C-l>"] = { "<C-w>l", desc = "Navigate to right window" },
+        ["<C-h>"] = { function() require("kitty-navigator").navigateLeft() end, desc = "Navigate to left window" },
+        ["<C-j>"] = { function() require("kitty-navigator").navigateDown() end, desc = "Navigate to bottom window" },
+        ["<C-k>"] = { function() require("kitty-navigator").navigateUp() end, desc = "Navigate to top window" },
+        ["<C-l>"] = { function() require("kitty-navigator").navigateRight() end, desc = "Navigate to right window" },
         ["<C-e>"] = { "<Cmd>Neotree toggle<CR>", desc = "Open Explorer" },
         ["<C-m>"] = { "<Cmd>OverseerRun<CR>", desc = "Run Overseer" },
         ["<leader><leader>"] = {

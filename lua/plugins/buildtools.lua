@@ -285,7 +285,6 @@ return {
     },
   },
 
-  { "wakatime/vim-wakatime", lazy = false },
   -- Git integration for collaborative development
   {
     "lewis6991/gitsigns.nvim",
