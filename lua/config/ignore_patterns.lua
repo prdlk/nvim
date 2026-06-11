@@ -11,6 +11,7 @@ M.patterns = {
   -- Build artifacts and generated files
   "chain_*.json",
   ".npmrc",
+  ".epiq",
   ".omc",
   ".claude",
   ".changeset",
