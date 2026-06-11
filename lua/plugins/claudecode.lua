@@ -36,9 +36,9 @@ return {
       ---@module "snacks"
       ---@type snacks.win.Config|{}
       snacks_win_opts = {
-        position = "float",
-        width = 0.95,
-        height = 0.95,
+        position = "right",
+        width = 0.3,
+        height = 1,
         border = "rounded",
         backdrop = 60,
         keys = {
