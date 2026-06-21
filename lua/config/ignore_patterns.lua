@@ -32,6 +32,7 @@ M.patterns = {
   "AGENTS.md",
   "test",
   "tests",
+  ".omc",
 
   -- Configuration files
   ".editorconfig",
