@@ -25,3 +25,11 @@ end
 
 require "lazy_setup"
 require "polish"
+
+-- Enable terminal title setting in Nvim
+vim.opt.title = true
+-- Set the format of the title
+vim.opt.titlestring = "%t - Nvim"
+
+-- Ensure Nvim doesn't slow down on exit by resetting shell
+vim.cmd('set shell=sh') -- Prevents fish-incompatible lag when exiting nvim in fish/tmux

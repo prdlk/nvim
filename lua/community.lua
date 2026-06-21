@@ -14,7 +14,6 @@ return {
   { import = "astrocommunity.diagnostics.trouble-nvim" },
   { import = "astrocommunity.git.codediff-nvim" },
   { import = "astrocommunity.git.octo-nvim" },
-  { import = "astrocommunity.markdown-and-latex.render-markdown-nvim" },
   { import = "astrocommunity.pack.mdx" },
   { import = "astrocommunity.pack.biome" },
   { import = "astrocommunity.pack.go" },
