@@ -54,7 +54,7 @@ return {
         dirs = {},
       },
       autochdir = true,
-      scope = "win",
+      scope = "global",
       notify = false,
     },
 
@@ -294,7 +294,7 @@ return {
           desc = "Paste from system clipboard",
         },
         ["<C-j><C-j>"] = { function() terminals.scratch_toggle() end, desc = "Open Scratch Terminal" },
-        ["<C-a><C-a>"] = { "<Cmd>ClaudeCodeFocus<CR>", desc = "Toggle Claude Code" },
+        ["<C-a>f"] = { "<Cmd>ClaudeCodeFocus<CR>", desc = "Toggle Claude Code" },
         ["<C-m>"] = { "<Cmd>OverseerRun<CR>", desc = "Run Overseer task" },
         ["<C-a>d"] = {
           function() with_trouble("diagnostics") end,

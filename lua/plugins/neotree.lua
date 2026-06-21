@@ -32,13 +32,13 @@ return {
         git_status_async = true, -- Asynchronous git status. Improves performance.
         hide_root_node = true, -- Hide the root node.
         retain_hidden_root_indent = true, -- IF the root node is hidden, keep the indentation anyhow.
-        use_libuv_file_watcher = false,
+        use_libuv_file_watcher = true,
         sort = {
           sorter = "name",
         },
         window = {
           position = "left",
-          width = 34,
+          width = 32,
           mappings = {
             ["H"] = "navigate_up",
             ["L"] = function(state)
