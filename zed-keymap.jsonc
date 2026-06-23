@@ -1,0 +1,77 @@
+// Zed keymap mirroring the AstroNvim config in this repo.
+// Only binds with a real Zed equivalent are mapped; nvim-only features
+// (lazygit, Octo, ClaudeCode, snacks scoped pickers, Overseer-specific
+// pickers, in-line search) are skipped — see notes at the bottom.
+//
+// Docs: https://zed.dev/docs/key-bindings
+[
+  {
+    "context": "Workspace",
+    "bindings": {
+      "ctrl-e": "workspace::ToggleLeftDock", // <C-e> toggle explorer
+      "ctrl-s": "workspace::Save", // <C-s> save
+      "ctrl-m": "task::Spawn" // <C-m> run task (Overseer)
+    }
+  },
+  {
+    "context": "Editor && vim_mode == insert",
+    "bindings": {
+      "ctrl-s": "workspace::Save" // i_<C-s>
+    }
+  },
+  {
+    "context": "VimControl && vim_mode == normal",
+    "bindings": {
+      // --- existing binds ---
+      "space space": "file_finder::Toggle",
+      "space w": "pane::CloseActiveItem",
+      "space o": "outline::Toggle",
+      "space g b": "git::Branch",
+      "space t": "terminal_panel::ToggleFocus",
+      "space g g": "git_panel::ToggleFocus",
+      "space /": "pane::DeploySearch",
+      "escape escape": "workspace::Save",
+      "shift-u": "vim::Redo",
+      "space h": "editor::ToggleInlayHints",
+      "space e": "pane::RevealInProjectPanel",
+      "ctrl-a": "editor::ToggleCodeActions",
+      "] f": "vim::NextMethodStart",
+      "[ f": "vim::PreviousMethodStart",
+
+      // --- diagnostics / buffers / folds ---
+      "shift-j": "editor::GoToDiagnostic", // J next diagnostic
+      "shift-k": "editor::GoToPreviousDiagnostic", // K prev diagnostic
+      "shift-l": "pane::ActivateNextItem", // L next buffer
+      "shift-h": "pane::ActivatePreviousItem", // H prev buffer
+      "shift-f": "editor::ToggleFold", // F = za
+      "v v": "editor::SelectAll", // vv select whole buffer
+
+      // --- save / close ---
+      "ctrl-s": "workspace::Save",
+      "ctrl-w": "pane::CloseActiveItem", // <C-w> save+close -> close (Zed autosaves)
+
+      // --- find (<C-f> prefix) ---
+      "ctrl-f f": "file_finder::Toggle",
+      "ctrl-f w": "pane::DeploySearch",
+      "ctrl-f d": "diagnostics::Deploy",
+      "ctrl-f o": "projects::OpenRecent",
+      "ctrl-f p": "projects::OpenRecent",
+
+      // --- buffers (<C-b> prefix) ---
+      "ctrl-b f": "tab_switcher::Toggle",
+
+      // --- actions / symbols (<C-a> prefix) ---
+      "ctrl-a a": "editor::ToggleCodeActions",
+      "ctrl-a d": "diagnostics::Deploy",
+      "ctrl-a s": "outline::Toggle",
+      "ctrl-a shift-s": "project_symbols::Toggle",
+
+      // --- git (<C-g> prefix) ---
+      "ctrl-g g": "git_panel::ToggleFocus",
+      "ctrl-g b": "git::Branch",
+
+      // --- terminal ---
+      "ctrl-j ctrl-j": "terminal_panel::ToggleFocus"
+    }
+  }
+]
