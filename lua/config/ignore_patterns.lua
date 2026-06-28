@@ -86,6 +86,7 @@ M.never_show = {
   -- Version control
   ".git",
   ".ai",
+  ".omc",
 
   -- Dependencies
   "node_modules",

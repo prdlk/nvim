@@ -45,17 +45,6 @@ function M.setup()
   }
 
   -- Mk (make) terminal
-  local mk = Terminal:new {
-    cmd = "task",
-    hidden = true,
-    direction = "horizontal",
-    on_open = function(term)
-      vim.cmd "startinsert!"
-      vim.api.nvim_buf_set_keymap(term.bufnr, "n", "q", "<cmd>close<CR>", { noremap = true, silent = true })
-    end,
-  }
-
-  -- Mk (make) terminal
   local lazygit = Terminal:new {
     cmd = "lazygit",
     hidden = true,
@@ -76,23 +65,24 @@ function M.setup()
     end,
   }
 
-  -- Scratch terminal
-  local scratch = Terminal:new {
-    cmd = "zsh",
+  -- yazi terminal
+  local yazi = Terminal:new {
+    cmd = "yazi",
     hidden = true,
-    direction = "horizontal",
+    direction = "float",
     on_open = function(term)
       vim.cmd "startinsert!"
       vim.api.nvim_buf_set_keymap(term.bufnr, "n", "q", "<cmd>close<CR>", { noremap = true, silent = true })
     end,
   }
+
   -- Export toggle functions to module instead of global namespace
   M.scooter_toggle = function() scooter:toggle() end
   M.mk_toggle = function() mk:toggle() end
   M.lazygit_toggle = function() lazygit:toggle() end
   M.lazydocker_toggle = function() lazydocker:toggle() end
   M.smartCommit_toggle = function() smartCommit:toggle() end
-  M.scratch_toggle = function() scratch:toggle() end
+  M.yazi_toggle = function() yazi:toggle() end
 end
 
 return M
