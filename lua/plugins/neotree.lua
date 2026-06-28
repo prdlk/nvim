@@ -59,6 +59,8 @@ return {
             ["<S-CR>"] = "open",
             -- Claude Code: add file under cursor to context
             ["<C-a>"] = function() vim.cmd "ClaudeCodeTreeAdd" end,
+            -- Preview image under cursor via kitty's icat kitten
+            ["<leader>p"] = "image_kitty",
             -- Git keybindings from astrocore
             ["<C-g>o"] = function() vim.cmd "!gh repo view --web" end,
             ["<C-g>h"] = function()
@@ -230,6 +232,20 @@ return {
               local success, node = pcall(tree.get_node, tree)
               if not success then return end
               if node.type == "file" then require("neo-tree.command").execute { action = "close" } end
+            end,
+
+            -- Preview an image with kitty's icat kitten in a snacks terminal
+            image_kitty = function(state)
+              local node = state.tree:get_node()
+              if node and node.type == "file" then
+                require("snacks").terminal("kitten icat --hold " .. vim.fn.shellescape(node.path), {
+                  hidden = true,
+                  auto_close = false,
+                  interactive = true,
+                })
+              else
+                vim.notify("Not a file", vim.log.levels.WARN, { title = "Neo-tree" })
+              end
             end,
 
             -- Custom command to open Mason

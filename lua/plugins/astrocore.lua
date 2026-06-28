@@ -190,6 +190,8 @@ return {
         ["<C-s>"] = { "<cmd>w<CR>", desc = "Save buffer" },
         ["<C-w>"] = { "<cmd>w<CR><Cmd>bd<CR>", desc = "Save and close buffer" },
         ["<C-Tab>"] = { "<cmd>tabnext<CR>", desc = "Next Tab" },
+        ["<C-d><C-d>"] = { terminals.lazydocker_toggle, desc = "Lazygit Toggle" },
+        ["<C-f><C-f>"] = { terminals.yazi_toggle, desc = "Yazi Toggle" },
         ["<C-g><C-g>"] = { terminals.lazygit_toggle, desc = "Lazygit Toggle" },
         ["<C-g><C-i>"] = { "<cmd>Octo issue list<CR>", desc = "List Issues" },
         ["<C-g><C-l>"] = { "<cmd>Octo label<CR>", desc = "Manage Labels" },

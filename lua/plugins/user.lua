@@ -5,7 +5,29 @@
 
 ---@type LazySpec
 return {
-
+{
+  "basola21/PDFview",
+  lazy = false,
+  dependencies = { "nvim-telescope/telescope.nvim" }
+},
+{
+  "tomfordweb/beads.nvim",
+  dependencies = {
+    "nvim-telescope/telescope.nvim",
+    "nvim-lua/plenary.nvim",
+  },
+  config = function()
+    require("beads").setup({ keymaps = true })
+    require("telescope").load_extension("beads")
+  end,
+},
+{
+    'adelarsq/image_preview.nvim',
+    event = 'VeryLazy',
+    config = function()
+        require("image_preview").setup()
+    end
+},
 
   -- customize dashboard options
   {
