@@ -33,3 +33,5 @@ vim.opt.titlestring = "%t - Nvim"
 
 -- Ensure Nvim doesn't slow down on exit by resetting shell
 vim.cmd('set shell=sh') -- Prevents fish-incompatible lag when exiting nvim in fish/tmux
+
+require("image_preview").setup({})
