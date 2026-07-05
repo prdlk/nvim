@@ -140,7 +140,8 @@ return {
     mappings = {
       n = {
         ["<C-!>"] = { "<Cmd>suspend<CR>", desc = "Suspend nvim (return with 'fg')" },
-        ["<C-q>Q"] = { "<Cmd>wqa<CR>", desc = "Save all buffers and quit Neovim" },
+        ["<C-q>"] = { "<Cmd>wqa<CR>", desc = "Save all buffers and quit Neovim" },
+        ["<A-q>"] = { "<Cmd>wqa<CR>", desc = "Save all buffers and quit Neovim" },
         ["<C-c>"] = { "<Cmd>wa<CR><Cmd>bd<CR>", desc = "Save and close buffer" },
         ["F"] = { "za", desc = "Toggle fold under cursor" },
         -- v6: vim.diagnostic.goto_next/goto_prev deprecated in 0.11, use jump()
@@ -190,9 +191,6 @@ return {
         ["<C-s>"] = { "<cmd>w<CR>", desc = "Save buffer" },
         ["<C-w>"] = { "<cmd>w<CR><Cmd>bd<CR>", desc = "Save and close buffer" },
         ["<C-Tab>"] = { "<cmd>tabnext<CR>", desc = "Next Tab" },
-        ["<C-d><C-d>"] = { terminals.lazydocker_toggle, desc = "Lazygit Toggle" },
-        ["<C-f><C-f>"] = { terminals.yazi_toggle, desc = "Yazi Toggle" },
-        ["<C-g><C-g>"] = { terminals.lazygit_toggle, desc = "Lazygit Toggle" },
         ["<C-g><C-i>"] = { "<cmd>Octo issue list<CR>", desc = "List Issues" },
         ["<C-g><C-l>"] = { "<cmd>Octo label<CR>", desc = "Manage Labels" },
         ["<C-g><C-p>"] = { "<cmd>Octo pr list<CR>", desc = "List PRs" },
@@ -314,6 +312,8 @@ return {
           function() with_trouble("lsp_workspace_symbols") end,
           desc = "Search LSP workspace symbols (<C-t> sends to Trouble)",
         },
+
+        ["<leader>L"] = { "<Cmd>Leet<CR>", desc = "Open LeetCode" },
 
         ["<leader>u"] = { desc = "UI Toggles" },
         ["<leader>ud"] = {
