@@ -9,6 +9,7 @@ local M = {}
 --- These patterns use glob syntax (* for wildcards)
 M.patterns = {
   -- Build artifacts and generated files
+  ".beads",
   "chain_*.json",
   ".npmrc",
   ".epiq",
@@ -194,6 +195,7 @@ M.ignored_directories = {
   "translations",
   "env",
   ".husky",
+  ".worktrees",
 }
 
 --- Read additional ignore patterns from .rgignore file in git root
