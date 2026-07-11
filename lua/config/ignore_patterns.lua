@@ -1,6 +1,6 @@
 --- Shared ignore patterns for file explorers and pickers
 --- This module provides a centralized list of patterns to ignore across
---- neotree, telescope, snacks.picker, and other file browsing tools.
+--- neotree, snacks.picker, and other file browsing tools.
 --- @module config.ignore_patterns
 
 local M = {}
