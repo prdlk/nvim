@@ -57,8 +57,6 @@ return {
             ["<c-x>"] = "clear_filter",
             ["<CR>"] = "open_and_close_neotree",
             ["<S-CR>"] = "open",
-            -- Claude Code: add file under cursor to context
-            ["<C-a>"] = function() vim.cmd "ClaudeCodeTreeAdd" end,
             -- Preview image under cursor via kitty's icat kitten
             ["<leader>p"] = "image_kitty",
             -- Git keybindings from astrocore

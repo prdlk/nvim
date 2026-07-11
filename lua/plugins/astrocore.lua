@@ -155,7 +155,14 @@ return {
         },
         ["L"] = { "<Cmd>BufferLineCycleNext<CR>", desc = "Next buffer" },
         ["H"] = { "<Cmd>BufferLineCyclePrev<CR>", desc = "Previous buffer" },
-        ["<C-e>"] = { "<Cmd>Neotree toggle reveal<CR>", desc = "Open Explorer (reveal current file)" },
+        ["<C-e>"] = {
+          function() require("snacks").picker.git_files { transform = file_filter } end,
+          desc = "Find git files",
+        },
+        ["<Leader>e"] = {
+          function() require("snacks").picker.files { transform = file_filter } end,
+          desc = "Find files (cwd)",
+        },
         ["<leader><leader>"] = {
           function() require("snacks").picker.smart() end,
           desc = "Find files",
@@ -248,8 +255,6 @@ return {
           end,
           desc = "Find AI files",
         },
-        ["<C-f>p"] = { desc = "Find Package files" },
-        ["<C-f>m"] = { desc = "Find Module files" },
         ["<C-f>g"] = { desc = "Find by Group" },
         ["<C-f>gw"] = {
           function()
@@ -294,8 +299,6 @@ return {
           desc = "Paste from system clipboard",
         },
         ["<C-j><C-j>"] = { function() terminals.scratch_toggle() end, desc = "Open Scratch Terminal" },
-        ["<C-a>f"] = { "<Cmd>ClaudeCodeFocus<CR>", desc = "Toggle Claude Code" },
-        ["<C-m>"] = { "<Cmd>OverseerRun<CR>", desc = "Run Overseer task" },
         ["<C-a>d"] = {
           function() with_trouble("diagnostics") end,
           desc = "Search diagnostics (<C-t> sends to Trouble)",
@@ -312,8 +315,6 @@ return {
           function() with_trouble("lsp_workspace_symbols") end,
           desc = "Search LSP workspace symbols (<C-t> sends to Trouble)",
         },
-
-        ["<leader>L"] = { "<Cmd>Leet<CR>", desc = "Open LeetCode" },
 
         ["<leader>u"] = { desc = "UI Toggles" },
         ["<leader>ud"] = {
@@ -404,10 +405,12 @@ return {
         ["<C-x>"] = { "<Cmd>wa<CR><Cmd>bd<CR><Esc>", desc = "Save, close buffer, and return to normal mode" },
       },
       v = {
-        ["<C-e>"] = { "<Cmd>Neotree toggle reveal<CR>", desc = "Open Explorer (reveal current file)" },
+        ["<C-e>"] = {
+          function() require("snacks").picker.git_files { transform = file_filter } end,
+          desc = "Find git files",
+        },
         ["<C-c>"] = { "<Cmd>w<CR><Cmd>bd<CR>", desc = "Save and close buffer" },
         ["<C-x>"] = { "<Cmd>w<CR><Cmd>bd<CR>", desc = "Save and close buffer" },
-        ["<C-a><C-a>"] = { "<Cmd>ClaudeCodeSend<CR>", desc = "Send selection to Claude Code" },
         ["D"] = {
           function()
             vim.cmd 'normal! "vy'
@@ -438,8 +441,10 @@ return {
         },
       },
       t = {
-        ["<C-a><C-a>"] = { "<Cmd>ClaudeCodeFocus<CR>", desc = "Toggle Claude Code" },
-        ["<C-e>"] = { "<Cmd>Neotree toggle reveal<CR>", desc = "Open Explorer (reveal current file)" },
+        ["<C-e>"] = {
+          function() require("snacks").picker.git_files { transform = file_filter } end,
+          desc = "Find git files",
+        },
         ["<C-p>"] = { function() vim.cmd 'normal! "+p' end, desc = "Paste from system clipboard" },
         ["<C-b>f"] = {
           function() require("snacks").picker.buffers() end,
