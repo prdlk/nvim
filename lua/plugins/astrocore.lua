@@ -152,10 +152,6 @@ return {
         },
         ["L"] = { "<Cmd>BufferLineCycleNext<CR>", desc = "Next buffer" },
         ["H"] = { "<Cmd>BufferLineCyclePrev<CR>", desc = "Previous buffer" },
-        ["<C-e>"] = {
-          function() require("snacks").picker.git_files { transform = file_filter } end,
-          desc = "Find git files",
-        },
         ["<Leader>e"] = {
           function() require("snacks").picker.files { transform = file_filter } end,
           desc = "Find files (cwd)",
@@ -401,10 +397,6 @@ return {
         ["<C-x>"] = { "<Cmd>wa<CR><Cmd>bd<CR><Esc>", desc = "Save, close buffer, and return to normal mode" },
       },
       v = {
-        ["<C-e>"] = {
-          function() require("snacks").picker.git_files { transform = file_filter } end,
-          desc = "Find git files",
-        },
         ["<C-c>"] = { "<Cmd>w<CR><Cmd>bd<CR>", desc = "Save and close buffer" },
         ["<C-x>"] = { "<Cmd>w<CR><Cmd>bd<CR>", desc = "Save and close buffer" },
         ["D"] = {
@@ -437,10 +429,6 @@ return {
         },
       },
       t = {
-        ["<C-e>"] = {
-          function() require("snacks").picker.git_files { transform = file_filter } end,
-          desc = "Find git files",
-        },
         ["<C-p>"] = { function() vim.cmd 'normal! "+p' end, desc = "Paste from system clipboard" },
         ["<C-b>f"] = {
           function() require("snacks").picker.buffers() end,
