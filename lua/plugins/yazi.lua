@@ -26,6 +26,12 @@ return {
         "<cmd>Yazi<cr>",
         desc = "Open Explorer (yazi at current file)",
       },
+      {
+        "<C-e>",
+        mode = { "n", "v", "t" },
+        "<cmd>Yazi toggle<cr>",
+        desc = "Toggle yazi (resume last session)",
+      },
     },
     ---@type YaziConfig | {}
     opts = {
