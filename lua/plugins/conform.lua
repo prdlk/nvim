@@ -4,8 +4,11 @@
 
 -- Action kinds we consider safe to apply on save. Matches exact kinds and
 -- any subkinds via "<kind>." prefix (LSP CodeActionKind is hierarchical).
+-- Deliberately NOT the bare "source" umbrella: it covers non-idempotent
+-- document rewrites (e.g. marksman's "Create Table of Contents").
 local SAFE_KINDS = {
-  "source",
+  "source.organizeImports",
+  "source.fixAll",
   "quickfix",
 }
 
@@ -41,14 +44,19 @@ local function lsp_diagnostics(bufnr)
   return out
 end
 
+-- Servers may ignore context.only (LSP allows it), so re-filter the returned
+-- actions by kind before applying. Kind-less actions are skipped: we asked for
+-- specific kinds, so anything untagged is not provably safe.
 local function apply_result(client, bufnr, result)
   if not result then return end
   for _, action in ipairs(result) do
-    if action.edit then
-      vim.lsp.util.apply_workspace_edit(action.edit, client.offset_encoding or "utf-8")
-    end
-    if type(action.command) == "table" then
-      client:exec_cmd(action.command, { bufnr = bufnr })
+    if is_safe_kind(action.kind) then
+      if action.edit then
+        vim.lsp.util.apply_workspace_edit(action.edit, client.offset_encoding or "utf-8")
+      end
+      if type(action.command) == "table" then
+        client:exec_cmd(action.command, { bufnr = bufnr })
+      end
     end
   end
 end
