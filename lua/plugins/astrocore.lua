@@ -3,9 +3,6 @@
 --- @module plugins.astrocore
 
 local ignore_patterns = require "config.ignore_patterns"
-local terminals = require "config.terminals"
-
-terminals.setup()
 
 local file_filter = ignore_patterns.create_picker_filter()
 
@@ -140,7 +137,7 @@ return {
     mappings = {
       n = {
         ["<C-!>"] = { "<Cmd>suspend<CR>", desc = "Suspend nvim (return with 'fg')" },
-        ["<C-q>"] = { "<Cmd>wqa<CR>", desc = "Save all buffers and quit Neovim" },
+        ["ZZ"] = { "<Cmd>wqa<CR>", desc = "Save all buffers and quit Neovim" },
         ["<A-q>"] = { "<Cmd>wqa<CR>", desc = "Save all buffers and quit Neovim" },
         ["<C-c>"] = { "<Cmd>wa<CR><Cmd>bd<CR>", desc = "Save and close buffer" },
         ["F"] = { "za", desc = "Toggle fold under cursor" },
@@ -298,7 +295,6 @@ return {
           end,
           desc = "Paste from system clipboard",
         },
-        ["<C-j><C-j>"] = { function() terminals.scratch_toggle() end, desc = "Open Scratch Terminal" },
         ["<C-a>d"] = {
           function() with_trouble("diagnostics") end,
           desc = "Search diagnostics (<C-t> sends to Trouble)",
