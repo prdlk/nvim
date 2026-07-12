@@ -313,6 +313,7 @@ return {
           function() with_trouble("lsp_workspace_symbols") end,
           desc = "Search LSP workspace symbols (<C-t> sends to Trouble)",
         },
+        ["<C-a><C-s>"] = { "<Cmd>SupermavenToggle<CR>", desc = "Toggle Supermaven" },
 
         ["<leader>u"] = { desc = "UI Toggles" },
         ["<leader>ud"] = {

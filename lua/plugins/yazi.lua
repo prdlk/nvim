@@ -57,6 +57,17 @@ return {
       yazi_floating_window_border = "none",
       keymaps = {
         show_help = "<f1>",
+        -- Open the hovered/selected file(s) as nvim splits. These are
+        -- buffer-local terminal-mode keymaps on the yazi buffer, so nvim
+        -- intercepts the chord before the yazi process ever sees it --
+        -- nothing is needed in ~/.config/yazi/keymap.toml. Chords match
+        -- the telescope/snacks picker convention (<c-v>/<c-x>/<c-t>).
+        open_file_in_vertical_split = "<c-v>",
+        open_file_in_horizontal_split = "<c-x>",
+        -- NOTE: the default <c-t> (open in tab) shadows the yazi-side
+        -- <C-t> "plugin tv" bind from keymap.toml while inside nvim;
+        -- set open_file_in_tab = false to let <C-t> reach yazi/tv instead
+        open_file_in_tab = "<c-t>",
         -- ~/.config/yazi/keymap.toml binds <C-q> to quit inside yazi;
         -- don't hijack it for the quickfix list (multi-select still goes
         -- to the quickfix list via the default yazi_opened_multiple_files)
