@@ -29,7 +29,20 @@ return {
       {
         "<C-e>",
         mode = { "n", "v", "t" },
-        "<cmd>Yazi toggle<cr>",
+        function()
+          -- true toggle: if a yazi window is already open, quit it instead
+          -- of nesting a second instance (yazi.nvim's toggle() always spawns)
+          for _, win in ipairs(vim.api.nvim_list_wins()) do
+            local buf = vim.api.nvim_win_get_buf(win)
+            if vim.bo[buf].filetype == "yazi" then
+              -- send `q` to the yazi process so it exits gracefully and
+              -- saves its state for the next resume
+              vim.api.nvim_chan_send(vim.bo[buf].channel, "q")
+              return
+            end
+          end
+          vim.cmd "Yazi toggle"
+        end,
         desc = "Toggle yazi (resume last session)",
       },
     },
