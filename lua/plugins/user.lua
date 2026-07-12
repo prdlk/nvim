@@ -25,6 +25,20 @@ for _, source in ipairs { "files", "git_files", "smart", "recent", "buffers" } d
   }
 end
 
+-- Smart picker: anchor to the current git repository. `config` runs when
+-- the picker opens: cwd becomes the repo root (so the `files` finder scans
+-- the whole repo, not just a rooter-chdir'd subdir) and `filter.cwd` drops
+-- buffers/recent entries from other repos. Outside a repo, plain cwd
+-- behavior is kept.
+picker_sources.smart.config = function(opts)
+  local root = require("snacks").git.get_root()
+  if root then
+    opts.cwd = root
+    opts.filter = vim.tbl_extend("force", opts.filter or {}, { cwd = true })
+  end
+  return opts
+end
+
 ---@type LazySpec
 return {
   { "sphamba/smear-cursor.nvim", opts = {} },

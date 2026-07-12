@@ -226,6 +226,12 @@ return {
           function() require("snacks").picker.git_files { transform = file_filter } end,
           desc = "Find files",
         },
+        ["<C-f><C-f>"] = {
+          function()
+            require("snacks").picker.lsp_symbols { layout = { preset = "vscode", preview = "main" } }
+          end,
+          desc = "Find LSP symbols",
+        },
         ["<C-f>o"] = {
           function() require("snacks").picker.recent() end,
           desc = "Find recent files",
