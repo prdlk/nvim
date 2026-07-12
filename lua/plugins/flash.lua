@@ -39,25 +39,22 @@ return {
       mode = "n",
       function()
         -- Search-style flash: type a regex pattern and labels appear on
-        -- every match. While selecting, `n`/`N` cycle to the next/previous
-        -- result (flash consumes action keys before pattern input, so n/N
-        -- can't be typed into the pattern -- use `s` for those), <CR>
-        -- confirms the selection, a label jumps directly, <Esc> cancels
-        -- back to the origin. The pattern is pushed to search history and
-        -- the `/` register, so `n`/`N` keep working after the jump.
+        -- every match. While selecting, `<C-n>`/`<C-b>` cycle to the
+        -- next/previous result, <CR> confirms the selection, a label jumps
+        -- directly, <Esc> cancels back to the origin. The pattern is pushed
+        -- to search history and the `/` register, so `n`/`N` keep working
+        -- after the jump.
         local current ---@type Flash.Match?
         require("flash").jump {
           search = { mode = "search" },
           jump = { history = true, register = true, nohlsearch = true },
-          -- n/N are cycle keys, so never assign them as jump labels
-          label = { exclude = "nN" },
           actions = {
-            ["n"] = function(state)
+            ["<c-n>"] = function(state)
               -- first press selects the current target, then cycle forward
               current = current and state:find { match = current, forward = true, wrap = true } or state.target
               if current then state:jump(current) end
             end,
-            ["N"] = function(state)
+            ["<c-b>"] = function(state)
               current = state:find { match = current or state.target, forward = false, wrap = true }
               if current then state:jump(current) end
             end,
