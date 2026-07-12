@@ -11,7 +11,12 @@ return {
         -- search-style jump below, so flash's char mode must not rebind
         -- them; t/T/;/, stay enhanced
         keys = { "t", "T", ";", "," },
+        -- show jump labels on the char-motion matches (t/T)
+        jump_labels = true,
       },
+      -- label-enhanced regular `/` and `?` search; <c-s> in cmdline
+      -- toggles it off for a plain search
+      search = { enabled = true },
     },
   },
   keys = {
@@ -33,13 +38,34 @@ return {
       "F",
       mode = "n",
       function()
-        -- Search-style flash: type a regex pattern (incremental, like
-        -- incsearch) and labels appear on every match. The pattern is
-        -- pushed to search history and the `/` register, so `n`/`N`
-        -- keep working after the jump.
+        -- Search-style flash: type a regex pattern and labels appear on
+        -- every match. While selecting, `n`/`N` cycle to the next/previous
+        -- result (flash consumes action keys before pattern input, so n/N
+        -- can't be typed into the pattern -- use `s` for those), <CR>
+        -- confirms the selection, a label jumps directly, <Esc> cancels
+        -- back to the origin. The pattern is pushed to search history and
+        -- the `/` register, so `n`/`N` keep working after the jump.
+        local current ---@type Flash.Match?
         require("flash").jump {
-          search = { mode = "search", incremental = true },
+          search = { mode = "search" },
           jump = { history = true, register = true, nohlsearch = true },
+          -- n/N are cycle keys, so never assign them as jump labels
+          label = { exclude = "nN" },
+          actions = {
+            ["n"] = function(state)
+              -- first press selects the current target, then cycle forward
+              current = current and state:find { match = current, forward = true, wrap = true } or state.target
+              if current then state:jump(current) end
+            end,
+            ["N"] = function(state)
+              current = state:find { match = current or state.target, forward = false, wrap = true }
+              if current then state:jump(current) end
+            end,
+            ["<cr>"] = function(state)
+              state:jump(current) -- nil falls back to state.target
+              return false -- end the loop
+            end,
+          },
         }
       end,
       desc = "Flash search",
