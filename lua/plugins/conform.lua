@@ -91,4 +91,15 @@ return {
       end,
     })
   end,
+  opts = function(_, opts)
+    -- Skip format-on-save for JavaScript buffers (.js/.mjs/.cjs); manual
+    -- :Format / <Leader>lf still works. Wraps the astrocommunity pack's
+    -- format_on_save so its autoformat toggle handling is preserved.
+    local pack_format_on_save = opts.format_on_save
+    opts.format_on_save = function(bufnr)
+      if vim.bo[bufnr].filetype == "javascript" then return end
+      if type(pack_format_on_save) == "function" then return pack_format_on_save(bufnr) end
+      return pack_format_on_save
+    end
+  end,
 }
