@@ -34,3 +34,5 @@ vim.opt.titlestring = "%t - Nvim"
 -- Ensure Nvim doesn't slow down on exit by resetting shell
 vim.cmd('set shell=sh') -- Prevents fish-incompatible lag when exiting nvim in fish/tmux
 
+vim.opt.guicursor:append("v:hor20")
+vim.opt.guicursor:append("a:blinkon0")
