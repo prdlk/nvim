@@ -136,8 +136,8 @@ return {
 
     mappings = {
       n = {
-        -- disable AstroNvim's default <C-q> = force quit (:q!)
-        ["<C-Q>"] = false,
+        -- overrides AstroNvim's default <C-q> = force quit (:q!)
+        ["<C-q>"] = { "<Cmd>wqa<CR>", desc = "Save all buffers and quit Neovim" },
         ["<C-!>"] = { "<Cmd>suspend<CR>", desc = "Suspend nvim (return with 'fg')" },
         ["ZZ"] = { "<Cmd>wqa<CR>", desc = "Save all buffers and quit Neovim" },
         ["<A-q>"] = { "<Cmd>wqa<CR>", desc = "Save all buffers and quit Neovim" },
