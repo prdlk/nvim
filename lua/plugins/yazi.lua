@@ -50,8 +50,10 @@ return {
     opts = {
       -- yazi replaces netrw/neo-tree when opening directories (nvim .)
       open_for_directories = true,
-      -- open visible splits as yazi tabs for fast navigation
-      open_multiple_tabs = true,
+      -- keep a single yazi tab: `true` would pass every visible split as an
+      -- extra path arg, and each one becomes a yazi tab that then persists
+      -- across <C-e> toggles (resume), piling up tabs over time
+      open_multiple_tabs = false,
       -- occupy the whole screen instead of a floating popup
       floating_window_scaling_factor = 1,
       yazi_floating_window_border = "none",

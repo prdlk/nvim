@@ -155,8 +155,8 @@ return {
         ["L"] = { "<Cmd>BufferLineCycleNext<CR>", desc = "Next buffer" },
         ["H"] = { "<Cmd>BufferLineCyclePrev<CR>", desc = "Previous buffer" },
         ["<Leader>e"] = {
-          function() require("snacks").picker.files { transform = file_filter } end,
-          desc = "Find files (cwd)",
+          function() require("snacks").picker.git_files { transform = file_filter } end,
+          desc = "Find git files",
         },
         ["<leader><leader>"] = {
           function() require("snacks").picker.smart() end,
