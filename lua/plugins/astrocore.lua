@@ -225,8 +225,8 @@ return {
           desc = "Find word",
         },
         ["<C-f>f"] = {
-          function() require("snacks").picker.git_files { transform = file_filter } end,
-          desc = "Find files",
+          function() require("snacks").picker.files { transform = file_filter } end,
+          desc = "Find files (cwd)",
         },
         ["<C-f><C-f>"] = {
           function()
