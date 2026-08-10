@@ -1,7 +1,7 @@
 --- Shared ignore patterns for file explorers and pickers
 --- This module provides a centralized list of patterns to ignore across
 --- snacks.picker and other file browsing tools. (The never_show lists were
---- consumed by neo-tree, now replaced by yazi.nvim; kept as reference data.)
+--- consumed by neo-tree, now replaced by a yazi session; kept as reference.)
 ---
 --- Everything here is fast-event-context safe (pure Lua + libuv only):
 --- snacks picker transforms run inside async/uv callbacks where vimL
