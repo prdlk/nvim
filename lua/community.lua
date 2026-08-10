@@ -11,7 +11,6 @@ return {
   { import = "astrocommunity.editing-support.refactoring-nvim" },
   { import = "astrocommunity.editing-support.conform-nvim" },
   { import = "astrocommunity.diagnostics.trouble-nvim" },
-  { import = "astrocommunity.git.octo-nvim" },
   { import = "astrocommunity.pack.mdx" },
   { import = "astrocommunity.pack.biome" },
   { import = "astrocommunity.pack.go" },
@@ -27,6 +26,5 @@ return {
   { import = "astrocommunity.pack.tailwindcss" },
   { import = "astrocommunity.completion.supermaven-nvim" },
   { import = "astrocommunity.lsp.dev-tools-nvim" },
-  { import = "astrocommunity.lsp.nvim-lsp-file-operations" },
   { import = "astrocommunity.colorscheme.cyberdream-nvim" },
 }
