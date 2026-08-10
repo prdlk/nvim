@@ -1,4 +1,5 @@
---- User plugins: cursor animation and snacks.nvim (picker + dashboard) customization
+--- User plugins: cursor animation and the central snacks.nvim configuration
+--- (all snacks modules are configured here in one snacks.Config table)
 
 -- Confirm action for file-opening pickers: <CR> opens the selection as a
 -- tab via `tabdrop` (:tab drop semantics — focus the buffer if it's already
@@ -43,53 +44,42 @@ end
 return {
   { "sphamba/smear-cursor.nvim", opts = {} },
 
-  -- terminals are handled by kitty now
+  -- AstroNvim CORE ships toggleterm (astronvim/plugins/toggleterm.lua);
+  -- terminals are handled by kitty + snacks.terminal/external-tui instead
   { "akinsho/toggleterm.nvim", enabled = false },
+
+  -- pulled in by astrocommunity.pack.typescript; only ever loaded by
+  -- neo-tree/nvim-tree (both removed) and yazi.nvim handles LSP renames
+  { "antosha417/nvim-lsp-file-operations", enabled = false },
 
   {
     "folke/snacks.nvim",
+    ---@type snacks.Config
     opts = {
+      -- dashboard discarded in favor of session management: the astrocore
+      -- restore_session autocmd resumes the cwd dirsession on startup and
+      -- sessions.autosave persists it on exit
+      dashboard = { enabled = false },
+
+      -- GitHub issue/PR pickers and buffers (`<C-g>` binds in astrocore.lua)
+      gh = {},
+
+      -- auto-highlight LSP references of the symbol under the cursor;
+      -- ]] / [[ jump binds live in polish.lua (Snacks.keymap, LSP-gated)
+      words = { enabled = true },
+
       picker = {
         jump = { reuse_win = true },
         sources = picker_sources,
       },
-      dashboard = {
-        enabled = true,
-        preset = {
-          -- "prdlk.nvim" in ansi_regular block style
-          header = table.concat({
-            "██████  ██████  ██████  ██      ██   ██    ███    ██ ██    ██ ██ ███    ███",
-            "██   ██ ██   ██ ██   ██ ██      ██  ██     ████   ██ ██    ██ ██ ████  ████",
-            "██████  ██████  ██   ██ ██      █████      ██ ██  ██ ██    ██ ██ ██ ████ ██",
-            "██      ██   ██ ██   ██ ██      ██  ██     ██  ██ ██  ██  ██  ██ ██  ██  ██",
-            "██      ██   ██ ██████  ███████ ██   ██ ██ ██   ████   ████   ██ ██      ██",
-          }, "\n"),
-        },
-        sections = {
-          { section = "header" },
-          { section = "keys", gap = 1, padding = 1 },
-          {
-            icon = " ",
-            desc = "Browse Repo",
-            padding = 1,
-            key = "b",
-            action = function() Snacks.gitbrowse() end,
-          },
-          {
-            icon = " ",
-            desc = "Projects (ghq)",
-            padding = 1,
-            key = "p",
-            action = function()
-              local repos = vim.fn.systemlist "ghq list -p"
-              vim.ui.select(repos, { prompt = "Select repository" }, function(dir)
-                if not dir then return end
-                vim.cmd.cd(dir)
-                Snacks.picker.files()
-              end)
-            end,
-          },
-          { section = "startup" },
+
+      styles = {
+        -- right-hand 30% split used by :Scooter (external-tui snacks terminal)
+        scooter = {
+          position = "right",
+          width = 0.3,
+          height = 0,
+          border = "none",
         },
       },
     },
