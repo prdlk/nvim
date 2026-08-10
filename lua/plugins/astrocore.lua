@@ -18,6 +18,55 @@ local function with_trouble(source, opts)
   require("snacks").picker[source](opts)
 end
 
+-- Terminal title: "<file> — <org/repo>", derived from the buffer's git remote
+-- (works for any clone location, not just ghq paths). Cached per git root.
+local repo_label_cache = {} ---@type table<string, string|false>
+local function repo_label(path)
+  local root = vim.fs.root(path, ".git")
+  if not root then return nil end
+  local cached = repo_label_cache[root]
+  if cached ~= nil then return cached or nil end
+  local label = nil
+  local gitdir = root .. "/.git"
+  local stat = vim.uv.fs_stat(gitdir)
+  if stat and stat.type == "file" then -- worktree/submodule: "gitdir: <path>"
+    local f = io.open(gitdir)
+    if f then
+      local line = f:read "*l" or ""
+      f:close()
+      local target = line:match "^gitdir:%s*(.+)$"
+      if target then
+        if not target:match "^/" then target = root .. "/" .. target end
+        -- worktrees: <common>/.git/worktrees/<name> → strip back to <common>/.git
+        gitdir = target:gsub("/worktrees/[^/]+$", "")
+      end
+    end
+  end
+  local f = io.open(gitdir .. "/config")
+  if f then
+    for line in f:lines() do
+      local url = line:match "^%s*url%s*=%s*(%S+)"
+      if url then
+        label = url:match "[:/]([^/:]+/[^/]+)%.git$" or url:match "[:/]([^/:]+/[^/]+)$"
+        if label then break end
+      end
+    end
+    f:close()
+  end
+  repo_label_cache[root] = label or false
+  return label
+end
+
+local function set_title(buf)
+  if vim.bo[buf].buftype ~= "" then return end -- keep last title in pickers/terminals
+  local filepath = vim.api.nvim_buf_get_name(buf)
+  local filename = vim.fs.basename(filepath)
+  local label = repo_label(filepath ~= "" and filepath or assert(vim.uv.cwd()))
+    or vim.fs.basename(assert(vim.uv.cwd()))
+  local title = (filename ~= "" and filename .. " — " or "") .. label
+  vim.o.titlestring = title:gsub("%%", "%%%%") -- '%' is a statusline escape in titlestring
+end
+
 return {
   "AstroNvim/astrocore",
   ---@type AstroCoreOpts
@@ -77,30 +126,8 @@ return {
       custom_title = {
         {
           event = { "BufEnter", "DirChanged" },
-          desc = "Update terminal title with org/repo format",
-          callback = function()
-            local filepath = vim.fn.expand "%:p"
-            local filename = vim.fn.expand "%:t"
-
-            if filename == "" then
-              local cwd = vim.fn.getcwd()
-              local github_match = cwd:match "github%.com/([^/]+/[^/]+)"
-              if github_match then
-                vim.opt.titlestring = github_match
-              else
-                vim.opt.titlestring = "Nvim"
-              end
-              return
-            end
-
-            local github_match = filepath:match "github%.com/([^/]+/[^/]+)"
-
-            if github_match then
-              vim.opt.titlestring = string.format("%s | %s", filename, github_match)
-            else
-              vim.opt.titlestring = string.format("%s | Nvim", filename)
-            end
-          end,
+          desc = "Set terminal title to '<file> — <org/repo>'",
+          callback = function(args) set_title(args.buf) end,
         },
       },
       restore_session = {
