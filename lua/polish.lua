@@ -16,3 +16,8 @@ if ok then
     desc = "Previous reference",
   })
 end
+
+-- Define _G.EditFromYazi eagerly: the yazi opener (~/.local/bin/yazi-nvim-open)
+-- calls it via --remote-expr from ANY yazi running in an nvim terminal, even
+-- one started before the session keymaps ever fired.
+require "config.yazi_session"
