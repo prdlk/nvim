@@ -49,7 +49,7 @@ return {
   { "akinsho/toggleterm.nvim", enabled = false },
 
   -- pulled in by astrocommunity.pack.typescript; only ever loaded by
-  -- neo-tree/nvim-tree (both removed) and yazi.nvim handles LSP renames
+  -- neo-tree/nvim-tree (both removed; yazi runs as a plain snacks terminal)
   { "antosha417/nvim-lsp-file-operations", enabled = false },
 
   {
