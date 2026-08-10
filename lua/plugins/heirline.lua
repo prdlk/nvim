@@ -1,7 +1,12 @@
 --- Custom statusline (heirline via astroui.status components):
----   left  = NvChad style: mode pill with separators, file info, git branch/diff
----   right = VSCode style: diagnostics (NvChad icons), LSP, Ln/Col, Spaces,
----           encoding, EOL, filetype — flat text, no powerline chunks
+---   left  = NvChad style: angled mode pill, file info pill, git branch/diff
+---   right = VSCode-style info modules, ending in an NvChad mode-colored
+---           progress pill (nerd font icon + Top/Bot/percentage)
+---
+--- NOTE: every nerd-font PUA glyph in this file is written as a \u{XXXX}
+--- Lua escape ON PURPOSE — raw 3-byte PUA glyphs (U+E000-U+F8FF) have been
+--- stripped by tooling before, silently flattening the statusline.
+--- Keep this file ASCII-only.
 ---@type LazySpec
 return {
   {
@@ -9,22 +14,23 @@ return {
     ---@type AstroUIOpts
     opts = {
       icons = {
-        VimIcon = "",
-        GitBranch = "",
-        GitAdd = "",
-        GitChange = "",
-        GitDelete = "",
+        VimIcon = "\u{e62b}", -- nf-custom-vim
+        GitBranch = "\u{e725}", -- nf-dev-git_branch
+        GitAdd = "\u{f457}", -- nf-oct-diff_added
+        GitChange = "\u{f459}", -- nf-oct-diff_modified
+        GitDelete = "\u{f458}", -- nf-oct-diff_removed
+        Progress = "\u{f124}", -- nf-fa-location_arrow
         -- NvChad diagnostic icons
-        DiagnosticError = "󰅙",
-        DiagnosticWarn = "",
-        DiagnosticInfo = "󰋼",
-        DiagnosticHint = "󰛩",
+        DiagnosticError = "\u{f0159}", -- nf-md-close_circle
+        DiagnosticWarn = "\u{f071}", -- nf-fa-warning
+        DiagnosticInfo = "\u{f02fc}", -- nf-md-information
+        DiagnosticHint = "\u{f06e9}", -- nf-md-lightbulb_on
       },
       status = {
-        -- NvChad-style slanted separators for the left-side sections
+        -- NvChad-style angled (powerline arrow) separators
         separators = {
-          left = { "", "" },
-          right = { " ", "" },
+          left = { "", "\u{e0b0} " }, -- trailing solid right-arrow for left pills
+          right = { " \u{e0b2}", "" }, -- leading solid left-arrow for right pills
         },
         colors = function(hl)
           local get_hlgroup = require("astroui").get_hlgroup
@@ -74,7 +80,10 @@ return {
           filetype = false,
           file_read_only = false,
           padding = { right = 1 },
-          surround = { separator = "left", condition = false },
+          surround = {
+            separator = "left",
+            color = { main = "file_info_bg", right = "bg" },
+          },
         },
         status.component.git_branch {
           git_branch = { padding = { left = 1 } },
@@ -87,7 +96,7 @@ return {
 
         status.component.fill(),
 
-        -- ────────────────── right: VSCode ──────────────────
+        -- ────────────────── right: VSCode info + NvChad progress ──────────────────
         status.component.diagnostics {
           padding = { right = 1 },
           surround = { separator = "none" },
@@ -133,6 +142,28 @@ return {
           file_read_only = false,
           padding = { right = 1 },
           surround = { separator = "none", condition = false },
+        },
+        -- NvChad-style progress pill: mode-colored, angled, nerd font icon
+        status.component.builder {
+          {
+            provider = function()
+              local cur, total = vim.fn.line ".", vim.fn.line "$"
+              local pct
+              if cur == 1 then
+                pct = "Top"
+              elseif cur == total then
+                pct = "Bot"
+              else
+                pct = math.floor(cur / total * 100 + 0.5) .. "%%"
+              end
+              return (" %s %s "):format(require("astroui").get_icon "Progress", pct)
+            end,
+          },
+          hl = { fg = "bg", bold = true },
+          surround = {
+            separator = "right",
+            color = function() return { main = status.hl.mode_bg(), left = "bg" } end,
+          },
         },
       }
     end,
