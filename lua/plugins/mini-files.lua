@@ -41,8 +41,12 @@ local function add_entry(force_dir)
   local state = mf.get_explorer_state()
   if state == nil then return end
   local dir = state.branch[state.depth_focus]
+  -- show where the entry will land: cwd-relative when inside, else ~-relative
+  -- (branch paths can carry a trailing slash, which defeats the `:.` reduce)
+  local norm = dir:gsub("(.)/+$", "%1")
+  local label = norm == vim.uv.cwd() and "." or vim.fn.fnamemodify(norm, ":~:.")
   require("snacks").input({
-    prompt = force_dir and "New directory" or "New file",
+    prompt = (force_dir and "New directory in %s/" or "New file in %s/"):format(label),
   }, function(name)
     if name == nil or name == "" then return end
     vim.schedule(function()
@@ -63,6 +67,26 @@ local function add_entry(force_dir)
           break
         end
       end
+    end)
+  end)
+end
+
+--- `d`: delete the entry under cursor after a quick Snacks.input confirm.
+--- Deletes directly on disk, then MiniFiles.synchronize() refreshes the
+--- explorer (external change -> no second mini.files dialog).
+--- Buffer-edit deletion (visual-select + d + `=`) still works for bulk ops.
+local function delete_entry()
+  local mf = require "mini.files"
+  local entry = mf.get_fs_entry()
+  if entry == nil then return end
+  local suffix = entry.fs_type == "directory" and "/" or ""
+  require("snacks").input({
+    prompt = ("Delete %s%s? [y/N]"):format(entry.name, suffix),
+  }, function(answer)
+    if answer == nil or not vim.tbl_contains({ "y", "yes" }, answer:lower()) then return end
+    vim.schedule(function()
+      vim.fn.delete(entry.path, "rf")
+      mf.synchronize()
     end)
   end)
 end
@@ -105,6 +129,10 @@ return {
       options = {
         -- take over `nvim <dir>` / :edit <dir> from netrw
         use_as_default_explorer = true,
+        -- disable mini.files' own workspace/will*Files LSP hooks: renames are
+        -- routed through Snacks.rename below instead (both active would send
+        -- willRenameFiles twice and apply server workspace edits twice)
+        lsp_timeout = 0,
       },
     },
     config = function(_, opts)
@@ -119,10 +147,20 @@ return {
           -- neo-tree muscle memory: prompt for a name, create, refresh
           vim.keymap.set("n", "a", function() add_entry(false) end, { buffer = buf, desc = "Add file" })
           vim.keymap.set("n", "A", function() add_entry(true) end, { buffer = buf, desc = "Add directory" })
+          vim.keymap.set("n", "d", delete_entry, { buffer = buf, desc = "Delete entry" })
           map_split(buf, "<C-x>", "belowright horizontal")
           map_split(buf, "<C-v>", "belowright vertical")
           map_split(buf, "<C-t>", "tab")
         end,
+      })
+
+      -- LSP-integrated renames: `=` renames/moves fire these events after the
+      -- fs change; Snacks.rename notifies clients and applies returned edits
+      vim.api.nvim_create_autocmd("User", {
+        pattern = { "MiniFilesActionRename", "MiniFilesActionMove" },
+        group = vim.api.nvim_create_augroup("minifiles_snacks_rename", { clear = true }),
+        desc = "Notify LSP clients about mini.files renames/moves",
+        callback = function(event) require("snacks").rename.on_rename_file(event.data.from, event.data.to) end,
       })
     end,
     init = function()
