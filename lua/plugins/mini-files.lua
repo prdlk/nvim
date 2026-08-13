@@ -89,9 +89,9 @@ local function delete_entry()
   if entry == nil then return end
   local suffix = entry.fs_type == "directory" and "/" or ""
   require("snacks").input({
-    prompt = ("Delete %s%s? [y/N]"):format(entry.name, suffix),
+    prompt = ("Delete %s%s? [Y/n]"):format(entry.name, suffix),
   }, function(answer)
-    if answer == nil or not vim.tbl_contains({ "y", "yes" }, answer:lower()) then return end
+    if answer == nil or not vim.tbl_contains({ "", "y", "yes" }, answer:lower()) then return end
     vim.schedule(function()
       vim.fn.delete(entry.path, "rf")
       mf.synchronize()
