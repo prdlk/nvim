@@ -13,21 +13,29 @@ local function open_at_current_file()
   require("mini.files").open(path)
 end
 
---- Buffer-local <C-x>/<C-v>/<C-t> (picker convention, matches the old yazi
---- binds): open entry under cursor in a horizontal/vertical split or new tab.
---- Recipe from :h MiniFiles-examples.
+--- Open the file under cursor in a split of the target window, then close
+--- the explorer. Recipe from :h MiniFiles-examples.
+---@param direction string split modifier, e.g. "belowright vertical"
+local function open_in_split(direction)
+  local mf = require "mini.files"
+  local entry = mf.get_fs_entry()
+  if entry == nil or entry.fs_type ~= "file" then return end
+  local new_target = vim.api.nvim_win_call(mf.get_explorer_state().target_window, function()
+    vim.cmd(direction .. " split")
+    return vim.api.nvim_get_current_win()
+  end)
+  mf.set_target_window(new_target)
+  mf.go_in { close_on_file = true }
+end
+
+--- Buffer-local <C-x>/<C-v>/<C-t> (picker convention, matches the old yazi binds).
 local function map_split(buf_id, lhs, direction)
-  vim.keymap.set("n", lhs, function()
-    local mf = require "mini.files"
-    local entry = mf.get_fs_entry()
-    if entry == nil or entry.fs_type ~= "file" then return end
-    local new_target = vim.api.nvim_win_call(mf.get_explorer_state().target_window, function()
-      vim.cmd(direction .. " split")
-      return vim.api.nvim_get_current_win()
-    end)
-    mf.set_target_window(new_target)
-    mf.go_in { close_on_file = true }
-  end, { buffer = buf_id, desc = "Open in " .. direction .. " split" })
+  vim.keymap.set(
+    "n",
+    lhs,
+    function() open_in_split(direction) end,
+    { buffer = buf_id, desc = "Open in " .. direction .. " split" }
+  )
 end
 
 --- Prompt for a name with Snacks.input and create the entry inside the
@@ -126,6 +134,11 @@ return {
       },
     },
     opts = {
+      content = {
+        -- shared never_show lists (node_modules, .git, lockfiles, ...) from
+        -- the same module that filters the snacks pickers
+        filter = function(fs_entry) return not require("config.ignore_patterns").is_never_shown(fs_entry.name) end,
+      },
       options = {
         -- take over `nvim <dir>` / :edit <dir> from netrw
         use_as_default_explorer = true,
@@ -148,6 +161,25 @@ return {
           vim.keymap.set("n", "a", function() add_entry(false) end, { buffer = buf, desc = "Add file" })
           vim.keymap.set("n", "A", function() add_entry(true) end, { buffer = buf, desc = "Add directory" })
           vim.keymap.set("n", "d", delete_entry, { buffer = buf, desc = "Delete entry" })
+          -- <CR>: open file in the target window (the buffer) and close the
+          -- explorer; on a directory it just descends
+          vim.keymap.set(
+            "n",
+            "<CR>",
+            function() require("mini.files").go_in { close_on_file = true } end,
+            { buffer = buf, desc = "Open" }
+          )
+          -- `l`: descend into directories as usual, but a file opens as a
+          -- vertical split instead of replacing the target window
+          vim.keymap.set("n", "l", function()
+            local mf = require "mini.files"
+            local entry = mf.get_fs_entry()
+            if entry ~= nil and entry.fs_type == "file" then
+              open_in_split "belowright vertical"
+            else
+              mf.go_in {}
+            end
+          end, { buffer = buf, desc = "Go in (files: vsplit)" })
           map_split(buf, "<C-x>", "belowright horizontal")
           map_split(buf, "<C-v>", "belowright vertical")
           map_split(buf, "<C-t>", "tab")
