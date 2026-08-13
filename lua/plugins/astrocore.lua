@@ -18,55 +18,6 @@ local function with_trouble(source, opts)
   require("snacks").picker[source](opts)
 end
 
--- Terminal title: "<file> — <org/repo>", derived from the buffer's git remote
--- (works for any clone location, not just ghq paths). Cached per git root.
-local repo_label_cache = {} ---@type table<string, string|false>
-local function repo_label(path)
-  local root = vim.fs.root(path, ".git")
-  if not root then return nil end
-  local cached = repo_label_cache[root]
-  if cached ~= nil then return cached or nil end
-  local label = nil
-  local gitdir = root .. "/.git"
-  local stat = vim.uv.fs_stat(gitdir)
-  if stat and stat.type == "file" then -- worktree/submodule: "gitdir: <path>"
-    local f = io.open(gitdir)
-    if f then
-      local line = f:read "*l" or ""
-      f:close()
-      local target = line:match "^gitdir:%s*(.+)$"
-      if target then
-        if not target:match "^/" then target = root .. "/" .. target end
-        -- worktrees: <common>/.git/worktrees/<name> → strip back to <common>/.git
-        gitdir = target:gsub("/worktrees/[^/]+$", "")
-      end
-    end
-  end
-  local f = io.open(gitdir .. "/config")
-  if f then
-    for line in f:lines() do
-      local url = line:match "^%s*url%s*=%s*(%S+)"
-      if url then
-        label = url:match "[:/]([^/:]+/[^/]+)%.git$" or url:match "[:/]([^/:]+/[^/]+)$"
-        if label then break end
-      end
-    end
-    f:close()
-  end
-  repo_label_cache[root] = label or false
-  return label
-end
-
-local function set_title(buf)
-  if vim.bo[buf].buftype ~= "" then return end -- keep last title in pickers/terminals
-  local filepath = vim.api.nvim_buf_get_name(buf)
-  local filename = vim.fs.basename(filepath)
-  local label = repo_label(filepath ~= "" and filepath or assert(vim.uv.cwd()))
-    or vim.fs.basename(assert(vim.uv.cwd()))
-  local title = (filename ~= "" and filename .. " — " or "") .. label
-  vim.o.titlestring = title:gsub("%%", "%%%%") -- '%' is a statusline escape in titlestring
-end
-
 return {
   "AstroNvim/astrocore",
   ---@type AstroCoreOpts
@@ -126,8 +77,30 @@ return {
       custom_title = {
         {
           event = { "BufEnter", "DirChanged" },
-          desc = "Set terminal title to '<file> — <org/repo>'",
-          callback = function(args) set_title(args.buf) end,
+          desc = "Update terminal title with org/repo format",
+          callback = function()
+            local filepath = vim.fn.expand "%:p"
+            local filename = vim.fn.expand "%:t"
+
+            if filename == "" then
+              local cwd = vim.fn.getcwd()
+              local github_match = cwd:match "github%.com/([^/]+/[^/]+)"
+              if github_match then
+                vim.opt.titlestring = github_match
+              else
+                vim.opt.titlestring = "Nvim"
+              end
+              return
+            end
+
+            local github_match = filepath:match "github%.com/([^/]+/[^/]+)"
+
+            if github_match then
+              vim.opt.titlestring = string.format("%s | %s", filename, github_match)
+            else
+              vim.opt.titlestring = string.format("%s | Nvim", filename)
+            end
+          end,
         },
       },
       restore_session = {
@@ -156,7 +129,7 @@ return {
         clipboard = "unnamedplus",
         title = true,
         titlestring = "",
-        laststatus = 3, -- global statusline (custom heirline in heirline.lua)
+        laststatus = 0,
       },
       g = {},
     },
@@ -168,13 +141,7 @@ return {
         ["<C-!>"] = { "<Cmd>suspend<CR>", desc = "Suspend nvim (return with 'fg')" },
         ["ZZ"] = { "<Cmd>wqa<CR>", desc = "Save all buffers and quit Neovim" },
         ["<A-q>"] = { "<Cmd>wqa<CR>", desc = "Save all buffers and quit Neovim" },
-        ["<C-c>"] = {
-          function()
-            vim.cmd "wa"
-            require("snacks").bufdelete()
-          end,
-          desc = "Save and close buffer",
-        },
+        ["<C-c>"] = { "<Cmd>wa<CR><Cmd>bd<CR>", desc = "Save and close buffer" },
         ["F"] = { "za", desc = "Toggle fold under cursor" },
         -- v6: vim.diagnostic.goto_next/goto_prev deprecated in 0.11, use jump()
         ["J"] = {
@@ -201,7 +168,12 @@ return {
           desc = "Find buffers",
         },
         ["<C-b><C-c>"] = {
-          function() require("snacks").bufdelete.other() end,
+          function()
+            local current_buffer = vim.api.nvim_get_current_buf()
+            for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+              if buf ~= current_buffer then vim.api.nvim_buf_delete(buf, { force = true }) end
+            end
+          end,
           desc = "Close all buffers except the current one",
         },
         ["<C-b>g"] = {
@@ -217,58 +189,14 @@ return {
           function() require("snacks").picker.lines() end,
           desc = "Find in line",
         },
-        ["<C-g>o"] = { function() require("snacks").gitbrowse() end, desc = "Open Repo on Web" },
+        ["<C-g>o"] = { "<cmd>!gh repo view --web<CR>", desc = "Open Repo on Web" },
         ["<C-s>"] = { "<cmd>w<CR>", desc = "Save buffer" },
-        ["<C-w>"] = {
-          function()
-            vim.cmd "w"
-            require("snacks").bufdelete()
-          end,
-          desc = "Save and close buffer",
-        },
+        ["<C-w>"] = { "<cmd>w<CR><Cmd>bd<CR>", desc = "Save and close buffer" },
         ["<C-Tab>"] = { "<cmd>tabnext<CR>", desc = "Next Tab" },
-        ["<C-g><C-i>"] = {
-          function() require("snacks").picker.gh_issue() end,
-          desc = "GitHub issues (open)",
-        },
-        ["<C-g><C-p>"] = {
-          function() require("snacks").picker.gh_pr() end,
-          desc = "GitHub PRs (open)",
-        },
-        ["<C-g>I"] = {
-          function() require("snacks").picker.gh_issue { state = "all" } end,
-          desc = "GitHub issues (all)",
-        },
-        ["<C-g>P"] = {
-          function() require("snacks").picker.gh_pr { state = "all" } end,
-          desc = "GitHub PRs (all)",
-        },
-        -- which-key prefix group labels
-        ["<C-g>"] = { desc = "Git + GitHub" },
-        ["<C-f>"] = { desc = "Find" },
-        ["<C-b>"] = { desc = "Buffers" },
-        ["<C-a>"] = { desc = "Assist" },
-        -- ghq project switcher (previously a dashboard action)
-        ["<C-f>P"] = {
-          function()
-            local repos = vim.fn.systemlist "ghq list -p"
-            vim.ui.select(repos, { prompt = "Select repository" }, function(dir)
-              if not dir then return end
-              vim.cmd.cd(dir)
-              require("snacks").picker.files()
-            end)
-          end,
-          desc = "Find ghq projects",
-        },
-        ["<C-g><C-g>"] = {
-          function() require("snacks").lazygit() end,
-          desc = "Toggle lazygit (float)",
-        },
-        ["<C-d><C-d>"] = {
-          function() require("snacks").terminal.toggle("lazydocker", { win = { style = "float" } }) end,
-          desc = "Toggle lazydocker (float)",
-        },
-        ["<C-r>"] = { "<Cmd>Scooter<CR>", desc = "Find & replace (scooter)" },
+        ["<C-g><C-i>"] = { "<cmd>Octo issue list<CR>", desc = "List Issues" },
+        ["<C-g><C-l>"] = { "<cmd>Octo label<CR>", desc = "Manage Labels" },
+        ["<C-g><C-p>"] = { "<cmd>Octo pr list<CR>", desc = "List PRs" },
+        ["<C-g>s"] = { "<cmd>Octo search<CR>", desc = "Octo Search" },
         ["<C-g><C-r>"] = { "<cmd>!gh release list<CR>", desc = "List Releases" },
         ["<C-g>d"] = {
           function() require("snacks").picker.git_diff() end,
@@ -474,38 +402,12 @@ return {
       },
       i = {
         ["<C-s>"] = { "<Cmd>wa<CR><Esc>", desc = "Save buffer, and return to normal mode" },
-        ["<C-c>"] = {
-          function()
-            vim.cmd "stopinsert"
-            vim.cmd "wa"
-            require("snacks").bufdelete()
-          end,
-          desc = "Save, close buffer, and return to normal mode",
-        },
-        ["<C-x>"] = {
-          function()
-            vim.cmd "stopinsert"
-            vim.cmd "wa"
-            require("snacks").bufdelete()
-          end,
-          desc = "Save, close buffer, and return to normal mode",
-        },
+        ["<C-c>"] = { "<Cmd>wa<CR><Cmd>bd<CR><Esc>", desc = "Save, close buffer, and return to normal mode" },
+        ["<C-x>"] = { "<Cmd>wa<CR><Cmd>bd<CR><Esc>", desc = "Save, close buffer, and return to normal mode" },
       },
       v = {
-        ["<C-c>"] = {
-          function()
-            vim.cmd "w"
-            require("snacks").bufdelete()
-          end,
-          desc = "Save and close buffer",
-        },
-        ["<C-x>"] = {
-          function()
-            vim.cmd "w"
-            require("snacks").bufdelete()
-          end,
-          desc = "Save and close buffer",
-        },
+        ["<C-c>"] = { "<Cmd>w<CR><Cmd>bd<CR>", desc = "Save and close buffer" },
+        ["<C-x>"] = { "<Cmd>w<CR><Cmd>bd<CR>", desc = "Save and close buffer" },
         ["D"] = {
           function()
             vim.cmd 'normal! "vy'
