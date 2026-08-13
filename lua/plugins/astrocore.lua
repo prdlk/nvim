@@ -47,7 +47,9 @@ return {
         },
       },
       ignore = {
-        servers = { "golangci_lint_ls" },
+        -- golangci_lint_ls roots at the nearest go.mod, not the repo
+        -- dev-tools attaches with an empty root_dir which rooter treats as "/"
+        servers = { "golangci_lint_ls", "dev-tools" },
         dirs = {},
       },
       autochdir = true,
