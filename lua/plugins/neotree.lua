@@ -58,6 +58,9 @@ return {
           -- window option, not a top level one (it used to be set top level,
           -- where neo-tree ignored it)
           auto_expand_width = true,
+          -- keys must be spelled exactly like neo-tree's own defaults:
+          -- setup() does not case-normalize them, so `<CR>` would sit next to
+          -- the default `<cr>` and whichever `pairs()` reached last would win
           mappings = {
             ["H"] = "navigate_up",
             ["L"] = "set_root",
@@ -65,8 +68,8 @@ return {
             ["."] = "toggle_hidden",
             ["/"] = "fuzzy_finder",
             ["f"] = "filter_on_submit",
-            ["<c-x>"] = "clear_filter",
-            ["<CR>"] = "open_and_close_neotree",
+            ["<C-x>"] = "clear_filter",
+            ["<cr>"] = "open_and_close_neotree",
             ["<S-CR>"] = "open",
             -- Preview image under cursor via kitty's icat kitten
             ["<leader>p"] = "image_kitty",
@@ -132,13 +135,15 @@ return {
         },
         filesystem = {
           commands = {
-            -- Close neo-tree after opening a file (directories just expand)
+            -- Close neo-tree after opening a file (directories just expand).
+            -- The node has to be read before `open`: afterwards the tree
+            -- window may be gone and `tree:get_node()` errors.
             open_and_close_neotree = function(state)
+              local node = state.tree:get_node()
               require("neo-tree.sources.filesystem.commands").open(state)
-              local tree = state.tree
-              local success, node = pcall(tree.get_node, tree)
-              if not success then return end
-              if node.type == "file" then require("neo-tree.command").execute { action = "close" } end
+              if node and node.type == "file" then
+                require("neo-tree.command").execute { action = "close" }
+              end
             end,
             -- Preview an image with kitty's icat kitten in a snacks terminal
             image_kitty = function(state)
@@ -161,16 +166,44 @@ return {
             -- gitignore-style ignore files, read per directory by neo-tree
             hide_ignored = true,
             ignore_files = { ".neotreeignore", ".ignore", ".rgignore" },
-            hide_by_pattern = copy(ignore_patterns.patterns),
-            never_show = copy(ignore_patterns.never_show),
-            never_show_by_pattern = copy(ignore_patterns.never_show_patterns),
+            -- hide_by_pattern / never_show / never_show_by_pattern are seeded
+            -- from config.ignore_patterns in `config` below
           },
         },
       })
       -- deep merge of list values is index wise, so AstroNvim's extra sources
       -- survive a `sources = { "filesystem" }` override: assign instead
       opts.sources = { "filesystem" }
+      -- git reports ignored paths in a second pass, and neo-tree's own
+      -- GIT_STATUS_CHANGED handler only redraws the nodes it already has, so
+      -- `!!` entries that land after the first scan stay visible until
+      -- something rescans. Rescan once per worktree (the flag also keeps this
+      -- from looping on the status the rescan itself kicks off) - this is what
+      -- the old BufEnter/DirChanged "refresh patterns" autocmd was papering
+      -- over.
+      local rescanned = {} ---@type table<string, true>
+      table.insert(opts.event_handlers, {
+        event = "git_status_changed",
+        handler = function(args)
+          local root = args and args.git_root
+          if root == nil or rescanned[root] then return end
+          rescanned[root] = true
+          require("neo-tree.sources.manager").refresh "filesystem"
+        end,
+      })
       return opts
+    end,
+    config = function(_, opts)
+      -- setup() compiles the glob lists into Lua patterns (and turns
+      -- `never_show` into a lookup table) in place, so re-seed them from the
+      -- shared module on every setup: `:Lazy reload neo-tree.nvim` re-runs
+      -- this with the same cached opts table, and compiling already compiled
+      -- patterns a second time silently breaks all pattern filtering.
+      local filtered = opts.filesystem.filtered_items
+      filtered.hide_by_pattern = copy(ignore_patterns.patterns)
+      filtered.never_show = copy(ignore_patterns.never_show)
+      filtered.never_show_by_pattern = copy(ignore_patterns.never_show_patterns)
+      require("neo-tree").setup(opts)
     end,
   },
 }
