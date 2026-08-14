@@ -1,7 +1,8 @@
 --- Shared ignore patterns for file explorers and pickers
 --- This module provides a centralized list of patterns to ignore across
---- snacks.picker and other file browsing tools. (The never_show lists are
---- consumed by the mini.files explorer filter, see `is_never_shown`.)
+--- snacks.picker and other file browsing tools. (`patterns` and the
+--- `never_show` lists are also handed to neo-tree's `filtered_items`, see
+--- plugins/neotree.lua.)
 ---
 --- Everything here is fast-event-context safe (pure Lua + libuv only):
 --- snacks picker transforms run inside async/uv callbacks where vimL
@@ -267,35 +268,6 @@ function M.read_rgignore(dir)
   end
   rgignore_cache[path] = { mtime = stat.mtime.sec, patterns = patterns }
   return patterns
-end
-
---- Get all hide patterns including rgignore
---- @param dir? string directory to resolve the git root from (defaults to cwd)
---- @return table patterns Combined list of all patterns to hide
-function M.get_all_patterns(dir)
-  return vim.list_extend(vim.list_extend({}, M.patterns), M.read_rgignore(dir))
-end
-
---- Check a single file/directory name against the never_show lists
---- (exact names + glob patterns). Used by the mini.files content filter.
---- Pure Lua; lists are compiled lazily on first call.
---- @param name string entry basename (not a path)
---- @return boolean
-local never_show_set ---@type table<string, true>?
-local never_show_compiled ---@type string[]?
-function M.is_never_shown(name)
-  if never_show_set == nil then
-    never_show_set = {}
-    for _, n in ipairs(M.never_show) do
-      never_show_set[n] = true
-    end
-    never_show_compiled = compile_globs(M.never_show_patterns)
-  end
-  if never_show_set[name] then return true end
-  for _, pat in ipairs(never_show_compiled) do
-    if name:match(pat) then return true end
-  end
-  return false
 end
 
 --- Create a filter for snacks picker `transform` options.
