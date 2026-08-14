@@ -172,7 +172,10 @@ return {
         },
       })
       -- deep merge of list values is index wise, so AstroNvim's extra sources
-      -- survive a `sources = { "filesystem" }` override: assign instead
+      -- survive a `sources = { "filesystem" }` override: assign instead.
+      -- (`:checkhealth neo-tree` then reports config.buffers/git_status
+      -- `renderers: expected ?, got nil` - stock neo-tree does the same with a
+      -- single source, those sections are simply never loaded.)
       opts.sources = { "filesystem" }
       -- git reports ignored paths in a second pass, and neo-tree's own
       -- GIT_STATUS_CHANGED handler only redraws the nodes it already has, so
