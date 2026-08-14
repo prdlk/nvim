@@ -18,6 +18,54 @@ local function with_trouble(source, opts)
   require("snacks").picker[source](opts)
 end
 
+-- <C-f>e: two-stage find-by-extension. Stage 1 scans the repo with fd
+-- (respects .gitignore) and shows every file extension ranked by count;
+-- stage 2 opens the regular files picker restricted to the chosen
+-- extension (snacks passes `ft` to fd as `-e`).
+local function find_files_by_extension()
+  local snacks = require "snacks"
+  local root = snacks.git.get_root() or vim.uv.cwd()
+  local files = vim.fn.systemlist { "fd", "--type", "f", "--base-directory", root }
+  if vim.v.shell_error ~= 0 then
+    vim.notify("fd failed to list files in " .. root, vim.log.levels.ERROR)
+    return
+  end
+  local counts = {}
+  for _, path in ipairs(files) do
+    -- last dot of the basename; skips dotfiles (.gitignore) and bare names
+    local ext = path:match "[^/]%.([%w_%-]+)$"
+    if ext then counts[ext] = (counts[ext] or 0) + 1 end
+  end
+  local items = {}
+  for ext, count in pairs(counts) do
+    items[#items + 1] = { text = ext, ext = ext, count = count }
+  end
+  if #items == 0 then
+    vim.notify("No file extensions found in " .. root, vim.log.levels.WARN)
+    return
+  end
+  table.sort(items, function(a, b)
+    if a.count ~= b.count then return a.count > b.count end
+    return a.ext < b.ext
+  end)
+  snacks.picker {
+    title = "File Extensions",
+    layout = { preset = "select" },
+    items = items,
+    format = function(item)
+      return {
+        { ("%-12s"):format(item.ext), "SnacksPickerLabel" },
+        { ("%d file%s"):format(item.count, item.count == 1 and "" or "s"), "SnacksPickerComment" },
+      }
+    end,
+    confirm = function(picker, item)
+      picker:close()
+      if not item then return end
+      snacks.picker.files { cwd = root, ft = item.ext, transform = file_filter }
+    end,
+  }
+end
+
 return {
   "AstroNvim/astrocore",
   ---@type AstroCoreOpts
@@ -229,6 +277,10 @@ return {
         ["<C-f>f"] = {
           function() require("snacks").picker.files { transform = file_filter } end,
           desc = "Find files (cwd)",
+        },
+        ["<C-f>e"] = {
+          find_files_by_extension,
+          desc = "Find files by extension",
         },
         ["<C-f><C-f>"] = {
           function()
