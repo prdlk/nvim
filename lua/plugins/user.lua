@@ -53,45 +53,9 @@ return {
         jump = { reuse_win = true },
         sources = picker_sources,
       },
-      dashboard = {
-        enabled = true,
-        preset = {
-          -- "prdlk.nvim" in ansi_regular block style
-          header = table.concat({
-            "██████  ██████  ██████  ██      ██   ██    ███    ██ ██    ██ ██ ███    ███",
-            "██   ██ ██   ██ ██   ██ ██      ██  ██     ████   ██ ██    ██ ██ ████  ████",
-            "██████  ██████  ██   ██ ██      █████      ██ ██  ██ ██    ██ ██ ██ ████ ██",
-            "██      ██   ██ ██   ██ ██      ██  ██     ██  ██ ██  ██  ██  ██ ██  ██  ██",
-            "██      ██   ██ ██████  ███████ ██   ██ ██ ██   ████   ████   ██ ██      ██",
-          }, "\n"),
-        },
-        sections = {
-          { section = "header" },
-          { section = "keys", gap = 1, padding = 1 },
-          {
-            icon = " ",
-            desc = "Browse Repo",
-            padding = 1,
-            key = "b",
-            action = function() Snacks.gitbrowse() end,
-          },
-          {
-            icon = " ",
-            desc = "Projects (ghq)",
-            padding = 1,
-            key = "p",
-            action = function()
-              local repos = vim.fn.systemlist "ghq list -p"
-              vim.ui.select(repos, { prompt = "Select repository" }, function(dir)
-                if not dir then return end
-                vim.cmd.cd(dir)
-                Snacks.picker.files()
-              end)
-            end,
-          },
-          { section = "startup" },
-        },
-      },
+      -- no dashboard: startup either restores the worktree/branch session or
+      -- opens the git files picker (see config.session)
+      dashboard = { enabled = false },
     },
   },
 

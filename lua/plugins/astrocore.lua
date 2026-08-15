@@ -71,9 +71,11 @@ return {
   ---@type AstroCoreOpts
   opts = {
     sessions = {
+      -- cwd autosave is handled by the git_branch_sessions autocmd below so
+      -- the session name carries the worktree/branch, see config.session
       autosave = {
         last = true,
-        cwd = true,
+        cwd = false,
       },
       ignore = {
         dirs = {},
@@ -153,18 +155,23 @@ return {
           end,
         },
       },
-      restore_session = {
+      git_branch_sessions = {
+        {
+          event = "VimLeavePre",
+          desc = "Save the worktree/branch directory session on close",
+          callback = vim.schedule_wrap(function()
+            if require("astrocore.buffer").is_valid_session() then
+              require("config.session").save { notify = false }
+            end
+          end),
+        },
         {
           event = "VimEnter",
-          desc = "Restore previous directory session if neovim opened with no arguments",
+          desc = "Restore worktree/branch session, else open the git files picker",
           nested = true, -- trigger other autocommands as buffers open
           callback = function()
-            if vim.fn.argc(-1) == 0 then
-              require("resession").load(
-                vim.fn.getcwd(),
-                { dir = "dirsession", silence_errors = true }
-              )
-            end
+            -- only when nvim was started without file arguments
+            if vim.fn.argc(-1) == 0 then require("config.session").restore() end
           end,
         },
       },
@@ -207,6 +214,16 @@ return {
         ["<Leader>e"] = {
           function() require("snacks").picker.git_files { transform = file_filter } end,
           desc = "Find git files",
+        },
+        -- AstroNvim's dirsession maps key off the bare cwd; use the
+        -- worktree/branch-aware name instead
+        ["<Leader>SS"] = {
+          function() require("config.session").save() end,
+          desc = "Save this dirsession",
+        },
+        ["<Leader>S."] = {
+          function() require("config.session").load() end,
+          desc = "Load current dirsession",
         },
         ["<leader><leader>"] = {
           function() require("snacks").picker.smart() end,
