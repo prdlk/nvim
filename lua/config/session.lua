@@ -75,9 +75,13 @@ end
 
 --- VimEnter entry point: restore this worktree/branch session, or fall back to
 --- the file picker when none has been saved yet.
+---
+--- Exception: when nvim was started with file arguments (`nvim foo.lua`, a
+--- directory, or `-`) the requested buffer is what the user asked for, so
+--- neither the session nor the picker may take the screen.
 function M.restore()
-  local name = M.name()
-  if M.exists(name) then
+  if vim.fn.argc(-1) > 0 then return end
+  if M.exists(M.name()) then
     M.load { silence_errors = true }
   else
     -- defer so the picker opens after startup finished drawing the UI
