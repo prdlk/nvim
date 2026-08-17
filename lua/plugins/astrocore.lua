@@ -282,8 +282,8 @@ return {
           desc = "Find in line",
         },
         ["<C-f>t"] = {
-          function() require("snacks").picker.lines() end,
-          desc = "Find in line",
+          function() require("config.templates").pick() end,
+          desc = "Find templates",
         },
         ["<C-f>w"] = {
           function() require("snacks").picker.grep() end,
