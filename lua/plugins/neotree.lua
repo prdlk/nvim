@@ -57,7 +57,7 @@ return {
           width = 32,
           -- window option, not a top level one (it used to be set top level,
           -- where neo-tree ignored it)
-          auto_expand_width = true,
+          auto_expand_width = false,
           -- keys must be spelled exactly like neo-tree's own defaults:
           -- setup() does not case-normalize them, so `<CR>` would sit next to
           -- the default `<cr>` and whichever `pairs()` reached last would win

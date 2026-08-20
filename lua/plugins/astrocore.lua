@@ -20,8 +20,8 @@ end
 
 -- <C-f>e: two-stage find-by-extension. Stage 1 scans the repo with fd
 -- (respects .gitignore) and shows every file extension ranked by count;
--- stage 2 opens the regular files picker restricted to the chosen
--- extension (snacks passes `ft` to fd as `-e`).
+-- stage 2 opens fff prefilled with a `*.<ext> ` glob constraint so the
+-- rest of the query fuzzy-matches within that extension.
 local function find_files_by_extension()
   local snacks = require "snacks"
   local root = snacks.git.get_root() or vim.uv.cwd()
@@ -61,7 +61,7 @@ local function find_files_by_extension()
     confirm = function(picker, item)
       picker:close()
       if not item then return end
-      snacks.picker.files { cwd = root, ft = item.ext, transform = file_filter }
+      require("fff").find_files { cwd = root, title = "*." .. item.ext .. " files", query = "*." .. item.ext .. " " }
     end,
   }
 end
@@ -281,17 +281,39 @@ return {
           function() require("snacks").picker.lines() end,
           desc = "Find in line",
         },
-        ["<C-f>t"] = {
+        -- NOTE: <C-i> and <Tab> are the same key at the mapping level, so
+        -- this also shadows <Tab> (jumplist-forward) in normal mode
+        ["<C-i>"] = {
           function() require("config.templates").pick() end,
           desc = "Find templates",
         },
         ["<C-f>w"] = {
-          function() require("snacks").picker.grep() end,
-          desc = "Find word",
+          function() require("fff").live_grep() end,
+          desc = "Live grep",
+        },
+        ["<C-f>z"] = {
+          function() require("fff").live_grep { grep = { modes = { "fuzzy", "plain" } } } end,
+          desc = "Live fuzzy grep",
+        },
+        ["<C-f><C-w>"] = {
+          function() require("fff").live_grep_under_cursor() end,
+          desc = "Grep word under cursor",
         },
         ["<C-f>f"] = {
-          function() require("snacks").picker.files { transform = file_filter } end,
+          function() require("fff").find_files() end,
           desc = "Find files (cwd)",
+        },
+        ["<C-f>m"] = {
+          function() require("fff").find_files { title = "Git Modified", query = "git:modified " } end,
+          desc = "Find git-modified files",
+        },
+        ["<C-f>r"] = {
+          function() require("fff").resume() end,
+          desc = "Resume last find/grep",
+        },
+        ["<C-f>."] = {
+          function() require("fff").find_files_in_dir(vim.fn.expand "%:p:h") end,
+          desc = "Find files in buffer directory",
         },
         ["<C-f>e"] = {
           find_files_by_extension,
@@ -318,10 +340,7 @@ return {
               vim.notify("No .ai directory found in current project", vim.log.levels.WARN)
               return
             end
-            require("snacks").picker.files {
-              cwd = ai_dir,
-              transform = file_filter,
-            }
+            require("fff").find_files_in_dir(ai_dir)
           end,
           desc = "Find AI files",
         },
@@ -333,28 +352,25 @@ return {
               vim.notify("No .github/workflows directory found in current project", vim.log.levels.WARN)
               return
             end
-            require("snacks").picker.files {
-              cwd = workflows_dir,
-              transform = file_filter,
-            }
+            require("fff").find_files_in_dir(workflows_dir)
           end,
           desc = "Find GitHub Workflow files",
         },
         ["<C-f>gd"] = {
           function()
-            require("snacks").picker.files {
-              cmd = "fd",
-              args = { "devbox.json|process-compose.yaml|Dockerfile|docker-compose.yaml|compose.yaml" },
+            require("fff").find_files {
+              title = "Devbox/Docker files",
+              query = "{devbox.json,process-compose.yaml,Dockerfile,docker-compose.yaml,compose.yaml} ",
             }
           end,
           desc = "Find Devbox/Docker files",
         },
         ["<C-f>gm"] = {
-          function() require("snacks").picker.files { cmd = "fd", args = { "Makefile" } } end,
+          function() require("fff").find_files { title = "Makefiles", query = "*Makefile* " } end,
           desc = "Find Makefile files",
         },
         ["<C-f>gp"] = {
-          function() require("snacks").picker.files { cmd = "fd", args = { "package.json" } } end,
+          function() require("fff").find_files { title = "package.json files", query = "*package.json " } end,
           desc = "Find Package.json files",
         },
         ["<C-p>"] = {
@@ -477,6 +493,10 @@ return {
       v = {
         ["<C-c>"] = { "<Cmd>w<CR><Cmd>bd<CR>", desc = "Save and close buffer" },
         ["<C-x>"] = { "<Cmd>w<CR><Cmd>bd<CR>", desc = "Save and close buffer" },
+        ["<C-f><C-w>"] = {
+          function() require("fff").live_grep_under_cursor() end,
+          desc = "Grep selection",
+        },
         ["D"] = {
           function()
             vim.cmd 'normal! "vy'
