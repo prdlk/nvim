@@ -1,28 +1,16 @@
--- Disable supermaven in JavaScript/Python buffers whose comments contain a
--- LeetCode problem URL (solution files), and re-enable it when leaving them.
+-- Disable supermaven in buffers under the LeetCode work directory, and
+-- re-enable it when leaving them.
 --
 -- Note: supermaven's built-in `condition` option is one-way — its BufEnter
 -- listener gates the restart branch on `vim.g.SUPERMAVEN_DISABLED`, which
 -- `api.stop()` itself sets, so once auto-stopped it never comes back. This
 -- autocmd owns both directions instead. `vim.g.supermaven_leetcode_stopped`
 -- distinguishes our auto-stop from a manual :SupermavenStop, which stays off.
+local leetcode_dir = vim.fn.expand "~/Developer/github.com/prdlk/leetcode/work/"
+
 local function is_leetcode_buffer()
-  local buf = vim.api.nvim_get_current_buf()
-  local ft = vim.bo[buf].filetype
-  local name = vim.api.nvim_buf_get_name(buf)
-  local comment_pat
-  if ft == "javascript" or ft == "javascriptreact" or name:match "%.[mc]?jsx?$" then
-    comment_pat = "^%s*[/*]"
-  elseif ft == "python" or name:match "%.py$" then
-    comment_pat = "^%s*[#\"']"
-  else
-    return false
-  end
-  -- The URL lives in the header comment block; scanning the top of the file is enough.
-  for _, line in ipairs(vim.api.nvim_buf_get_lines(buf, 0, 200, false)) do
-    if line:find "leetcode%.com/problems/" and line:match(comment_pat) then return true end
-  end
-  return false
+  local name = vim.api.nvim_buf_get_name(0)
+  return name:sub(1, #leetcode_dir) == leetcode_dir
 end
 
 local function sync()
