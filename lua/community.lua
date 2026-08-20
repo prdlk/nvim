@@ -11,7 +11,6 @@ return {
   { import = "astrocommunity.editing-support.refactoring-nvim" },
   { import = "astrocommunity.editing-support.conform-nvim" },
   { import = "astrocommunity.diagnostics.trouble-nvim" },
-  { import = "astrocommunity.git.octo-nvim" },
   { import = "astrocommunity.pack.mdx" },
   { import = "astrocommunity.pack.biome" },
   { import = "astrocommunity.pack.go" },
