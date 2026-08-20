@@ -1,4 +1,5 @@
---- User plugins: cursor animation and snacks.nvim (picker + dashboard) customization
+--- User plugins: cursor animation and the central snacks.nvim configuration
+--- (all snacks modules are configured here in one snacks.Config table)
 
 -- Confirm action for file-opening pickers: <CR> opens the selection as a
 -- tab via `tabdrop` (:tab drop semantics — focus the buffer if it's already
@@ -48,6 +49,7 @@ return {
 
   {
     "folke/snacks.nvim",
+    ---@type snacks.Config
     opts = {
       picker = {
         jump = { reuse_win = true },
@@ -56,6 +58,23 @@ return {
       -- no dashboard: startup either restores the worktree/branch session or
       -- opens the git files picker (see config.session)
       dashboard = { enabled = false },
+
+      -- GitHub issue/PR pickers and buffers (`<C-g>` binds in astrocore.lua)
+      gh = {},
+
+      -- auto-highlight LSP references of the symbol under the cursor;
+      -- ]] / [[ jump binds live in polish.lua (Snacks.keymap, LSP-gated)
+      words = { enabled = true },
+
+      styles = {
+        -- right-hand 30% split used by :Scooter (external-tui snacks terminal)
+        scooter = {
+          position = "right",
+          width = 0.3,
+          height = 0,
+          border = "none",
+        },
+      },
     },
   },
 
