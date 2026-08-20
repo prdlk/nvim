@@ -1,7 +1,7 @@
 --- Custom statusline (heirline via astroui.status components):
----   left  = NvChad style: angled mode pill, file info pill, git branch/diff
----   right = VSCode-style info modules, ending in an NvChad mode-colored
----           progress pill (nerd font icon + Top/Bot/percentage)
+--- flat VSCode-style modules — mode text, file info and git on the left;
+--- diagnostics, LSP, Ln/Col, Spaces, encoding/EOL and filetype on the right.
+--- No powerline pills or angled separators.
 ---
 --- NOTE: every nerd-font PUA glyph in this file is written as a \u{XXXX}
 --- Lua escape ON PURPOSE — raw 3-byte PUA glyphs (U+E000-U+F8FF) have been
@@ -14,24 +14,16 @@ return {
     ---@type AstroUIOpts
     opts = {
       icons = {
-        VimIcon = "\u{e62b}", -- nf-custom-vim
         GitBranch = "\u{e725}", -- nf-dev-git_branch
         GitAdd = "\u{f457}", -- nf-oct-diff_added
         GitChange = "\u{f459}", -- nf-oct-diff_modified
         GitDelete = "\u{f458}", -- nf-oct-diff_removed
-        Progress = "\u{f124}", -- nf-fa-location_arrow
-        -- NvChad diagnostic icons
         DiagnosticError = "\u{f0159}", -- nf-md-close_circle
         DiagnosticWarn = "\u{f071}", -- nf-fa-warning
         DiagnosticInfo = "\u{f02fc}", -- nf-md-information
         DiagnosticHint = "\u{f06e9}", -- nf-md-lightbulb_on
       },
       status = {
-        -- NvChad-style angled (powerline arrow) separators
-        separators = {
-          left = { "", "\u{e0b0} " }, -- trailing solid right-arrow for left pills
-          right = { " \u{e0b2}", "" }, -- leading solid left-arrow for right pills
-        },
         colors = function(hl)
           local get_hlgroup = require("astroui").get_hlgroup
           local comment_fg = get_hlgroup("Comment").fg
@@ -39,8 +31,6 @@ return {
           hl.git_added = comment_fg
           hl.git_changed = comment_fg
           hl.git_removed = comment_fg
-          hl.blank_bg = get_hlgroup("Folded").fg
-          hl.file_info_bg = get_hlgroup("Visual").bg
           return hl
         end,
         attributes = {
@@ -58,32 +48,20 @@ return {
       opts.statusline = {
         hl = { fg = "fg", bg = "bg" },
 
-        -- ────────────────── left: NvChad ──────────────────
+        -- ────────────────── left ──────────────────
         status.component.mode {
-          mode_text = {
-            icon = { kind = "VimIcon", padding = { right = 1, left = 1 } },
-          },
+          mode_text = { padding = { left = 1, right = 1 } },
           surround = {
-            separator = "left",
-            color = function() return { main = status.hl.mode_bg(), right = "blank_bg" } end,
-          },
-        },
-        status.component.builder {
-          { provider = "" },
-          surround = {
-            separator = "left",
-            color = { main = "blank_bg", right = "file_info_bg" },
+            separator = "none",
+            color = function() return { main = status.hl.mode_bg() } end,
           },
         },
         status.component.file_info {
           filename = { fallback = "Empty" },
           filetype = false,
           file_read_only = false,
-          padding = { right = 1 },
-          surround = {
-            separator = "left",
-            color = { main = "file_info_bg", right = "bg" },
-          },
+          padding = { left = 1, right = 1 },
+          surround = { separator = "none", condition = false },
         },
         status.component.git_branch {
           git_branch = { padding = { left = 1 } },
@@ -96,7 +74,7 @@ return {
 
         status.component.fill(),
 
-        -- ────────────────── right: VSCode info + NvChad progress ──────────────────
+        -- ────────────────── right: VSCode ──────────────────
         status.component.diagnostics {
           padding = { right = 1 },
           surround = { separator = "none" },
@@ -142,28 +120,6 @@ return {
           file_read_only = false,
           padding = { right = 1 },
           surround = { separator = "none", condition = false },
-        },
-        -- NvChad-style progress pill: mode-colored, angled, nerd font icon
-        status.component.builder {
-          {
-            provider = function()
-              local cur, total = vim.fn.line ".", vim.fn.line "$"
-              local pct
-              if cur == 1 then
-                pct = "Top"
-              elseif cur == total then
-                pct = "Bot"
-              else
-                pct = math.floor(cur / total * 100 + 0.5) .. "%%"
-              end
-              return (" %s %s "):format(require("astroui").get_icon "Progress", pct)
-            end,
-          },
-          hl = { fg = "bg", bold = true },
-          surround = {
-            separator = "right",
-            color = function() return { main = status.hl.mode_bg(), left = "bg" } end,
-          },
         },
       }
     end,
