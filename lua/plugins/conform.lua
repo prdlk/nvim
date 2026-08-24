@@ -79,27 +79,43 @@ end
 
 ---@type LazySpec
 return {
-  "stevearc/conform.nvim",
-  init = function()
-    vim.api.nvim_create_autocmd("BufWritePre", {
-      group = vim.api.nvim_create_augroup("user_lsp_safe_actions", { clear = true }),
-      desc = "Apply all safe LSP code actions (source.*, quickfix) before save",
-      callback = function(args)
-        if vim.bo[args.buf].buftype ~= "" then return end
-        if vim.g.disable_autoformat or vim.b[args.buf].disable_autoformat then return end
-        apply_safe_actions(args.buf)
-      end,
-    })
-  end,
-  opts = function(_, opts)
-    -- Skip format-on-save for JavaScript buffers (.js/.mjs/.cjs); manual
-    -- :Format / <Leader>lf still works. Wraps the astrocommunity pack's
-    -- format_on_save so its autoformat toggle handling is preserved.
-    local pack_format_on_save = opts.format_on_save
-    opts.format_on_save = function(bufnr)
-      if vim.bo[bufnr].filetype == "javascript" then return end
-      if type(pack_format_on_save) == "function" then return pack_format_on_save(bufnr) end
-      return pack_format_on_save
-    end
-  end,
+  -- ruff is both the import sorter and the formatter used for python below
+  {
+    "WhoIsSethDaniel/mason-tool-installer.nvim",
+    optional = true,
+    opts = function(_, opts)
+      opts.ensure_installed = require("astrocore").list_insert_unique(opts.ensure_installed, { "ruff" })
+    end,
+  },
+  {
+    "stevearc/conform.nvim",
+    init = function()
+      vim.api.nvim_create_autocmd("BufWritePre", {
+        group = vim.api.nvim_create_augroup("user_lsp_safe_actions", { clear = true }),
+        desc = "Apply all safe LSP code actions (source.*, quickfix) before save",
+        callback = function(args)
+          if vim.bo[args.buf].buftype ~= "" then return end
+          if vim.g.disable_autoformat or vim.b[args.buf].disable_autoformat then return end
+          apply_safe_actions(args.buf)
+        end,
+      })
+    end,
+    opts = function(_, opts)
+      -- Python: ruff sorts imports (I001), then reformats. ruff always emits
+      -- 4-space indentation, so mixed tab/space indentation is normalized on
+      -- save instead of surviving to raise TabError at runtime.
+      if not opts.formatters_by_ft then opts.formatters_by_ft = {} end
+      opts.formatters_by_ft.python = { "ruff_organize_imports", "ruff_format" }
+
+      -- Skip format-on-save for JavaScript buffers (.js/.mjs/.cjs); manual
+      -- :Format / <Leader>lf still works. Wraps the astrocommunity pack's
+      -- format_on_save so its autoformat toggle handling is preserved.
+      local pack_format_on_save = opts.format_on_save
+      opts.format_on_save = function(bufnr)
+        if vim.bo[bufnr].filetype == "javascript" then return end
+        if type(pack_format_on_save) == "function" then return pack_format_on_save(bufnr) end
+        return pack_format_on_save
+      end
+    end,
+  },
 }
