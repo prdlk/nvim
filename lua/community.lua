@@ -24,6 +24,12 @@ return {
   { import = "astrocommunity.pack.toml" },
   { import = "astrocommunity.pack.typescript" },
   { import = "astrocommunity.pack.tailwindcss" },
+  -- python: treesitter/debugpy/venv-selector + basedpyright language server.
+  -- The full `pack.python` also pulls black + isort; formatting stays on ruff
+  -- (see plugins/conform.lua), so only the base and basedpyright subpacks are
+  -- imported. Interpreter resolution is overridden in plugins/python.lua.
+  { import = "astrocommunity.pack.python.base" },
+  { import = "astrocommunity.pack.python.basedpyright" },
   { import = "astrocommunity.completion.supermaven-nvim" },
   { import = "astrocommunity.lsp.dev-tools-nvim" },
   { import = "astrocommunity.lsp.lsp-signature-nvim" },
