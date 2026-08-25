@@ -6,18 +6,6 @@ local ignore_patterns = require "config.ignore_patterns"
 
 local file_filter = ignore_patterns.create_picker_filter()
 
--- Open a snacks picker with trouble.nvim send-to-quickfix action bound to <C-t>.
-local function with_trouble(source, opts)
-  opts = opts or {}
-  opts.actions = require("trouble.sources.snacks").actions
-  opts.win = opts.win or {}
-  opts.win.input = opts.win.input or {}
-  opts.win.input.keys = vim.tbl_extend("force", opts.win.input.keys or {}, {
-    ["<c-t>"] = { "trouble_open", mode = { "n", "i" } },
-  })
-  require("snacks").picker[source](opts)
-end
-
 -- <C-f>e: two-stage find-by-extension. Stage 1 scans the repo with fd
 -- (respects .gitignore) and shows every file extension ranked by count;
 -- stage 2 opens fff prefilled with a `*.<ext> ` glob constraint so the
@@ -289,7 +277,10 @@ return {
           function() require("snacks").terminal.toggle("lazydocker", { win = { style = "float" } }) end,
           desc = "Toggle lazydocker (float)",
         },
-        ["<C-r>"] = { "<Cmd>Scooter<CR>", desc = "Find & replace (scooter)" },
+        -- grug-far.nvim: buffer-based find & replace (plugins/grug-far.lua).
+        -- `open` reads the visual selection itself, so the same callback
+        -- serves both modes.
+        ["<C-r>"] = { function() require("grug-far").open() end, desc = "Find & replace (grug-far)" },
         -- which-key prefix group labels
         ["<C-g>"] = { desc = "Git + GitHub" },
         ["<C-f>"] = { desc = "Find" },
@@ -364,12 +355,6 @@ return {
           find_files_by_extension,
           desc = "Find files by extension",
         },
-        ["<C-f><C-f>"] = {
-          function()
-            require("snacks").picker.lsp_symbols { layout = { preset = "vscode", preview = "main" } }
-          end,
-          desc = "Find LSP symbols",
-        },
         ["<C-f>o"] = {
           function() require("snacks").picker.recent() end,
           desc = "Find recent files",
@@ -429,106 +414,19 @@ return {
           end,
           desc = "Paste from system clipboard",
         },
+        -- LSP-scoped assist binds (<C-a>a/s/S) are capability-gated in
+        -- plugins/astrolsp.lua; diagnostics exist without a server, so this
+        -- one stays global
         ["<C-a>d"] = {
-          function() with_trouble("diagnostics") end,
+          function() require("config.picker").with_trouble "diagnostics" end,
           desc = "Search diagnostics (<C-t> sends to Trouble)",
-        },
-        ["<C-a>a"] = {
-          function() vim.lsp.buf.code_action() end,
-          desc = "Show code actions",
-        },
-        ["<C-a>s"] = {
-          function() with_trouble("lsp_symbols") end,
-          desc = "Search LSP symbols (<C-t> sends to Trouble)",
-        },
-        ["<C-a>S"] = {
-          function() with_trouble("lsp_workspace_symbols") end,
-          desc = "Search LSP workspace symbols (<C-t> sends to Trouble)",
         },
         ["<C-a><C-s>"] = { "<Cmd>SupermavenToggle<CR>", desc = "Toggle Supermaven" },
 
+        -- <Leader>u toggles are mapped through Snacks.toggle in
+        -- config.toggles (called from polish.lua) so which-key renders their
+        -- enabled/disabled state
         ["<leader>u"] = { desc = "UI Toggles" },
-        ["<leader>ud"] = {
-          function() require("snacks").toggle.diagnostics():toggle() end,
-          desc = "Toggle Diagnostics",
-        },
-        ["<leader>un"] = {
-          function() require("snacks").toggle.line_number():toggle() end,
-          desc = "Toggle Line Numbers",
-        },
-        ["<leader>ur"] = {
-          function() require("snacks").toggle.option("relativenumber"):toggle() end,
-          desc = "Toggle Relative Numbers",
-        },
-        ["<leader>uw"] = {
-          function() require("snacks").toggle.option("wrap"):toggle() end,
-          desc = "Toggle Line Wrap",
-        },
-        ["<leader>us"] = {
-          function() require("snacks").toggle.option("spell"):toggle() end,
-          desc = "Toggle Spelling",
-        },
-        ["<leader>ui"] = {
-          function() require("snacks").toggle.inlay_hints():toggle() end,
-          desc = "Toggle Inlay Hints",
-        },
-        ["<leader>ut"] = {
-          function() require("snacks").toggle.treesitter():toggle() end,
-          desc = "Toggle Treesitter",
-        },
-        ["<leader>uc"] = {
-          function() require("snacks").toggle.option("conceallevel", { off = 0, on = 2 }):toggle() end,
-          desc = "Toggle Conceal",
-        },
-        ["<leader>uI"] = {
-          function() require("snacks").toggle.indent():toggle() end,
-          desc = "Toggle Indent Guides",
-        },
-        ["<leader>uz"] = {
-          function() require("snacks").toggle.zen():toggle() end,
-          desc = "Toggle Zen Mode",
-        },
-        ["<leader>uZ"] = {
-          function() require("snacks").toggle.zoom():toggle() end,
-          desc = "Toggle Zoom",
-        },
-        ["<leader>ua"] = {
-          function() require("snacks").toggle.animate():toggle() end,
-          desc = "Toggle Animations",
-        },
-        ["<leader>uS"] = {
-          function() require("snacks").toggle.scroll():toggle() end,
-          desc = "Toggle Smooth Scroll",
-        },
-        ["<leader>up"] = {
-          function() require("snacks").toggle.profiler():toggle() end,
-          desc = "Toggle Profiler",
-        },
-        ["<leader>uh"] = {
-          function() require("snacks").toggle.profiler_highlights():toggle() end,
-          desc = "Toggle Profiler Highlights",
-        },
-        ["<leader>ux"] = {
-          function() require("snacks").toggle.dim():toggle() end,
-          desc = "Toggle Dim Inactive",
-        },
-        ["<leader>uf"] = {
-          function()
-            vim.g.disable_autoformat = not vim.g.disable_autoformat
-            local status = vim.g.disable_autoformat and "disabled" or "enabled"
-            vim.notify("Format on save " .. status, vim.log.levels.INFO)
-          end,
-          desc = "Toggle Format on Save",
-        },
-        -- v6: virtual_lines is native in vim.diagnostic.config, lsp_lines plugin no longer needed
-        ["<leader>ul"] = {
-          function()
-            local cfg = vim.diagnostic.config() or {}
-            local enabled = not cfg.virtual_lines
-            vim.diagnostic.config { virtual_lines = enabled, virtual_text = not enabled }
-          end,
-          desc = "Toggle Virtual Lines",
-        },
       },
       i = {
         ["<C-s>"] = { "<Cmd>wa<CR><Esc>", desc = "Save buffer, and return to normal mode" },
@@ -567,6 +465,13 @@ return {
         ["<C-f><C-w>"] = {
           function() require("fff").live_grep_under_cursor() end,
           desc = "Grep selection",
+        },
+        -- charwise (v) selection prefills the search input, linewise (V)
+        -- limits search & replace to the selected range (visualSelectionUsage
+        -- = "auto-detect" in plugins/grug-far.lua)
+        ["<C-r>"] = {
+          function() require("grug-far").open() end,
+          desc = "Find & replace selection (grug-far)",
         },
         ["D"] = {
           function()

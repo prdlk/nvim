@@ -63,18 +63,8 @@ return {
       gh = {},
 
       -- auto-highlight LSP references of the symbol under the cursor;
-      -- ]] / [[ jump binds live in polish.lua (Snacks.keymap, LSP-gated)
+      -- ]] / [[ jump binds live in plugins/astrolsp.lua (capability-gated)
       words = { enabled = true },
-
-      styles = {
-        -- right-hand 30% split used by :Scooter (external-tui snacks terminal)
-        scooter = {
-          position = "right",
-          width = 0.3,
-          height = 0,
-          border = "none",
-        },
-      },
     },
   },
 
