@@ -26,6 +26,7 @@ return {
   { import = "astrocommunity.pack.tailwindcss" },
   { import = "astrocommunity.completion.supermaven-nvim" },
   { import = "astrocommunity.lsp.dev-tools-nvim" },
+  { import = "astrocommunity.lsp.lsp-signature-nvim" },
   { import = "astrocommunity.lsp.nvim-lsp-file-operations" },
   { import = "astrocommunity.colorscheme.cyberdream-nvim" },
   { import = "astrocommunity.recipes.heirline-nvchad-statusline" },
