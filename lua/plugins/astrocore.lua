@@ -54,6 +54,58 @@ local function find_files_by_extension()
   }
 end
 
+-- <C-f>x: every URL in the current buffer, in file order; confirm hands the
+-- URL to vim.ui.open (xdg-open). Reuses astrocore's url_matcher so the
+-- picker agrees with the highlighturl feature about what counts as a URL.
+local function find_buffer_urls()
+  local buf = vim.api.nvim_get_current_buf()
+  local re = vim.regex(require("astrocore").url_matcher)
+  local items = {}
+  for lnum, line in ipairs(vim.api.nvim_buf_get_lines(buf, 0, -1, false)) do
+    local offset = 0
+    while offset < #line do
+      -- match_str returns 0-indexed byte offsets relative to the substring
+      local s, e = re:match_str(line:sub(offset + 1))
+      if not s then break end
+      local url = line:sub(offset + s + 1, offset + e)
+      items[#items + 1] = { text = url, url = url, buf = buf, pos = { lnum, offset + s }, lnum = lnum }
+      offset = offset + e
+    end
+  end
+  if #items == 0 then
+    vim.notify("No URLs found in buffer", vim.log.levels.WARN)
+    return
+  end
+  require("snacks").picker {
+    title = "Buffer URLs",
+    items = items,
+    format = function(item)
+      return {
+        { ("%4d "):format(item.lnum), "SnacksPickerRow" },
+        { item.url, "SnacksPickerLink" },
+      }
+    end,
+    confirm = function(picker, item)
+      picker:close()
+      if not item then return end
+      vim.ui.open(item.url)
+    end,
+  }
+end
+
+-- <C-f>m: files under the git root whose mtime is today (local midnight
+-- onward). fd's --changed-within accepts a YYYY-MM-DD date as "since".
+local function find_files_modified_today()
+  local snacks = require "snacks"
+  snacks.picker.files {
+    title = "Modified today",
+    cwd = snacks.git.get_root() or vim.uv.cwd(),
+    cmd = "fd",
+    args = { "--changed-within", os.date "%Y-%m-%d" },
+    transform = file_filter,
+  }
+end
+
 return {
   "AstroNvim/astrocore",
   ---@type AstroCoreOpts
@@ -323,6 +375,10 @@ return {
           function() require("config.templates").pick() end,
           desc = "Find templates",
         },
+        -- NOTE: <C-m> and <CR> are likewise the same key, so Enter in normal
+        -- mode runs overseer. Buffers with their own <CR> (quickfix, help,
+        -- neo-tree, overseer's task list) keep theirs via buffer-local maps.
+        ["<C-m>"] = { "<Cmd>OverseerRun<CR>", desc = "Run overseer task" },
         ["<C-f>w"] = {
           function() require("fff").live_grep() end,
           desc = "Live grep",
@@ -340,8 +396,12 @@ return {
           desc = "Find files (cwd)",
         },
         ["<C-f>m"] = {
-          function() require("fff").find_files { title = "Git Modified", query = "git:modified " } end,
-          desc = "Find git-modified files",
+          find_files_modified_today,
+          desc = "Find files modified today",
+        },
+        ["<C-f>x"] = {
+          find_buffer_urls,
+          desc = "Find URLs in buffer (open in browser)",
         },
         ["<C-f>r"] = {
           function() require("fff").resume() end,
@@ -421,7 +481,7 @@ return {
           function() require("config.picker").with_trouble "diagnostics" end,
           desc = "Search diagnostics (<C-t> sends to Trouble)",
         },
-        ["<C-a><C-s>"] = { "<Cmd>SupermavenToggle<CR>", desc = "Toggle Supermaven" },
+        ["<C-a><C-s>"] = { "<Cmd>NeoCodeium toggle<CR>", desc = "Toggle NeoCodeium" },
 
         -- <Leader>u toggles are mapped through Snacks.toggle in
         -- config.toggles (called from polish.lua) so which-key renders their
