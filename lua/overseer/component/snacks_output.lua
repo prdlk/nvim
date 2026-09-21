@@ -1,7 +1,9 @@
 --- Overseer component: show task output in a Snacks window docked to the
 --- bottom of the editor, toggleterm-style: the window is focused and dropped
 --- into terminal mode when the task starts (and whenever the buffer is
---- re-entered), and closes itself when the task exits.
+--- re-entered). Output stays on screen after the task exits; <CR> or q then
+--- close the window (while running, keys still go to the process; q in
+--- normal mode always closes).
 ---
 --- The task's own terminal buffer (owned by the jobstart strategy, so exit
 --- status / output parsing keep working) is placed in a single shared
@@ -51,7 +53,7 @@ local function show(bufnr, params)
       backdrop = false,
       fixbuf = false,
       wo = { number = false, relativenumber = false, signcolumn = "no", winbar = "", wrap = true },
-      keys = { q = "close" },
+      keys = {},
     }
   end
   if params.auto_insert then
@@ -85,27 +87,36 @@ return {
       type = "boolean",
       default = true,
     },
-    auto_close = {
-      desc = "Close the output window when the task exits",
-      type = "boolean",
-      default = true,
-    },
   },
   constructor = function(params)
-    --- @param task overseer.Task
-    local function close_if_showing(task)
-      local bufnr = task:get_bufnr()
-      if bufnr and showing(bufnr) then win:close() end
+    --- @param bufnr integer
+    local function close_win(bufnr)
+      if showing(bufnr) then win:close() end
     end
     return {
       on_start = function(_, task)
         local bufnr = task:get_bufnr()
-        if bufnr then show(bufnr, params) end
+        if not bufnr then return end
+        -- a restart with preserve_output reuses the buffer: hand the keys
+        -- back to the process until the task completes again
+        pcall(vim.keymap.del, "t", "<CR>", { buffer = bufnr })
+        pcall(vim.keymap.del, "t", "q", { buffer = bufnr })
+        pcall(vim.keymap.del, "n", "<CR>", { buffer = bufnr })
+        vim.keymap.set("n", "q", function() close_win(bufnr) end, { buffer = bufnr, nowait = true, desc = "Close task output" })
+        show(bufnr, params)
       end,
       on_complete = function(_, task)
-        if params.auto_close then close_if_showing(task) end
+        local bufnr = task:get_bufnr()
+        if not bufnr then return end
+        local function close() close_win(bufnr) end
+        local opts = { buffer = bufnr, nowait = true, desc = "Close task output" }
+        vim.keymap.set({ "t", "n" }, "<CR>", close, opts)
+        vim.keymap.set("t", "q", close, opts)
       end,
-      on_dispose = function(_, task) close_if_showing(task) end,
+      on_dispose = function(_, task)
+        local bufnr = task:get_bufnr()
+        if bufnr then close_win(bufnr) end
+      end,
     }
   end,
 }
