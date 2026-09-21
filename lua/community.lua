@@ -30,10 +30,12 @@ return {
   -- imported. Interpreter resolution is overridden in plugins/python.lua.
   { import = "astrocommunity.pack.python.base" },
   { import = "astrocommunity.pack.python.basedpyright" },
-  { import = "astrocommunity.completion.supermaven-nvim" },
   { import = "astrocommunity.lsp.dev-tools-nvim" },
   { import = "astrocommunity.lsp.lsp-signature-nvim" },
   { import = "astrocommunity.lsp.nvim-lsp-file-operations" },
   { import = "astrocommunity.colorscheme.cyberdream-nvim" },
   { import = "astrocommunity.recipes.heirline-nvchad-statusline" },
+  -- overseer task runner; <Leader>M* maps come from the pack, the <C-m>
+  -- (Enter) run binding lives in plugins/astrocore.lua
+  { import = "astrocommunity.code-runner.overseer-nvim" },
 }
