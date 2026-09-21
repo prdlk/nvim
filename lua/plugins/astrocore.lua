@@ -481,7 +481,7 @@ return {
           function() require("config.picker").with_trouble "diagnostics" end,
           desc = "Search diagnostics (<C-t> sends to Trouble)",
         },
-        ["<C-a><C-s>"] = { "<Cmd>NeoCodeium toggle<CR>", desc = "Toggle NeoCodeium" },
+        ["<C-a><C-s>"] = { "<Cmd>SupermavenToggle<CR>", desc = "Toggle Supermaven" },
 
         -- <Leader>u toggles are mapped through Snacks.toggle in
         -- config.toggles (called from polish.lua) so which-key renders their
