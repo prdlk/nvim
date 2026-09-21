@@ -30,6 +30,7 @@ return {
   -- imported. Interpreter resolution is overridden in plugins/python.lua.
   { import = "astrocommunity.pack.python.base" },
   { import = "astrocommunity.pack.python.basedpyright" },
+  { import = "astrocommunity.completion.supermaven-nvim" },
   { import = "astrocommunity.lsp.dev-tools-nvim" },
   { import = "astrocommunity.lsp.lsp-signature-nvim" },
   { import = "astrocommunity.lsp.nvim-lsp-file-operations" },
