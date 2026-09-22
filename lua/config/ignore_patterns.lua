@@ -86,6 +86,7 @@ M.patterns = {
   "Icon?",
   "iCloud~",
   "com~",
+  ".githooks",
 }
 
 --- Patterns that should never be shown in any file browser
