@@ -482,6 +482,7 @@ return {
           desc = "Search diagnostics (<C-t> sends to Trouble)",
         },
         ["<C-a><C-s>"] = { "<Cmd>SupermavenToggle<CR>", desc = "Toggle Supermaven" },
+        ["<C-a><C-a>"] = { function() require("config.omp_term").toggle() end, desc = "Toggle Oh My Pi" },
 
         -- <Leader>u toggles are mapped through Snacks.toggle in
         -- config.toggles (called from polish.lua) so which-key renders their
