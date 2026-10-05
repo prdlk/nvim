@@ -53,8 +53,8 @@ return {
         sort_case_insensitive = false,
         source_selector = { winbar = false, statusline = false },
         window = {
-          position = "right",
-          width = 36,
+          position = "left",
+          width = 32,
           -- window option, not a top level one (it used to be set top level,
           -- where neo-tree ignored it)
           auto_expand_width = false,
