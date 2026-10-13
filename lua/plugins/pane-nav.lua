@@ -20,9 +20,11 @@ return {
   "AstroNvim/astrocore",
   opts = function(_, opts)
     local maps = opts.mappings
+    maps.x = maps.x or {}
     for key, dir in pairs(moves) do
       local desc = ("Move %s a split (%s aware)"):format(dir, nav.env())
       maps.n[key] = { function() nav.navigate(dir) end, desc = desc }
+      maps.x[key] = maps.n[key]
       maps.t[key] = { nav.terminal(dir), desc = desc }
     end
   end,

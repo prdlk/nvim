@@ -375,10 +375,6 @@ return {
           function() require("config.templates").pick() end,
           desc = "Find templates",
         },
-        -- NOTE: <C-m> and <CR> are likewise the same key, so Enter in normal
-        -- mode runs overseer. Buffers with their own <CR> (quickfix, help,
-        -- neo-tree, overseer's task list) keep theirs via buffer-local maps.
-        ["<C-m>"] = { "<Cmd>OverseerRun<CR>", desc = "Run overseer task" },
         ["<C-f>w"] = {
           function() require("fff").live_grep() end,
           desc = "Live grep",
