@@ -36,7 +36,4 @@ return {
   { import = "astrocommunity.lsp.nvim-lsp-file-operations" },
   { import = "astrocommunity.colorscheme.cyberdream-nvim" },
   { import = "astrocommunity.recipes.heirline-nvchad-statusline" },
-  -- overseer task runner; <Leader>M* maps come from the pack, the <C-m>
-  -- (Enter) run binding lives in plugins/astrocore.lua
-  { import = "astrocommunity.code-runner.overseer-nvim" },
 }
