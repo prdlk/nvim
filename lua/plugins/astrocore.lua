@@ -6,6 +6,21 @@ local ignore_patterns = require "config.ignore_patterns"
 
 local file_filter = ignore_patterns.create_picker_filter()
 
+-- <C-q>: close the window; only quit (saving all) when it's the last one
+local function close_win()
+  local ok, err = pcall(vim.cmd.close)
+  if ok then return end
+  -- E444: last window; E5601: only floating windows would remain
+  if not tostring(err):find "E444" and not tostring(err):find "E5601" then error(err, 0) end
+  vim.cmd "wqa"
+end
+
+-- <C-c>: save the current buffer only if it has unsaved changes, then close it
+local function save_close_buf()
+  if vim.bo.buftype == "" then vim.cmd "update" end
+  require("snacks").bufdelete()
+end
+
 -- <C-f>e: two-stage find-by-extension. Stage 1 scans the repo with fd
 -- (respects .gitignore) and shows every file extension ranked by count;
 -- stage 2 opens fff prefilled with a `*.<ext> ` glob constraint so the
@@ -231,18 +246,11 @@ return {
 
     mappings = {
       n = {
-        -- overrides AstroNvim's default <C-q> = force quit (:q!)
-        ["<C-q>"] = { "<Cmd>wqa<CR>", desc = "Save all buffers and quit Neovim" },
+        ["<C-q>"] = { close_win, desc = "Close window (quit if last)" },
         ["<C-!>"] = { "<Cmd>suspend<CR>", desc = "Suspend nvim (return with 'fg')" },
         ["ZZ"] = { "<Cmd>wqa<CR>", desc = "Save all buffers and quit Neovim" },
         ["<A-q>"] = { "<Cmd>wqa<CR>", desc = "Save all buffers and quit Neovim" },
-        ["<C-c>"] = {
-          function()
-            vim.cmd "wa"
-            require("snacks").bufdelete()
-          end,
-          desc = "Save and close buffer",
-        },
+        ["<C-c>"] = { save_close_buf, desc = "Save (if modified) and close buffer" },
         ["F"] = { "za", desc = "Toggle fold under cursor" },
         -- v6: vim.diagnostic.goto_next/goto_prev deprecated in 0.11, use jump()
         ["J"] = {
@@ -296,14 +304,17 @@ return {
           desc = "Find in line",
         },
         ["<C-g>o"] = { function() require("snacks").gitbrowse() end, desc = "Open Repo on Web" },
-        ["<C-s>"] = { "<cmd>w<CR>", desc = "Save buffer" },
-        ["<C-w>"] = {
+        ["<C-s>"] = {
           function()
-            vim.cmd "w"
-            require("snacks").bufdelete()
+            if vim.bo.modified and vim.bo.buftype == "" then
+              vim.cmd "write"
+            else
+              require("snacks").picker.buffers()
+            end
           end,
-          desc = "Save and close buffer",
+          desc = "Save if modified, else find buffers",
         },
+        ["<C-w>"] = { "<Cmd>w<CR>", desc = "Save buffer" },
         ["<C-Tab>"] = { "<cmd>tabnext<CR>", desc = "Next Tab" },
         ["<C-g><C-i>"] = {
           function() require("snacks").picker.gh_issue() end,
@@ -490,10 +501,9 @@ return {
         ["<C-c>"] = {
           function()
             vim.cmd "stopinsert"
-            vim.cmd "wa"
-            require("snacks").bufdelete()
+            save_close_buf()
           end,
-          desc = "Save, close buffer, and return to normal mode",
+          desc = "Save (if modified), close buffer, and return to normal mode",
         },
         ["<C-x>"] = {
           function()
@@ -505,13 +515,7 @@ return {
         },
       },
       v = {
-        ["<C-c>"] = {
-          function()
-            vim.cmd "w"
-            require("snacks").bufdelete()
-          end,
-          desc = "Save and close buffer",
-        },
+        ["<C-c>"] = { save_close_buf, desc = "Save (if modified) and close buffer" },
         ["<C-x>"] = {
           function()
             vim.cmd "w"
@@ -568,9 +572,9 @@ return {
         ["<C-q>"] = {
           function()
             vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes([[<C-\><C-n>]], true, false, true), "n", false)
-            vim.cmd "close"
+            close_win()
           end,
-          desc = "Exit terminal and close window",
+          desc = "Exit terminal and close window (quit if last)",
         },
       },
     },
