@@ -73,20 +73,21 @@ local function pick_files()
   end
 end
 
---- VimEnter entry point: restore this worktree/branch session, or fall back to
---- the file picker when none has been saved yet.
+--- VimEnter entry point: show neo-tree, then restore this worktree/branch
+--- session, or fall back to the file picker when none has been saved yet.
 ---
 --- Exception: when nvim was started with file arguments (`nvim foo.lua`, a
 --- directory, or `-`) the requested buffer is what the user asked for, so
---- neither the session nor the picker may take the screen.
+--- neither the tree, the session nor the picker may take the screen.
 function M.restore()
   if vim.fn.argc(-1) > 0 then return end
-  if M.exists(M.name()) then
-    M.load { silence_errors = true }
-  else
-    -- defer so the picker opens after startup finished drawing the UI
-    vim.schedule(pick_files)
-  end
+  local restored = M.exists(M.name())
+  if restored then M.load { silence_errors = true } end
+  -- defer so the tree and picker open after startup finished drawing the UI
+  vim.schedule(function()
+    vim.cmd "Neotree show" -- no focus: the restored buffer / picker keeps it
+    if not restored then pick_files() end
+  end)
 end
 
 return M
