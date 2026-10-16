@@ -152,6 +152,7 @@ M.never_show = {
 
 --- Patterns that should never be shown (pattern matching)
 M.never_show_patterns = {
+  ".crush",
   "*DS_Store",
   ".obsidian",
   ".pkl-lsp",
