@@ -239,7 +239,7 @@ return {
         clipboard = "unnamedplus",
         title = true,
         titlestring = "",
-        laststatus = 3, -- global statusline (custom heirline in heirline.lua)
+        laststatus = 0, -- no statusline under the last window
       },
       g = {},
     },
