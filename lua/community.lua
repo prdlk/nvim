@@ -8,7 +8,6 @@ return {
   "AstroNvim/astrocommunity",
   version = false, -- Use latest astrocommunity
   { import = "astrocommunity.bars-and-lines.bufferline-nvim" },
-  { import = "astrocommunity.editing-support.refactoring-nvim" },
   { import = "astrocommunity.editing-support.conform-nvim" },
   { import = "astrocommunity.diagnostics.trouble-nvim" },
   { import = "astrocommunity.pack.mdx" },
@@ -31,9 +30,6 @@ return {
   { import = "astrocommunity.pack.python.base" },
   { import = "astrocommunity.pack.python.basedpyright" },
   { import = "astrocommunity.completion.supermaven-nvim" },
-  { import = "astrocommunity.lsp.dev-tools-nvim" },
-  { import = "astrocommunity.lsp.lsp-signature-nvim" },
   { import = "astrocommunity.lsp.nvim-lsp-file-operations" },
   { import = "astrocommunity.colorscheme.cyberdream-nvim" },
-  { import = "astrocommunity.recipes.heirline-nvchad-statusline" },
 }
