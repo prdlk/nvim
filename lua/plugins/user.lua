@@ -42,10 +42,22 @@ end
 
 ---@type LazySpec
 return {
-  { "sphamba/smear-cursor.nvim", opts = {} },
+  { "sphamba/smear-cursor.nvim", event = "VeryLazy", opts = {} },
 
   -- terminals are handled by kitty now
   { "akinsho/toggleterm.nvim", enabled = false },
+
+  -- conform owns formatting (plugins/conform.lua). AstroNvim's none-ls ships
+  -- with mason-null-ls `handlers = {}`, which auto-registers every mason tool
+  -- (biome, goimports, buf, ...) as a second formatter/linter client.
+  { "nvimtools/none-ls.nvim", enabled = false },
+  { "jay-babu/mason-null-ls.nvim", enabled = false },
+
+  -- <C-h/j/k/l> is config.pane_nav; resize binds are native (plugins/pane-nav.lua)
+  { "mrjones2014/smart-splits.nvim", enabled = false },
+
+  -- lsp_signature.nvim is gone; astrolsp's own signature help replaces it
+  { "AstroNvim/astrolsp", opts = { features = { signature_help = true } } },
 
   {
     "folke/snacks.nvim",

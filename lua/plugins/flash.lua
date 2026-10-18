@@ -7,8 +7,8 @@ return {
   opts = {
     modes = {
       char = {
-        -- normal-mode `f` is the Vimium-style word jump and `F` is the
-        -- search-style jump below, so flash's char mode must not rebind
+        -- normal-mode `f` is the Vimium-style word jump and `F` toggles a
+        -- fold (plugins/astrocore.lua), so flash's char mode must not rebind
         -- them; t/T/;/, stay enhanced
         keys = { "t", "T", ";", "," },
         -- show jump labels on the char-motion matches (t/T)
@@ -35,7 +35,7 @@ return {
       desc = "Jump to word (Vimium-style)",
     },
     {
-      "F",
+      "g/",
       mode = "n",
       function()
         -- Search-style flash: type a regex pattern and labels appear on

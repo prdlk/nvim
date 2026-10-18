@@ -1,9 +1,10 @@
 --- <C-h/j/k/l> pane navigation that follows whatever multiplexer Neovim is
 --- running under (herdr, tmux, or bare kitty) — see config.pane_nav.
 ---
---- This replaces AstroNvim's smart-splits mappings on the same keys (which only
---- know tmux/wezterm/kitty and would move the wrong layer inside herdr).
---- smart-splits itself stays for the <C-Up/Down/Left/Right> resize mappings.
+--- This replaces AstroNvim's smart-splits mappings (which only know
+--- tmux/wezterm/kitty and would move the wrong layer inside herdr). The plugin
+--- is disabled in plugins/user.lua; its <C-Up/Down/Left/Right> resize binds
+--- are plain :resize here.
 
 local nav = require "config.pane_nav"
 
@@ -16,6 +17,14 @@ local moves = {
   ["<C-L>"] = "right",
 }
 
+--- AstroNvim's key spelling again, overriding the smart-splits resize entries.
+local resizes = {
+  ["<C-Up>"] = { "resize +2", "Resize split taller" },
+  ["<C-Down>"] = { "resize -2", "Resize split shorter" },
+  ["<C-Left>"] = { "vertical resize -2", "Resize split narrower" },
+  ["<C-Right>"] = { "vertical resize +2", "Resize split wider" },
+}
+
 return {
   "AstroNvim/astrocore",
   opts = function(_, opts)
@@ -26,6 +35,9 @@ return {
       maps.n[key] = { function() nav.navigate(dir) end, desc = desc }
       maps.x[key] = maps.n[key]
       maps.t[key] = { nav.terminal(dir), desc = desc }
+    end
+    for key, spec in pairs(resizes) do
+      maps.n[key] = { "<Cmd>" .. spec[1] .. "<CR>", desc = spec[2] }
     end
   end,
 }
