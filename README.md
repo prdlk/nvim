@@ -2,7 +2,7 @@
 
 Personal Neovim config built on [AstroNvim](https://github.com/AstroNvim/AstroNvim) v6 (`version = "^6"` in `lua/lazy_setup.lua`), targeting Neovim 0.12.
 
-It started from the AstroNvim template and now adds git-aware sessions, `fff`-backed file search, multiplexer-aware split navigation, mermaid diagnostics, MDX templates, and an Oh My Pi side terminal.
+It started from the AstroNvim template and now adds git-aware sessions, `fff`-backed file search, multiplexer-aware split navigation, mermaid diagnostics, MDX templates, and an Oh My Pi side terminal. One plugin per job: where AstroNvim or a community pack ships a second implementation of something already covered, it is disabled rather than configured.
 
 ## Requirements
 
@@ -14,7 +14,6 @@ It started from the AstroNvim template and now adds git-aware sessions, `fff`-ba
 | `cargo` (fallback only) | `fff` builds from source when no prebuilt binary downloads |
 | `node` + `npm` | mermaid validator (installs `mermaid` + `jsdom` under `stdpath("data")` on first use) |
 | `lazygit`, `lazydocker`, `gh` (+ `gh-dash`), `ghq` | git/GitHub/project binds |
-| `tv` (television) | `<C-t>` channel picker |
 | `kitty`, `yazi` | neo-tree image preview (`kitten icat`) and yazi launchers |
 | `omp` + `omp plugin install omp.nvim` | Oh My Pi terminal and `omp.nvim` integration |
 | `uv` / a project venv | basedpyright third-party imports (`uv sync`) |
@@ -46,16 +45,13 @@ nvim
 ```
 init.lua               lazy.nvim bootstrap, terminal title, cursor shape
 lua/lazy_setup.lua     AstroNvim import, leader keys (<Space>, localleader ","), lazy options
-lua/community.lua      AstroCommunity imports (language packs, colorscheme, statusline)
+lua/community.lua      AstroCommunity imports (language packs, colorscheme, trouble, supermaven)
 lua/plugins/           plugin specs and AstroNvim overrides, one file per concern
 lua/config/            plain Lua modules used by the plugin specs
 lua/polish.lua         runs last; registers the <Leader>u toggles
 templates/mdx/         template.nvim snippets for MDX docs
 scripts/               mermaid-validator.mjs (node process used by config/mermaid.lua)
-zed-keymap.jsonc       Zed keymap that mirrors these binds
 ```
-
-`lua/plugins/mason.lua`, `none-ls.lua`, and `treesitter.lua` are template stubs that return `{}` early and do nothing.
 
 ## What's included
 
@@ -69,15 +65,30 @@ zed-keymap.jsonc       Zed keymap that mirrors these binds
 
 **Search**: `fff.nvim` handles files and grep (frecency, respects `.gitignore` and `.ignore`). snacks.picker handles everything else. `config/ignore_patterns.lua` holds the shared ignore list used by neo-tree and the snacks pickers.
 
-**Pane navigation** (`config/pane_nav.lua`): `<C-h/j/k/l>` moves between Neovim splits first. At the outermost split, the move goes to herdr, tmux, or kitty, whichever is the nearest ancestor process.
+**Pane navigation** (`config/pane_nav.lua`): `<C-h/j/k/l>` moves between Neovim splits first. At the outermost split, the move goes to herdr, tmux, or kitty, whichever is the nearest ancestor process. Resize is plain `:resize` on `<C-Up/Down/Left/Right>`; smart-splits is disabled.
 
 **Mermaid** (`config/mermaid.lua`): tree-sitter highlights ```` ```mermaid ```` fences in markdown/MDX and `.mmd` files. Diagnostics come from mermaid's own parser running in a node process, which exits after 5 idle minutes. Run `:MermaidCheck` to re-validate.
 
 **Markdown**: `:Vellum` opens a live GitHub-style preview (prdlk fork, `mdx` branch). In markdown and MDX buffers, visual `<Leader>e…` applies formatting (see below).
 
-**AI**: Supermaven provides inline completions and a blink.cmp source. It is disabled for Python and inside the LeetCode work directory. `<C-a><C-a>` toggles an Oh My Pi terminal on the right.
+**AI**: Supermaven provides inline ghost-text completions (`<C-l>` accepts). It is disabled for Python and inside the LeetCode work directory. `<C-a><C-a>` toggles an Oh My Pi terminal on the right.
 
-**UI**: cyberdream colorscheme (muted variant), bufferline, NvChad-style heirline statusline (`laststatus = 0`), smear-cursor, neo-tree replacing mini.files. Snacks dashboard and toggleterm are disabled.
+**UI**: cyberdream colorscheme (muted variant), bufferline, neo-tree replacing mini.files, smear-cursor (loaded at `VeryLazy`). No statusline (`laststatus = 0`); heirline stays for the winbar breadcrumbs. Snacks dashboard is disabled.
+
+### Disabled on purpose
+
+Core or community plugins turned off in `plugins/user.lua` because something else already owns the job:
+
+| Plugin | Replaced by |
+| --- | --- |
+| `none-ls.nvim`, `mason-null-ls.nvim` | conform (`mason-null-ls` would auto-register every Mason tool as a second formatter/linter client) |
+| `smart-splits.nvim` | `config/pane_nav.lua` + native `:resize` |
+| `toggleterm.nvim` | kitty / snacks terminals |
+| `lsp_signature.nvim` (not imported) | astrolsp's built-in signature help (`features.signature_help = true`) |
+| `refactoring.nvim`, `dev-tools.nvim` (not imported) | LSP code actions (`<C-a>a`) |
+| `tv.nvim` (removed) | fff + snacks pickers |
+
+Startup on a TTY is ~80 ms with 41 of 65 plugins loaded eagerly (`:Lazy profile`); the rest load on their command, key, filetype, or `User AstroFile`.
 
 ## Keymaps
 
@@ -100,7 +111,6 @@ Leader is `<Space>`; localleader is `,`. Prefixes: `<C-f>` find, `<C-g>` git/Git
 | `<C-f>gw` `gd` `gm` `gp` `gc` | Workflows, Devbox/Docker, Makefiles, package.json, `.ai/` files |
 | `<C-f><C-f>` | LSP symbols |
 | `<C-i>` | Template picker (also takes over `<Tab>` in normal mode) |
-| `<C-t>` | Television channels |
 | `<C-r>` | Find & replace (grug-far; linewise visual selection limits the range) |
 | `<C-e>` | Toggle neo-tree |
 
@@ -110,16 +120,17 @@ File pickers open the selection with `:tab drop` on `<CR>` and in a vsplit on `<
 
 | Key | Action |
 | --- | --- |
-| `f` / `F` | Flash: label word starts / search-and-label |
+| `f` / `F` | Flash word-start labels / toggle fold |
+| `g/` | Flash search: type a pattern, labels on every match |
 | `s` / `S` | Flash jump / Flash treesitter |
 | `J` / `K` | Next / previous diagnostic |
 | `H` / `L` | Previous / next buffer |
 | `]]` / `[[` | Next / previous LSP reference |
+| `<C-h/j/k/l>` | Move between splits, then tmux/herdr/kitty panes |
+| `<C-Up/Down/Left/Right>` | Resize split |
 | `vv` / `T` | Select all / go to top |
 | visual `D` / `R` | Delete / replace every occurrence of the selection |
 | `<C-p>` | Paste from system clipboard |
-
-`plugins/astrocore.lua` also maps `F` to `za` (toggle fold), which conflicts with the Flash `F` bind.
 
 ### Buffers, windows, saving
 
