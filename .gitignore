@@ -1,4 +1,17 @@
-/.omc
-/.omc/state
-/.understand-anything/tmp
-/.understand-anything
+# AI agent / tooling state written into the config dir
+/.omc/
+/.claude/
+/.crush/
+/.beads/
+/.codegraph/
+/.understand-anything/
+/.ai/
+
+# Neovim scratch
+*.log
+*.swp
+*~
+
+# OS
+.DS_Store
+Thumbs.db
