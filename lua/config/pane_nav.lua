@@ -141,6 +141,11 @@ end
 --- @param dir "left"|"down"|"up"|"right"
 function M.navigate(dir)
   local from = vim.api.nvim_get_current_win()
+  -- Under tmux smart-splits owns the edge handoff (plugins/user.lua).
+  if M.env() == "tmux" and vim.api.nvim_win_get_config(from).relative == "" then
+    require("smart-splits")["move_cursor_" .. dir]()
+    return
+  end
   vim.cmd.wincmd(directions[dir].wincmd)
   if vim.api.nvim_get_current_win() ~= from then return end
   if vim.api.nvim_win_get_config(0).relative ~= "" then return end

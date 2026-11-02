@@ -65,7 +65,7 @@ scripts/               mermaid-validator.mjs (node process used by config/mermai
 
 **Search**: `fff.nvim` handles files and grep (frecency, respects `.gitignore` and `.ignore`). snacks.picker handles everything else. `config/ignore_patterns.lua` holds the shared ignore list used by neo-tree and the snacks pickers.
 
-**Pane navigation** (`config/pane_nav.lua`): `<C-h/j/k/l>` moves between Neovim splits first. At the outermost split, the move goes to herdr, tmux, or kitty, whichever is the nearest ancestor process. Resize is plain `:resize` on `<C-Up/Down/Left/Right>`; smart-splits is disabled.
+**Pane navigation** (`config/pane_nav.lua`): `<C-h/j/k/l>` moves between Neovim splits first. At the outermost split, the move goes to herdr, tmux, or kitty, whichever is the nearest ancestor process. Under tmux the move goes through smart-splits.nvim, loaded at startup, which flags the pane `@pane-is-vim` for `tmux.conf`. There, `<C-Up/Down/Left/Right>` and `<M-h/j/k/l>` are smart-splits resize and cross into tmux panes at the edge. Elsewhere smart-splits stays unloaded and resize is plain `:resize` on `<C-Up/Down/Left/Right>`.
 
 **Mermaid** (`config/mermaid.lua`): tree-sitter highlights ```` ```mermaid ```` fences in markdown/MDX and `.mmd` files. Diagnostics come from mermaid's own parser running in a node process, which exits after 5 idle minutes. Run `:MermaidCheck` to re-validate.
 
@@ -82,7 +82,6 @@ Core or community plugins turned off in `plugins/user.lua` because something els
 | Plugin | Replaced by |
 | --- | --- |
 | `none-ls.nvim`, `mason-null-ls.nvim` | conform (`mason-null-ls` would auto-register every Mason tool as a second formatter/linter client) |
-| `smart-splits.nvim` | `config/pane_nav.lua` + native `:resize` |
 | `toggleterm.nvim` | kitty / snacks terminals |
 | `lsp_signature.nvim` (not imported) | astrolsp's built-in signature help (`features.signature_help = true`) |
 | `refactoring.nvim`, `dev-tools.nvim` (not imported) | LSP code actions (`<C-a>a`) |

@@ -53,8 +53,21 @@ return {
   { "nvimtools/none-ls.nvim", enabled = false },
   { "jay-babu/mason-null-ls.nvim", enabled = false },
 
-  -- <C-h/j/k/l> is config.pane_nav; resize binds are native (plugins/pane-nav.lua)
-  { "mrjones2014/smart-splits.nvim", enabled = false },
+  -- Under tmux, smart-splits drives <C-h/j/k/l> and resizing (config.pane_nav
+  -- and plugins/pane-nav.lua delegate to it) and flags the pane @pane-is-vim
+  -- for tmux.conf. herdr and kitty stay on config.pane_nav, so its env() picks
+  -- the integration instead of smart-splits' own env-var guess. Loaded at
+  -- startup under tmux so the flag is set before the first keypress
+  -- (AstroNvim's early load keys off TERM_PROGRAM, which tmux.conf passes
+  -- through from the outer terminal).
+  {
+    "mrjones2014/smart-splits.nvim",
+    lazy = require("config.pane_nav").env() ~= "tmux",
+    opts = function(_, opts)
+      opts.at_edge = "wrap"
+      opts.multiplexer_integration = require("config.pane_nav").env() == "tmux" and "tmux" or false
+    end,
+  },
 
   -- lsp_signature.nvim is gone; astrolsp's own signature help replaces it
   { "AstroNvim/astrolsp", opts = { features = { signature_help = true } } },

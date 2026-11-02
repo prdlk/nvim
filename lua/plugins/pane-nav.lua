@@ -1,10 +1,11 @@
 --- <C-h/j/k/l> pane navigation that follows whatever multiplexer Neovim is
 --- running under (herdr, tmux, or bare kitty) — see config.pane_nav.
 ---
---- This replaces AstroNvim's smart-splits mappings (which only know
---- tmux/wezterm/kitty and would move the wrong layer inside herdr). The plugin
---- is disabled in plugins/user.lua; its <C-Up/Down/Left/Right> resize binds
---- are plain :resize here.
+--- These entries overwrite AstroNvim's smart-splits mappings, which only know
+--- tmux/wezterm/kitty and would move the wrong layer inside herdr. Under tmux
+--- they hand back to smart-splits: navigation through config.pane_nav, resize
+--- directly, plus <M-h/j/k/l> resize, the keys tmux.conf forwards to an
+--- @pane-is-vim pane. Elsewhere <C-Up/Down/Left/Right> are plain :resize.
 
 local nav = require "config.pane_nav"
 
@@ -18,11 +19,20 @@ local moves = {
 }
 
 --- AstroNvim's key spelling again, overriding the smart-splits resize entries.
+--- dir is the smart-splits direction under tmux; cmd the plain fallback.
 local resizes = {
-  ["<C-Up>"] = { "resize +2", "Resize split taller" },
-  ["<C-Down>"] = { "resize -2", "Resize split shorter" },
-  ["<C-Left>"] = { "vertical resize -2", "Resize split narrower" },
-  ["<C-Right>"] = { "vertical resize +2", "Resize split wider" },
+  ["<C-Up>"] = { dir = "up", cmd = "resize +2", desc = "Resize split taller" },
+  ["<C-Down>"] = { dir = "down", cmd = "resize -2", desc = "Resize split shorter" },
+  ["<C-Left>"] = { dir = "left", cmd = "vertical resize -2", desc = "Resize split narrower" },
+  ["<C-Right>"] = { dir = "right", cmd = "vertical resize +2", desc = "Resize split wider" },
+}
+
+--- tmux.conf's vim-aware resize keys; only mapped under tmux.
+local tmux_resizes = {
+  ["<M-h>"] = "left",
+  ["<M-j>"] = "down",
+  ["<M-k>"] = "up",
+  ["<M-l>"] = "right",
 }
 
 return {
@@ -36,8 +46,18 @@ return {
       maps.x[key] = maps.n[key]
       maps.t[key] = { nav.terminal(dir), desc = desc }
     end
+    local tmux = nav.env() == "tmux"
     for key, spec in pairs(resizes) do
-      maps.n[key] = { "<Cmd>" .. spec[1] .. "<CR>", desc = spec[2] }
+      if tmux then
+        maps.n[key] = { function() require("smart-splits")["resize_" .. spec.dir]() end, desc = "Resize split " .. spec.dir }
+      else
+        maps.n[key] = { "<Cmd>" .. spec.cmd .. "<CR>", desc = spec.desc }
+      end
+    end
+    if tmux then
+      for key, dir in pairs(tmux_resizes) do
+        maps.n[key] = { function() require("smart-splits")["resize_" .. dir]() end, desc = "Resize split " .. dir .. " (tmux aware)" }
+      end
     end
   end,
 }
