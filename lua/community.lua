@@ -13,9 +13,11 @@ return {
   { import = "astrocommunity.pack.mdx" },
   { import = "astrocommunity.pack.biome" },
   { import = "astrocommunity.pack.go" },
+  { import = "astrocommunity.pack.lua" },
   { import = "astrocommunity.pack.golangci-lint" },
   { import = "astrocommunity.pack.html-css" },
   { import = "astrocommunity.pack.json" },
+  { import = "astrocommunity.pack.nix" },
   { import = "astrocommunity.pack.proto" },
   { import = "astrocommunity.pack.pkl" },
   { import = "astrocommunity.pack.rust" },
@@ -27,8 +29,11 @@ return {
   -- The full `pack.python` also pulls black + isort; formatting stays on ruff
   -- (see plugins/conform.lua), so only the base and basedpyright subpacks are
   -- imported. Interpreter resolution is overridden in plugins/python.lua.
-  { import = "astrocommunity.pack.python.base" },
-  { import = "astrocommunity.pack.python.basedpyright" },
+
+{ import = "astrocommunity.pack.python.base" },
+{ import = "astrocommunity.pack.python.basedpyright" },
+{ import = "astrocommunity.pack.python.black" },
+{ import = "astrocommunity.pack.python.isort" },
   { import = "astrocommunity.completion.supermaven-nvim" },
   { import = "astrocommunity.lsp.nvim-lsp-file-operations" },
   { import = "astrocommunity.colorscheme.cyberdream-nvim" },
