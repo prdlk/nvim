@@ -1,4 +1,3 @@
-
 -- AstroCommunity: import any community modules here
 -- We import this file in `lazy_setup.lua` before the `plugins/` folder.
 -- This guarantees that the specs are processed before any user plugins.
@@ -30,10 +29,10 @@ return {
   -- (see plugins/conform.lua), so only the base and basedpyright subpacks are
   -- imported. Interpreter resolution is overridden in plugins/python.lua.
 
-{ import = "astrocommunity.pack.python.base" },
-{ import = "astrocommunity.pack.python.basedpyright" },
-{ import = "astrocommunity.pack.python.black" },
-{ import = "astrocommunity.pack.python.isort" },
+  { import = "astrocommunity.pack.python.base" },
+  { import = "astrocommunity.pack.python.basedpyright" },
+  { import = "astrocommunity.pack.python.black" },
+  { import = "astrocommunity.pack.python.isort" },
   { import = "astrocommunity.completion.supermaven-nvim" },
   { import = "astrocommunity.lsp.nvim-lsp-file-operations" },
   { import = "astrocommunity.colorscheme.cyberdream-nvim" },
