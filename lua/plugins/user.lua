@@ -84,7 +84,10 @@ return {
 
   -- lsp_signature.nvim is gone; astrolsp's own signature help replaces it
   { "AstroNvim/astrolsp", opts = { features = { signature_help = true } } },
-
+  {
+    "Kicamon/markdown-table-mode.nvim",
+    config = function() require("markdown-table-mode").setup() end,
+  },
   {
     "folke/snacks.nvim",
     ---@type snacks.Config
@@ -105,5 +108,4 @@ return {
       words = { enabled = true },
     },
   },
-
 }
