@@ -5,3 +5,16 @@
 -- snacks state icons/colors (see config.toggles). LSP-scoped keymaps live in
 -- plugins/astrolsp.lua, where astrolsp gates them on server capabilities.
 require("config.toggles").setup()
+
+require("markdown-table-mode").setup {
+  filetype = {
+    "*.md",
+    "*.mdx",
+  },
+  options = {
+    insert = true, -- when typing "|"
+    insert_leave = true, -- when leaving insert
+    pad_separator_line = false, -- add space in separator line
+    alig_style = "center", -- default, left, center, right
+  },
+}
