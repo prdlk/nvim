@@ -40,6 +40,19 @@ picker_sources.smart.config = function(opts)
   return opts
 end
 
+-- Projects picker (<Leader>fp, <C-f>p, <S-Space><S-Space>): when the ghq
+-- CLI is installed, every `ghq list -p` repo joins the recent/dev projects.
+-- Resolved at open time so newly cloned repos show up without a restart.
+picker_sources.projects = {
+  config = function(opts)
+    if vim.fn.executable "ghq" == 1 then
+      local repos = vim.fn.systemlist { "ghq", "list", "-p" }
+      if vim.v.shell_error == 0 then opts.projects = vim.list_extend(vim.list_slice(opts.projects or {}), repos) end
+    end
+    return opts
+  end,
+}
+
 ---@type LazySpec
 return {
   { "sphamba/smear-cursor.nvim", event = "VeryLazy", opts = {} },

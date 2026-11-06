@@ -280,6 +280,11 @@ return {
           function() require("snacks").picker.smart() end,
           desc = "Find files",
         },
+        -- needs a terminal that reports <S-Space> distinctly (kitty keyboard protocol)
+        ["<S-Space><S-Space>"] = {
+          function() require("snacks").picker.projects() end,
+          desc = "Find projects",
+        },
         ["<C-b>b"] = { "<Cmd>BufferLinePick<CR>", desc = "Pick buffer" },
         ["<C-b>f"] = {
           function() require("snacks").picker.buffers() end,
