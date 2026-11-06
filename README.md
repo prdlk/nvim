@@ -106,6 +106,7 @@ Leader is `<Space>`; localleader is `,`. Prefixes: `<C-f>` find, `<C-g>` git/Git
 | `<C-f>m` | Files modified today |
 | `<C-f>x` | URLs in the buffer (opens in browser) |
 | `<C-f>o` / `<C-f>p` / `<C-f>P` | Recent files / projects / ghq repos |
+| `<Leader>fp` / `<S-Space><S-Space>` | Projects (includes `ghq list -p` repos when `ghq` is installed; `<S-Space>` needs kitty keyboard protocol) |
 | `<C-f>d` / `<C-f>l` | Diagnostics / lines |
 | `<C-f>gw` `gd` `gm` `gp` `gc` | Workflows, Devbox/Docker, Makefiles, package.json, `.ai/` files |
 | `<C-f><C-f>` | LSP symbols |
