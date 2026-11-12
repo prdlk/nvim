@@ -14,7 +14,7 @@ It started from the AstroNvim template and now adds git-aware sessions, `fff`-ba
 | `cargo` (fallback only) | `fff` builds from source when no prebuilt binary downloads |
 | `node` + `npm` | mermaid validator (installs `mermaid` + `jsdom` under `stdpath("data")` on first use) |
 | `lazygit`, `lazydocker`, `gh` (+ `gh-dash`), `ghq` | git/GitHub/project binds |
-| `kitty`, `yazi` | neo-tree image preview (`kitten icat`) and yazi launchers |
+| `kitty`, `yazi` | yazi launchers |
 | `omp` + `omp plugin install omp.nvim` | Oh My Pi terminal and `omp.nvim` integration |
 | `uv` / a project venv | basedpyright third-party imports (`uv sync`) |
 
@@ -61,9 +61,9 @@ scripts/               mermaid-validator.mjs (node process used by config/mermai
 
 **Format on save** (`plugins/conform.lua`, `config/lsp_code_actions.lua`): on save, `source.organizeImports` and `source.fixAll` code actions run first, then conform formats. JavaScript buffers get the code actions but are not formatted. `<Leader>uf` turns the whole pipeline on or off.
 
-**Sessions** (`config/session.lua`): sessions are keyed by `<worktree root>@<branch>`, so each worktree and branch keeps its own layout. On `VimEnter`, neo-tree opens and the saved session is restored; with no saved session, the git files picker opens instead. None of this happens when nvim is started with file arguments. Sessions save on exit.
+**Sessions** (`config/session.lua`): sessions are keyed by `<worktree root>@<branch>`, so each worktree and branch keeps its own layout. On `VimEnter`, the saved session is restored; with no saved session, the git files picker opens instead. None of this happens when nvim is started with file arguments, or by the treemux sidebar to run a forwarded key (`$TREEMUX_EDITOR`). Sessions save on exit.
 
-**Search**: `fff.nvim` handles files and grep (frecency, respects `.gitignore` and `.ignore`). snacks.picker handles everything else. `config/ignore_patterns.lua` holds the shared ignore list used by neo-tree and the snacks pickers.
+**Search**: `fff.nvim` handles files and grep (frecency, respects `.gitignore` and `.ignore`). snacks.picker handles everything else. `config/ignore_patterns.lua` holds the shared ignore list used by the snacks pickers and the treemux sidebar's Neo-tree.
 
 **Pane navigation** (`config/pane_nav.lua`): `<C-h/j/k/l>` moves between Neovim splits first. At the outermost split, the move goes to herdr, tmux, or kitty, whichever is the nearest ancestor process. Under tmux the move goes through smart-splits.nvim, loaded at startup, which flags the pane `@pane-is-vim` for `tmux.conf`. There, `<C-Up/Down/Left/Right>` and `<M-h/j/k/l>` are smart-splits resize and cross into tmux panes at the edge. Elsewhere smart-splits stays unloaded and resize is plain `:resize` on `<C-Up/Down/Left/Right>`.
 
@@ -73,7 +73,7 @@ scripts/               mermaid-validator.mjs (node process used by config/mermai
 
 **AI**: Supermaven provides inline ghost-text completions (`<C-l>` accepts). It is disabled for Python and inside the LeetCode work directory. `<C-a><C-a>` toggles an Oh My Pi terminal on the right.
 
-**UI**: cyberdream colorscheme (muted variant), bufferline, neo-tree replacing mini.files, smear-cursor (loaded at `VeryLazy`). No statusline (`laststatus = 0`); heirline stays for the winbar breadcrumbs. Snacks dashboard is disabled.
+**UI**: cyberdream colorscheme (muted variant), bufferline, smear-cursor (loaded at `VeryLazy`). No statusline (`laststatus = 0`); heirline stays for the winbar breadcrumbs. Snacks dashboard is disabled.
 
 ### Disabled on purpose
 
@@ -83,6 +83,7 @@ Core or community plugins turned off in `plugins/user.lua` because something els
 | --- | --- |
 | `none-ls.nvim`, `mason-null-ls.nvim` | conform (`mason-null-ls` would auto-register every Mason tool as a second formatter/linter client) |
 | `toggleterm.nvim` | kitty / snacks terminals |
+| `neo-tree.nvim`, `nvim-lsp-file-operations` | the [treemux](https://github.com/kiyoon/treemux) Neo-tree sidebar, a tmux pane right of nvim (`prefix Tab` / `prefix BSpace`, Ghostty `ctrl+shift+e`), set up in `~/.config/tmux/treemux_init.lua`. `Enter` there opens the file in this nvim (nvim-tree-remote.nvim); `-` sends its path to the shell (tmux-send.nvim); the editor's own keymap is forwarded from the tree to this nvim |
 | `lsp_signature.nvim` (not imported) | astrolsp's built-in signature help (`features.signature_help = true`) |
 | `refactoring.nvim`, `dev-tools.nvim` (not imported) | LSP code actions (`<C-a>a`) |
 | `tv.nvim` (removed) | fff + snacks pickers |
@@ -112,7 +113,7 @@ Leader is `<Space>`; localleader is `,`. Prefixes: `<C-f>` find, `<C-g>` git/Git
 | `<C-f><C-f>` | LSP symbols |
 | `<C-i>` | Template picker (also takes over `<Tab>` in normal mode) |
 | `<C-r>` | Find & replace (grug-far; linewise visual selection limits the range) |
-| `<C-e>` | Toggle neo-tree |
+| `<C-e>` | Focus the treemux file tree sidebar (tmux pane); opens one when the window has none (`config/treemux.lua`) |
 
 File pickers open the selection with `:tab drop` on `<CR>` and in a vsplit on `<S-CR>`.
 

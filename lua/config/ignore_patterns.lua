@@ -1,8 +1,8 @@
 --- Shared ignore patterns for file explorers and pickers
 --- This module provides a centralized list of patterns to ignore across
 --- snacks.picker and other file browsing tools. (`patterns` and the
---- `never_show` lists are also handed to neo-tree's `filtered_items`, see
---- plugins/neotree.lua.)
+--- `never_show` lists are also handed to Neo-tree's `filtered_items` in the
+--- treemux sidebar, see ~/.config/tmux/treemux_init.lua.)
 ---
 --- Everything here is fast-event-context safe (pure Lua + libuv only):
 --- snacks picker transforms run inside async/uv callbacks where vimL

@@ -221,7 +221,7 @@ return {
         },
         {
           event = "VimEnter",
-          desc = "Show neo-tree; restore worktree/branch session, else open the git files picker",
+          desc = "Restore worktree/branch session, else open the git files picker",
           nested = true, -- trigger other autocommands as buffers open
           -- no-op when nvim was started with file arguments, see config.session
           callback = function() require("config.session").restore() end,
@@ -245,6 +245,7 @@ return {
 
     mappings = {
       n = {
+        ["<C-e>"] = { function() require("config.treemux").focus() end, desc = "Focus treemux file tree" },
         ["<C-q>"] = { close_win, desc = "Close window (quit if last)" },
         ["<C-!>"] = { "<Cmd>suspend<CR>", desc = "Suspend nvim (return with 'fg')" },
         ["ZZ"] = { "<Cmd>wqa<CR>", desc = "Save all buffers and quit Neovim" },

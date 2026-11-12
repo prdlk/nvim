@@ -66,6 +66,16 @@ return {
   { "nvimtools/none-ls.nvim", enabled = false },
   { "jay-babu/mason-null-ls.nvim", enabled = false },
 
+  -- the file tree is the treemux tmux sidebar, right of this pane (prefix
+  -- Tab / prefix BSpace, Ghostty ctrl+shift+e); its Neo-tree setup lives in
+  -- ~/.config/tmux/treemux_init.lua and opens files here via
+  -- nvim-tree-remote.nvim
+  { "nvim-neo-tree/neo-tree.nvim", enabled = false },
+  -- only bridges a tree's renames to LSP (loads after neo-tree, which never
+  -- loads now; pack.typescript imports it); AstroLSP's own file operations
+  -- take back over
+  { "antosha417/nvim-lsp-file-operations", enabled = false },
+
   -- Under tmux, smart-splits drives <C-h/j/k/l> and resizing (config.pane_nav
   -- and plugins/pane-nav.lua delegate to it) and flags the pane @pane-is-vim
   -- for tmux.conf. herdr and kitty stay on config.pane_nav, so its env() picks
