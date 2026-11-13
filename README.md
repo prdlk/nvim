@@ -83,7 +83,7 @@ Core or community plugins turned off in `plugins/user.lua` because something els
 | --- | --- |
 | `none-ls.nvim`, `mason-null-ls.nvim` | conform (`mason-null-ls` would auto-register every Mason tool as a second formatter/linter client) |
 | `toggleterm.nvim` | kitty / snacks terminals |
-| `neo-tree.nvim`, `nvim-lsp-file-operations` | the [treemux](https://github.com/kiyoon/treemux) Neo-tree sidebar, a tmux pane right of nvim (`prefix Tab` / `prefix BSpace`, Ghostty `ctrl+shift+e`), set up in `~/.config/tmux/treemux_init.lua`. `Enter` there opens the file in this nvim (nvim-tree-remote.nvim); `-` sends its path to the shell (tmux-send.nvim); the editor's own keymap is forwarded from the tree to this nvim |
+| `neo-tree.nvim`, `nvim-lsp-file-operations` | the [treemux](https://github.com/kiyoon/treemux) Neo-tree sidebar, a tmux pane right of nvim (`prefix Tab` / `prefix BSpace`, Ghostty `ctrl+shift+e`), set up in `~/.config/tmux/treemux_init.lua`. `Enter` there opens the file in this nvim (nvim-tree-remote.nvim); `-` sends its path to the shell (tmux-send.nvim); `ctrl+m` toggles a view of only the repository's changed files (git_status source); the editor's own keymap is forwarded from the tree to this nvim |
 | `lsp_signature.nvim` (not imported) | astrolsp's built-in signature help (`features.signature_help = true`) |
 | `refactoring.nvim`, `dev-tools.nvim` (not imported) | LSP code actions (`<C-a>a`) |
 | `tv.nvim` (removed) | fff + snacks pickers |
