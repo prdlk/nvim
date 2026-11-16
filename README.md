@@ -71,7 +71,7 @@ scripts/               mermaid-validator.mjs (node process used by config/mermai
 
 **Markdown**: `:Vellum` opens a live GitHub-style preview (prdlk fork, `mdx` branch). In markdown and MDX buffers, visual `<Leader>e…` applies formatting (see below).
 
-**AI**: Supermaven provides inline ghost-text completions (`<C-l>` accepts). It is disabled for Python and inside the LeetCode work directory. `<C-a><C-a>` opens Oh My Pi (`config/omp_term.lua`). Under tmux it switches to an omp already running in the tmux session, preferring one in nvim's cwd. Detection walks the process tree, so wrapped omp panes shown as `python3` count. Only when none is running does it create one, as a new window right after nvim's; nvim never kills it. Elsewhere it toggles a snacks terminal on the right.
+**AI**: Supermaven provides inline ghost-text completions (`<C-l>` accepts). It is disabled for Python and inside the LeetCode work directory. `<C-a><C-a>` opens Oh My Pi (`config/omp_term.lua`). Under tmux it is a pane below nvim's, 40% of the height, and the bind reuses an omp pane before splitting a new one. It focuses one already in nvim's window, or moves one from another window of the session below nvim, preferring one in nvim's cwd. Detection walks the process tree, so wrapped omp panes shown as `python3` count. Nvim never kills it. Elsewhere it toggles a snacks terminal on the right.
 
 **Terminal tools** (`config/tui.lua`): under tmux, lazygit and lazydocker open in a 90% tmux popup in nvim's cwd (lazygit with its own config, like tmux's `prefix g`); elsewhere in a snacks float. Normal-mode `<CR>` (`<C-m>` is the same key to Neovim) opens pj's project tasks palette, tmux's `prefix t`, for nvim's cwd. It stays plain `<CR>` in special buffers (quickfix, command-line window), with a count, and outside tmux.
 
@@ -169,7 +169,7 @@ File pickers open the selection with `:tab drop` on `<CR>` and in a vsplit on `<
 | `<C-a>s` / `<C-a>S` | Document / workspace symbols (`<C-t>` in the picker sends results to Trouble) |
 | `<C-a>d` | Diagnostics (`<C-t>` sends results to Trouble) |
 | `<C-a><C-s>` | Toggle Supermaven |
-| `<C-a><C-a>` | Oh My Pi (tmux window / toggled snacks terminal) |
+| `<C-a><C-a>` | Oh My Pi (tmux pane below / toggled snacks terminal) |
 
 LSP binds are created only when the attached server supports the method (`plugins/astrolsp.lua`).
 
