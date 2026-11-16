@@ -66,10 +66,10 @@ return {
   { "nvimtools/none-ls.nvim", enabled = false },
   { "jay-babu/mason-null-ls.nvim", enabled = false },
 
-  -- the file tree is the treemux tmux sidebar, right of this pane (prefix
-  -- Tab / prefix BSpace, Ghostty ctrl+shift+e); its Neo-tree setup lives in
-  -- ~/.config/tmux/treemux_init.lua and opens files here via
-  -- nvim-tree-remote.nvim
+  -- the file tree is the treemux tmux sidebar, persistent in every tmux
+  -- window (prefix Tab / prefix BSpace, Ghostty ctrl+shift+e); its Neo-tree
+  -- setup lives in ~/.config/tmux/treemux_init.lua and opens files over RPC
+  -- in this window's nvim, else in the project's editor window
   { "nvim-neo-tree/neo-tree.nvim", enabled = false },
   -- only bridges a tree's renames to LSP (loads after neo-tree, which never
   -- loads now; pack.typescript imports it); AstroLSP's own file operations

@@ -1,10 +1,10 @@
 --- <C-e>: focus the treemux file tree sidebar (a tmux pane, see
 --- ~/.config/tmux/tmux.conf and treemux_init.lua), opening it when the window
---- has none.
+--- has none. The sidebar is persistent (one in every tmux window), so there
+--- usually is one.
 ---
---- The sidebar may belong to another pane of the window: nvim-tree-remote
---- opens files in a split of the shell's pane, and treemux registers the
---- sidebar under the shell's pane. So any sidebar in this window counts.
+--- The sidebar follows one pane of the window, not necessarily this one, so
+--- any sidebar in this window counts.
 --- treemux marks a sidebar pane with the global option
 --- `@-treemux-is-treemux-<sidebar pane id>` (its internal registry; entries
 --- outlive their panes, hence the intersection with this window's panes).
