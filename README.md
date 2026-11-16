@@ -71,7 +71,9 @@ scripts/               mermaid-validator.mjs (node process used by config/mermai
 
 **Markdown**: `:Vellum` opens a live GitHub-style preview (prdlk fork, `mdx` branch). In markdown and MDX buffers, visual `<Leader>e…` applies formatting (see below).
 
-**AI**: Supermaven provides inline ghost-text completions (`<C-l>` accepts). It is disabled for Python and inside the LeetCode work directory. `<C-a><C-a>` toggles an Oh My Pi terminal on the right.
+**AI**: Supermaven provides inline ghost-text completions (`<C-l>` accepts). It is disabled for Python and inside the LeetCode work directory. `<C-a><C-a>` opens Oh My Pi (`config/omp_term.lua`). Under tmux it switches to an omp already running in the tmux session, preferring one in nvim's cwd. Detection walks the process tree, so wrapped omp panes shown as `python3` count. Only when none is running does it create one, as a new window right after nvim's; nvim never kills it. Elsewhere it toggles a snacks terminal on the right.
+
+**Terminal tools** (`config/tui.lua`): under tmux, lazygit and lazydocker open in a 90% tmux popup in nvim's cwd (lazygit with its own config, like tmux's `prefix g`); elsewhere in a snacks float. Normal-mode `<CR>` (`<C-m>` is the same key to Neovim) opens pj's project tasks palette, tmux's `prefix t`, for nvim's cwd. It stays plain `<CR>` in special buffers (quickfix, command-line window), with a count, and outside tmux.
 
 **UI**: cyberdream colorscheme (muted variant), bufferline, smear-cursor (loaded at `VeryLazy`). No statusline (`laststatus = 0`); heirline stays for the winbar breadcrumbs. Snacks dashboard is disabled.
 
@@ -150,13 +152,14 @@ File pickers open the selection with `:tab drop` on `<CR>` and in a vsplit on `<
 
 | Key | Action |
 | --- | --- |
-| `<C-g><C-g>` | lazygit |
+| `<C-g><C-g>` | lazygit (tmux popup / snacks float) |
 | `<C-g><C-d>` | CodeDiff review workspace |
 | `<C-g>d` / `<C-g><C-b>` | Git diff / branches picker |
 | `<C-g><C-i>` / `<C-g>I` | GitHub issues (open / all) |
 | `<C-g><C-p>` / `<C-g>P` | GitHub PRs (open / all) |
 | `<C-g>o` | Open the repo on the web |
-| `<C-d><C-d>` | lazydocker |
+| `<C-d><C-d>` | lazydocker (tmux popup / snacks float) |
+| `<CR>` / `<C-m>` | pj project tasks palette (tmux only; plain `<CR>` in special buffers or with a count) |
 
 ### Assist
 
@@ -166,7 +169,7 @@ File pickers open the selection with `:tab drop` on `<CR>` and in a vsplit on `<
 | `<C-a>s` / `<C-a>S` | Document / workspace symbols (`<C-t>` in the picker sends results to Trouble) |
 | `<C-a>d` | Diagnostics (`<C-t>` sends results to Trouble) |
 | `<C-a><C-s>` | Toggle Supermaven |
-| `<C-a><C-a>` | Toggle Oh My Pi terminal |
+| `<C-a><C-a>` | Oh My Pi (tmux window / toggled snacks terminal) |
 
 LSP binds are created only when the attached server supports the method (`plugins/astrolsp.lua`).
 
