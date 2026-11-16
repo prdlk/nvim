@@ -337,14 +337,12 @@ return {
           function() require("snacks").picker.gh_pr { state = "all" } end,
           desc = "GitHub PRs (all)",
         },
-        ["<C-g><C-g>"] = {
-          function() require("snacks").lazygit() end,
-          desc = "Toggle lazygit (float)",
-        },
-        ["<C-d><C-d>"] = {
-          function() require("snacks").terminal.toggle("lazydocker", { win = { style = "float" } }) end,
-          desc = "Toggle lazydocker (float)",
-        },
+        -- config.tui: tmux popup under tmux, snacks float elsewhere
+        ["<C-g><C-g>"] = { function() require("config.tui").lazygit() end, desc = "Open lazygit" },
+        ["<C-d><C-d>"] = { function() require("config.tui").lazydocker() end, desc = "Open lazydocker" },
+        -- pj project tasks palette under tmux; plain <CR> elsewhere (config.tui).
+        -- Also <C-m>: Neovim maps <C-M> as <CR>, so one entry covers both
+        ["<CR>"] = { function() return require("config.tui").tasks() end, expr = true, desc = "Project tasks (pj)" },
         -- grug-far.nvim: buffer-based find & replace (plugins/grug-far.lua).
         -- `open` reads the visual selection itself, so the same callback
         -- serves both modes.
@@ -494,7 +492,7 @@ return {
           desc = "Search diagnostics (<C-t> sends to Trouble)",
         },
         ["<C-a><C-s>"] = { "<Cmd>SupermavenToggle<CR>", desc = "Toggle Supermaven" },
-        ["<C-a><C-a>"] = { function() require("config.omp_term").toggle() end, desc = "Toggle Oh My Pi" },
+        ["<C-a><C-a>"] = { function() require("config.omp_term").toggle() end, desc = "Oh My Pi" },
 
         -- <Leader>u toggles are mapped through Snacks.toggle in
         -- config.toggles (called from polish.lua) so which-key renders their
