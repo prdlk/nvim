@@ -1,13 +1,17 @@
---- <C-e>: focus the treemux file tree sidebar (a tmux pane, see
---- ~/.config/tmux/tmux.conf and treemux_init.lua), opening it when the window
---- has none. The sidebar is persistent (one in every tmux window), so there
---- usually is one.
+--- The treemux file tree sidebar (a tmux pane, see ~/.config/tmux/tmux.conf
+--- and treemux_init.lua):
+---
+---   * <C-e> focuses it, opening one when the window has none. treemux marks
+---     a sidebar pane with the global option `@-treemux-is-treemux-<pane id>`
+---     (its internal registry; entries outlive their panes, hence the
+---     intersection with this window's panes).
+---   * `reveal` keeps the sidebar's cursor on this nvim's current file. Every
+---     sidebar publishes its RPC address as the pane option
+---     `@treemux-nvim-addr`; this window's sidebars get the file path pushed
+---     to their `treemux_reveal` (a notification: nothing here waits on them).
 ---
 --- The sidebar follows one pane of the window, not necessarily this one, so
 --- any sidebar in this window counts.
---- treemux marks a sidebar pane with the global option
---- `@-treemux-is-treemux-<sidebar pane id>` (its internal registry; entries
---- outlive their panes, hence the intersection with this window's panes).
 --- @module config.treemux
 
 local M = {}
@@ -46,6 +50,63 @@ function M.focus()
     return
   end
   tmux { "run-shell", "-b", ("%s %s %s"):format(vim.fn.shellescape(script), vim.fn.shellescape(args), pane) }
+end
+
+local channels = {} ---@type table<string, integer> sidebar RPC address -> channel
+
+--- Push `path` to the sidebar at `addr`, reconnecting once if the cached
+--- channel went stale.
+--- @param addr string
+--- @param path string
+local function push(addr, path)
+  for _ = 1, 2 do
+    local chan = channels[addr]
+    if not chan then
+      local ok, new = pcall(vim.fn.sockconnect, "pipe", addr, { rpc = true })
+      if not ok or new == 0 then return end
+      chan, channels[addr] = new, new
+    end
+    if pcall(vim.rpcnotify, chan, "nvim_exec_lua", "if treemux_reveal then treemux_reveal(...) end", { path }) then
+      return
+    end
+    channels[addr] = nil
+  end
+end
+
+local timer ---@type uv.uv_timer_t?
+
+--- Reveal the current buffer's file in this tmux window's sidebars.
+--- Debounced: session restores and window hops fire BufEnter in bursts.
+function M.reveal()
+  local pane = vim.env.TMUX_PANE
+  if (vim.env.TMUX or "") == "" or not pane then return end
+  timer = timer or assert(vim.uv.new_timer())
+  timer:stop()
+  timer:start(30, 0, vim.schedule_wrap(function()
+    local buf = vim.api.nvim_get_current_buf()
+    if vim.bo[buf].buftype ~= "" then return end
+    -- the tree's paths come from the resolved shell cwd; unsaved files have none
+    local path = vim.uv.fs_realpath(vim.api.nvim_buf_get_name(buf))
+    if not path then return end
+    vim.system({ "tmux", "list-panes", "-t", pane, "-F", "#{@treemux-nvim-addr}" }, { text = true }, function(res)
+      if res.code ~= 0 then return end
+      local live = {}
+      for addr in res.stdout:gmatch "[^\n]+" do
+        live[addr] = true
+      end
+      vim.schedule(function()
+        for addr, chan in pairs(channels) do
+          if not live[addr] then
+            pcall(vim.fn.chanclose, chan)
+            channels[addr] = nil
+          end
+        end
+        for addr in pairs(live) do
+          push(addr, path)
+        end
+      end)
+    end)
+  end))
 end
 
 return M
