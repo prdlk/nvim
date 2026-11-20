@@ -5,12 +5,20 @@
 return {
   {
     "AstroNvim/astroui",
-    ---@type AstroUIOpts
-    opts = {
-      -- plain `cyberdream` honours `variant` below, so :CyberdreamToggleMode
-      -- flips muted <-> light (`cyberdream-muted` would hard-code the palette)
-      colorscheme = "cyberdream",
-    },
+    ---@param opts AstroUIOpts
+    opts = function(_, opts)
+      -- cyberdream (dark) or koda-light (light), from Omarchy's theme mode or
+      -- the terminal background; swapped live on every 'background' change.
+      -- See lua/config/theme.lua.
+      opts.colorscheme = require("config.theme").init()
+    end,
+  },
+  {
+    -- the light half: Omarchy's Hazy Peak. Loaded on `:colorscheme
+    -- koda-light`; palette overrides in lua/config/theme.lua.
+    "oskarnurm/koda.nvim",
+    lazy = true,
+    opts = function() return require("config.theme").koda_opts end,
   },
   {
     -- layered on the astrocommunity spec (transparent, italic_comments,

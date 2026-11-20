@@ -75,7 +75,7 @@ scripts/               mermaid-validator.mjs (node process used by config/mermai
 
 **Terminal tools** (`config/tui.lua`): under tmux, lazygit and lazydocker open in a 90% tmux popup in nvim's cwd (lazygit with its own config, like tmux's `prefix g`); elsewhere in a snacks float. Normal-mode `<CR>` (`<C-m>` is the same key to Neovim) opens pj's project tasks palette, tmux's `prefix t`, for nvim's cwd. It stays plain `<CR>` in special buffers (quickfix, command-line window), with a count, and outside tmux.
 
-**UI**: cyberdream colorscheme (muted variant), bufferline, smear-cursor (loaded at `VeryLazy`). No statusline (`laststatus = 0`); heirline stays for the winbar breadcrumbs. Snacks dashboard is disabled.
+**UI**: the colorscheme follows the desktop's light/dark mode (`config/theme.lua`). On a dark one it is cyberdream (muted variant); on a light one, such as Omarchy's Hazy Peak, it is [koda.nvim](https://github.com/oskarnurm/koda.nvim)'s `koda-light`, with its background set to the theme's `#cccccc` and its cursor line, line numbers and comments adjusted to match. On Omarchy the mode is read from the active theme's `colors.toml` before the first colorscheme loads. Elsewhere it comes from `'background'` as Neovim detects it. Any later change of `'background'` swaps the colorscheme, and Omarchy's `theme-set` hook pushes `set background=…` into every running nvim, so open editors follow a theme switch. Bufferline, smear-cursor (loaded at `VeryLazy`). No statusline (`laststatus = 0`); heirline stays for the winbar breadcrumbs. Snacks dashboard is disabled.
 
 ### Disabled on purpose
 
