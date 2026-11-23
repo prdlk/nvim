@@ -1,33 +1,50 @@
---- Oh My Pi terminal, opened with <C-a><C-a>.
+--- Oh My Pi terminal, opened with <C-a><C-a>; in visual mode the bind also
+--- hands omp the selection as a file reference.
 ---
---- Under tmux (config.pane_nav's env) omp is a tmux pane below Neovim's, 40%
---- of the height. The bind reuses an omp pane before splitting a new one: one
---- already in Neovim's window is focused; otherwise one from another window
---- of the session (in Neovim's cwd first) is moved below Neovim; only with
---- none running is a new one split off. Neovim never kills it. omp.nvim finds
---- the session by cwd, so context streaming does not care which backend runs
---- it.
+--- Under tmux (config.pane_nav's env) omp is a tmux pane right of Neovim's,
+--- 45% of its width. The bind reuses an omp pane before splitting a new one:
+--- one already in Neovim's window is focused; otherwise one from another
+--- window of the session (in Neovim's cwd first) is moved right of Neovim;
+--- only with none running is a new one split off. Neovim never kills it.
 ---
---- Elsewhere it is a snacks terminal on the right, toggled. `Snacks.terminal.toggle`
---- keys terminals by cmd + window-local cwd + v:count1, so toggling from a
---- buffer whose window has another cwd spawns a second omp. Holding the handle
---- here keeps exactly one session; it is recreated only after the omp process
---- exits (auto_close wipes the buffer).
+--- The visual bind pastes `@path:first-last ` into omp's input editor and
+--- focuses the pane, so the question follows the reference. The paste is
+--- bracketed: omp's `@` file autocomplete stays shut and nothing is submitted.
+--- omp inlines only a bare `@path`; a ranged one stays literal and the agent
+--- reads exactly those lines (its read tool takes the same `path:N-M`
+--- selector). path is relative to the omp pane's cwd when the file is under
+--- it, else absolute. A modified or unnamed buffer is snapshotted to a temp
+--- file, so the agent never reads stale disk content. A freshly split omp gets
+--- the paste once its TUI is up, which tmux's bracket_paste_flag reports.
+---
+--- :OmpContinue (fish's `omp-continue` runs `nvim +OmpContinue`, see
+--- ~/.config/fish/functions/omp-continue.fish) lays out the window: the same
+--- omp pane, split off as `omp --continue` so it resumes this cwd's latest
+--- session, plus the treemux file tree on the left (config.treemux.open).
+--- Neovim's VimEnter restores its own buffers (config.session) and keeps
+--- focus.
+---
+--- Elsewhere it is a snacks terminal on the right, toggled; the visual send
+--- needs tmux. `Snacks.terminal.toggle` keys terminals by cmd + window-local
+--- cwd + v:count1, so toggling from a buffer whose window has another cwd
+--- spawns a second omp. Holding the handle here keeps exactly one session; it
+--- is recreated only after the omp process exits (auto_close wipes the buffer).
 local M = {}
 
 local term ---@type snacks.win?
+
+local function warn(msg) vim.notify(msg, vim.log.levels.WARN, { title = "Oh My Pi" }) end
 
 --- Run a tmux command. Trimmed stdout, or nil on failure, warned about
 --- unless `quiet` (a probe whose failure is an answer).
 --- @param args string[]
 --- @param quiet? boolean
+--- @param stdin? string
 --- @return string|nil
-local function tmux(args, quiet)
-  local result = vim.system(vim.list_extend({ "tmux" }, args), { text = true }):wait()
+local function tmux(args, quiet, stdin)
+  local result = vim.system(vim.list_extend({ "tmux" }, args), { text = true, stdin = stdin }):wait()
   if result.code == 0 then return vim.trim(result.stdout) end
-  if not quiet then
-    vim.notify(("tmux %s: %s"):format(args[1], vim.trim(result.stderr)), vim.log.levels.WARN, { title = "Oh My Pi" })
-  end
+  if not quiet then warn(("tmux %s: %s"):format(args[1], vim.trim(result.stderr))) end
 end
 
 --- Every process named `omp`, and each process's parent and name, from a
@@ -98,16 +115,68 @@ local function find_omp()
   return best, rank == 3
 end
 
-local function tmux_open()
+--- Focus the omp pane right of Neovim, reusing or splitting one that runs
+--- `cmd` (default `omp`).
+--- @param cmd? string[]
+--- @return string|nil pane id
+local function tmux_open(cmd)
   local self = vim.env.TMUX_PANE
   local pane, here = find_omp()
-  if here then
-    tmux { "select-pane", "-t", pane }
-  elseif pane then
-    tmux { "join-pane", "-v", "-l", "40%", "-s", pane, "-t", self }
-  else
-    tmux { "split-window", "-v", "-l", "40%", "-t", self, "-c", vim.fn.getcwd(), "omp" }
+  if here then return tmux { "select-pane", "-t", pane } and pane end
+  if pane then return tmux { "join-pane", "-h", "-l", "45%", "-s", pane, "-t", self } and pane end
+  local split = { "split-window", "-h", "-l", "45%", "-t", self, "-c", vim.fn.getcwd(), "-P", "-F", "#{pane_id}" }
+  return tmux(vim.list_extend(split, cmd or { "omp" }))
+end
+
+--- Bracketed-paste `text` into omp's input once its TUI has enabled
+--- bracketed paste (at once for a running omp; ~10s grace for a new one).
+--- @param pane string
+--- @param text string
+--- @param tries? integer
+local function paste(pane, text, tries)
+  tries = tries or 0
+  local ready = tmux({ "display-message", "-p", "-t", pane, "#{bracket_paste_flag}" }, true)
+  if not ready then return end -- pane closed meanwhile
+  if ready ~= "1" then
+    if tries >= 100 then return warn "omp did not start in time; reference not sent" end
+    return vim.defer_fn(function() paste(pane, text, tries + 1) end, 100)
   end
+  if tmux({ "load-buffer", "-b", "omp-nvim", "-" }, false, text) then
+    tmux { "paste-buffer", "-p", "-d", "-b", "omp-nvim", "-t", pane }
+  end
+end
+
+--- `@path:first-last ` for lines of the current buffer, as omp in `cwd`
+--- reads them.
+--- @param first integer
+--- @param last integer
+--- @param cwd string
+--- @return string
+local function reference(first, last, cwd)
+  local name = vim.api.nvim_buf_get_name(0)
+  local function rel(path) return vim.fs.relpath(cwd, path) or path end
+  local range = first == last and tostring(first) or ("%d-%d"):format(first, last)
+  if name ~= "" and not vim.bo.modified then return ("@%s:%s "):format(rel(name), range) end
+  local ext = vim.fn.fnamemodify(name, ":e")
+  local snapshot = vim.fn.tempname() .. (ext ~= "" and "." .. ext or "")
+  vim.fn.writefile(vim.api.nvim_buf_get_lines(0, 0, -1, false), snapshot)
+  local origin = name ~= "" and (" (unsaved %s)"):format(rel(name)) or ""
+  return ("@%s:%s%s "):format(snapshot, range, origin)
+end
+
+--- Visual mode: leave it, then paste a reference to the selected lines into
+--- omp's input and focus its pane.
+function M.send_selection()
+  local first, last = vim.fn.line "v", vim.fn.line "."
+  if first > last then
+    first, last = last, first
+  end
+  vim.cmd.normal { vim.keycode "<Esc>", bang = true }
+  if require("config.pane_nav").env() ~= "tmux" then return warn "Sending a selection to omp needs tmux" end
+  local pane = tmux_open()
+  if not pane then return end
+  local cwd = tmux { "display-message", "-p", "-t", pane, "#{pane_current_path}" } or vim.fn.getcwd()
+  paste(pane, reference(first, last, cwd))
 end
 
 function M.toggle()
@@ -119,11 +188,19 @@ function M.toggle()
   term = require("snacks").terminal.open("omp", {
     win = {
       position = "right",
-      width = 0.4,
+      width = 0.45,
       -- buffer-local, so <C-a> keeps reaching other terminals unchanged
       keys = { omp_hide = { "<C-a><C-a>", "hide", mode = { "n", "t" }, desc = "Hide Oh My Pi" } },
     },
   })
+end
+
+--- The :OmpContinue layout: omp (`--continue` when split off anew) right of
+--- Neovim and the treemux tree left of it; focus stays in Neovim.
+function M.continue()
+  if require("config.pane_nav").env() ~= "tmux" then return warn "The omp-continue layout needs tmux" end
+  if tmux_open { "omp", "--continue" } then tmux { "select-pane", "-t", vim.env.TMUX_PANE } end
+  require("config.treemux").open()
 end
 
 return M
