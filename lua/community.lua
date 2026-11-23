@@ -22,6 +22,7 @@ return {
   { import = "astrocommunity.pack.rust" },
   { import = "astrocommunity.pack.yaml" },
   { import = "astrocommunity.pack.toml" },
+  { import = "astrocommunity.pack.terraform" },
   { import = "astrocommunity.pack.typescript" },
   { import = "astrocommunity.pack.tailwindcss" },
   -- python: treesitter/debugpy/venv-selector + basedpyright (types/completion)
