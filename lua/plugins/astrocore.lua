@@ -384,8 +384,10 @@ return {
           desc = "Find in line",
         },
         -- NOTE: <C-i> and <Tab> are the same key at the mapping level, so
-        -- this also shadows <Tab> (jumplist-forward) in normal mode
-        ["<C-i>"] = {
+        -- this group also shadows <Tab> (jumplist-forward) in normal mode.
+        -- <C-i>t (mdtt.nvim table editor) is buffer-local to markdown: plugins/mdtt.lua
+        ["<C-i>"] = { desc = "Insert" },
+        ["<C-i><C-i>"] = {
           function() require("config.templates").pick() end,
           desc = "Find templates",
         },
