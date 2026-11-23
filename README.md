@@ -15,7 +15,7 @@ It started from the AstroNvim template and now adds git-aware sessions, `fff`-ba
 | `node` + `npm` | mermaid validator (installs `mermaid` + `jsdom` under `stdpath("data")` on first use) |
 | `lazygit`, `lazydocker`, `gh` (+ `gh-dash`), `ghq` | git/GitHub/project binds |
 | `kitty`, `yazi` | yazi launchers |
-| `omp` + `omp plugin install omp.nvim` | Oh My Pi terminal and `omp.nvim` integration |
+| `omp` | Oh My Pi terminal |
 | `uv` / a project venv | basedpyright third-party imports (`uv sync`) |
 
 Language servers, formatters, and linters come from the AstroCommunity packs through Mason.
@@ -73,7 +73,9 @@ scripts/               mermaid-validator.mjs (node process used by config/mermai
 
 **Table editor**: [mdtt.nvim](https://github.com/prdlk/mdtt.nvim) (`plugins/mdtt.lua`), a Lua port of [mdtt](https://github.com/szktkfm/mdtt) on snacks.nvim. In markdown and MDX buffers, `<C-i>t` (or `:Mdtt`) opens the pipe table under the cursor in a float laid over it; off a table, it picks one of the buffer's tables or a new one. `q` writes the table back as one undo step; `:q` discards it. It is a `dev = true` plugin: lazy loads `~/Code/github.com/prdlk/mdtt.nvim` (`dev.path` in `lua/lazy_setup.lua`) and clones it from GitHub where that checkout is missing.
 
-**AI**: Supermaven provides inline ghost-text completions (`<C-l>` accepts). It is disabled for Python and inside the LeetCode work directory. `<C-a><C-a>` opens Oh My Pi (`config/omp_term.lua`). Under tmux it is a pane below nvim's, 40% of the height, and the bind reuses an omp pane before splitting a new one. It focuses one already in nvim's window, or moves one from another window of the session below nvim, preferring one in nvim's cwd. Detection walks the process tree, so wrapped omp panes shown as `python3` count. Nvim never kills it. Elsewhere it toggles a snacks terminal on the right.
+**AI**: Supermaven provides inline ghost-text completions (`<C-l>` accepts). It is disabled for Python and inside the LeetCode work directory. `<C-a><C-a>` opens Oh My Pi (`config/omp_term.lua`). Under tmux it is a pane right of nvim's, 45% of the width, and the bind reuses an omp pane before splitting a new one. It focuses one already in nvim's window, or moves one from another window of the session right of nvim, preferring one in nvim's cwd. Detection walks the process tree, so wrapped omp panes shown as `python3` count. Nvim never kills it. In visual mode the bind also pastes `@path:first-last ` for the selected lines into omp's input (bracketed, so nothing is submitted) and focuses the pane, ready for the question; a fresh pane gets it once omp's TUI is up. The path is relative to omp's cwd when possible. A modified or unnamed buffer is snapshotted to a temp file first, so omp never reads stale disk content. Elsewhere `<C-a><C-a>` toggles a snacks terminal on the right; the visual send needs tmux.
+
+**omp-continue**: the fish function `omp-continue` (chezmoi: `dot_config/fish/functions/omp-continue.fish`) runs `nvim +OmpContinue`. It is the pick-up-where-you-left-off layout. nvim restores this worktree/branch session as on any start. `:OmpContinue` (`config/omp_term.lua`) then splits omp right of nvim like `<C-a><C-a>` does, as `omp --continue` so it resumes the directory's latest omp session. It also opens the treemux file tree on the left (`config/treemux.lua`, without taking focus). Focus stays in nvim. An omp pane already running in the tmux session is reused instead of starting another. Outside tmux, the function starts a new tmux session for the layout.
 
 **Terminal tools** (`config/tui.lua`): under tmux, lazygit and lazydocker open in a 90% tmux popup in nvim's cwd (lazygit with its own config, like tmux's `prefix g`); elsewhere in a snacks float. Normal-mode `<CR>` (`<C-m>` is the same key to Neovim) opens pj's project tasks palette, tmux's `prefix t`, for nvim's cwd. It stays plain `<CR>` in special buffers (quickfix, command-line window), with a count, and outside tmux.
 
@@ -172,7 +174,7 @@ File pickers open the selection with `:tab drop` on `<CR>` and in a vsplit on `<
 | `<C-a>s` / `<C-a>S` | Document / workspace symbols (`<C-t>` in the picker sends results to Trouble) |
 | `<C-a>d` | Diagnostics (`<C-t>` sends results to Trouble) |
 | `<C-a><C-s>` | Toggle Supermaven |
-| `<C-a><C-a>` | Oh My Pi (tmux pane below / toggled snacks terminal) |
+| `<C-a><C-a>` | Oh My Pi (tmux pane right / toggled snacks terminal); visual: send the selected lines to it |
 
 LSP binds are created only when the attached server supports the method (`plugins/astrolsp.lua`).
 
