@@ -55,9 +55,9 @@ scripts/               mermaid-validator.mjs (node process used by config/mermai
 
 ## What's included
 
-**Languages** (`lua/community.lua`): Go (+ golangci-lint), Rust, TypeScript, Biome, Python (basedpyright, no black/isort), HTML/CSS, Tailwind, JSON, YAML, TOML, Proto, Pkl, MDX.
+**Languages** (`lua/community.lua`): Go (+ golangci-lint), Rust, TypeScript, Biome, Python (basedpyright, ruff, black), HTML/CSS, Tailwind, JSON, YAML, TOML, Proto, Pkl, MDX.
 
-**Python**: `plugins/python.lua` points basedpyright at `$VIRTUAL_ENV`/`$CONDA_PREFIX`, then `.venv`/`venv`/`env` in the project root, then system `python3`. A project with a `uv.lock` or `poetry.lock` and no venv gets a one-time warning. Ruff organizes imports and formats.
+**Python**: `plugins/python.lua` points basedpyright at `$VIRTUAL_ENV`/`$CONDA_PREFIX`, then `.venv`/`venv`/`env` in the project root, then system `python3`. A project with a `uv.lock` or `poetry.lock` and no venv gets a one-time warning. basedpyright handles types and completion; the ruff language server lints and owns import organizing (basedpyright's is disabled). On save ruff sorts imports, then black formats; both read `[tool.ruff]` / `[tool.black]` from `pyproject.toml`.
 
 **Format on save** (`plugins/conform.lua`, `config/lsp_code_actions.lua`): on save, `source.organizeImports` and `source.fixAll` code actions run first, then conform formats. JavaScript buffers get the code actions but are not formatted. `<Leader>uf` turns the whole pipeline on or off.
 
