@@ -6,22 +6,16 @@
 
 ---@type LazySpec
 return {
-  -- ruff is both the import sorter and the formatter used for python below
-  {
-    "WhoIsSethDaniel/mason-tool-installer.nvim",
-    optional = true,
-    opts = function(_, opts)
-      opts.ensure_installed = require("astrocore").list_insert_unique(opts.ensure_installed, { "ruff" })
-    end,
-  },
   {
     "stevearc/conform.nvim",
     opts = function(_, opts)
-      -- Python: ruff sorts imports (I001), then reformats. ruff always emits
-      -- 4-space indentation, so mixed tab/space indentation is normalized on
-      -- save instead of surviving to raise TabError at runtime.
+      -- Python: ruff sorts imports (I001, black-compatible isort profile by
+      -- default), then black formats. Pinned here because the ruff and black
+      -- subpacks each append their own chain (ruff_fix/ruff_format + black).
+      -- black always emits 4-space indentation, so mixed tab/space indentation
+      -- is normalized on save instead of surviving to raise TabError at runtime.
       if not opts.formatters_by_ft then opts.formatters_by_ft = {} end
-      opts.formatters_by_ft.python = { "ruff_organize_imports", "ruff_format" }
+      opts.formatters_by_ft.python = { "ruff_organize_imports", "black" }
 
       -- The pack's function returns nil when autoformat is toggled off
       -- (<Leader>uf buffer / <Leader>uF global), so one toggle governs the

@@ -82,6 +82,9 @@ return {
             { python = { pythonPath = interpreter } }
           )
         end,
+        -- ruff owns import sorting; without this the pre-save code action pass
+        -- would also apply basedpyright's (differently ordered) organizeImports
+        settings = { basedpyright = { disableOrganizeImports = true } },
       },
     },
   },
