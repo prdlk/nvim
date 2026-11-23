@@ -15,6 +15,9 @@ require("lazy").setup({
   { import = "plugins" },
 } --[[@as LazySpec]], {
   -- Configure any other `lazy.nvim` configuration options here
+  -- `dev = true` specs (plugins/mdtt.lua) load from the local checkout here,
+  -- and are cloned from GitHub on machines without one
+  dev = { path = "~/Code/github.com/prdlk", fallback = true },
   install = { colorscheme = { "cyberdream", "koda-light", "habamax" } },
   ui = { backdrop = 100 },
   performance = {
