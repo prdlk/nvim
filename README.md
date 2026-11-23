@@ -71,6 +71,8 @@ scripts/               mermaid-validator.mjs (node process used by config/mermai
 
 **Markdown**: `:Vellum` opens a live GitHub-style preview (prdlk fork, `mdx` branch). In markdown and MDX buffers, visual `<Leader>e…` applies formatting (see below).
 
+**Table editor**: [mdtt.nvim](https://github.com/prdlk/mdtt.nvim) (`plugins/mdtt.lua`), a Lua port of [mdtt](https://github.com/szktkfm/mdtt) on snacks.nvim. In markdown and MDX buffers, `<C-i>t` (or `:Mdtt`) opens the pipe table under the cursor in a float laid over it; off a table, it picks one of the buffer's tables or a new one. `q` writes the table back as one undo step; `:q` discards it. It is a `dev = true` plugin: lazy loads `~/Code/github.com/prdlk/mdtt.nvim` (`dev.path` in `lua/lazy_setup.lua`) and clones it from GitHub where that checkout is missing.
+
 **AI**: Supermaven provides inline ghost-text completions (`<C-l>` accepts). It is disabled for Python and inside the LeetCode work directory. `<C-a><C-a>` opens Oh My Pi (`config/omp_term.lua`). Under tmux it is a pane below nvim's, 40% of the height, and the bind reuses an omp pane before splitting a new one. It focuses one already in nvim's window, or moves one from another window of the session below nvim, preferring one in nvim's cwd. Detection walks the process tree, so wrapped omp panes shown as `python3` count. Nvim never kills it. Elsewhere it toggles a snacks terminal on the right.
 
 **Terminal tools** (`config/tui.lua`): under tmux, lazygit and lazydocker open in a 90% tmux popup in nvim's cwd (lazygit with its own config, like tmux's `prefix g`); elsewhere in a snacks float. Normal-mode `<CR>` (`<C-m>` is the same key to Neovim) opens pj's project tasks palette, tmux's `prefix t`, for nvim's cwd. It stays plain `<CR>` in special buffers (quickfix, command-line window), with a count, and outside tmux.
@@ -113,7 +115,8 @@ Leader is `<Space>`; localleader is `,`. Prefixes: `<C-f>` find, `<C-g>` git/Git
 | `<C-f>d` / `<C-f>l` | Diagnostics / lines |
 | `<C-f>gw` `gd` `gm` `gp` `gc` | Workflows, Devbox/Docker, Makefiles, package.json, `.ai/` files |
 | `<C-f><C-f>` | LSP symbols |
-| `<C-i>` | Template picker (also takes over `<Tab>` in normal mode) |
+| `<C-i><C-i>` | Template picker (`<C-i>` is a prefix, so it also takes over `<Tab>` in normal mode) |
+| `<C-i>t` | Markdown/MDX: edit the table under the cursor, or pick one / create one |
 | `<C-r>` | Find & replace (grug-far; linewise visual selection limits the range) |
 | `<C-e>` | Focus the treemux file tree sidebar (tmux pane); opens one when the window has none (`config/treemux.lua`) |
 
@@ -176,6 +179,10 @@ LSP binds are created only when the attached server supports the method (`plugin
 ### Markdown (visual mode, markdown/MDX buffers)
 
 `<Leader>ei` italic, `eb` bold, `ec` inline code, `ex` link, `el` / `eL` unordered / ordered list, `eC` code block.
+
+### Table editor (`<C-i>t`)
+
+mdtt's keys (`hjkl`, `i` / `I`, `o` / `vo`, `dd` / `vd`, `yy` / `vy` / `y.`, `p`, `x`, `?`, `q`); the full table is in the [mdtt.nvim README](https://github.com/prdlk/mdtt.nvim#keys).
 
 ### UI toggles
 
