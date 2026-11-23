@@ -1,4 +1,4 @@
---- Snacks picker frontend for template.nvim (<C-f>t).
+--- Snacks picker frontend for template.nvim (<C-i><C-i>).
 ---
 --- <CR>: insert the template at the cursor when the current buffer is a
 --- named file whose filetype matches the template's; otherwise fall through
