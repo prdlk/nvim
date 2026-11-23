@@ -125,6 +125,13 @@ return {
   "AstroNvim/astrocore",
   ---@type AstroCoreOpts
   opts = {
+    commands = {
+      -- fish's `omp-continue` starts `nvim +OmpContinue`, see config.omp_term
+      OmpContinue = {
+        function() require("config.omp_term").continue() end,
+        desc = "Layout: omp --continue pane right, treemux tree left",
+      },
+    },
     sessions = {
       -- cwd autosave is handled by the git_branch_sessions autocmd below so
       -- the session name carries the worktree/branch, see config.session
@@ -521,6 +528,10 @@ return {
       },
       v = {
         ["<C-c>"] = { save_close_buf, desc = "Save (if modified) and close buffer" },
+        ["<C-a><C-a>"] = {
+          function() require("config.omp_term").send_selection() end,
+          desc = "Oh My Pi: send selection",
+        },
         ["<C-x>"] = {
           function()
             vim.cmd "w"
