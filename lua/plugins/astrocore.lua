@@ -500,7 +500,7 @@ return {
           function() require("config.picker").with_trouble "diagnostics" end,
           desc = "Search diagnostics (<C-t> sends to Trouble)",
         },
-        ["<C-a><C-s>"] = { "<Cmd>SupermavenToggle<CR>", desc = "Toggle Supermaven" },
+        ["<C-a><C-s>"] = { function() require("config.minuet").toggle() end, desc = "Toggle AI completion" },
         ["<C-a><C-a>"] = { function() require("config.omp_term").toggle() end, desc = "Oh My Pi" },
 
         -- <Leader>u toggles are mapped through Snacks.toggle in
