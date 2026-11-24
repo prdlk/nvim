@@ -61,35 +61,36 @@ function M.load(opts)
   require("resession").load(M.name(), vim.tbl_extend("force", { dir = DIR }, opts or {}))
 end
 
---- Open the picker used when there is nothing to restore: git files inside a
---- repository, plain file search outside one.
-local function pick_files()
-  local snacks = require "snacks"
-  local transform = require("config.ignore_patterns").create_picker_filter()
-  if snacks.git.get_root() then
-    snacks.picker.git_files { transform = transform }
-  else
-    snacks.picker.files { transform = transform }
+--- The README.md at the repository root (the cwd outside a repository),
+--- matched case-insensitively; nil when there is none.
+--- @return string?
+local function readme()
+  local cwd = vim.fn.getcwd()
+  local root = git(cwd, "rev-parse", "--show-toplevel") or cwd
+  for name, type in vim.fs.dir(root) do
+    if type == "file" and name:lower() == "readme.md" then return vim.fs.joinpath(root, name) end
   end
 end
 
---- VimEnter entry point: restore this worktree/branch session, or fall back
---- to the file picker when none has been saved yet. (The file tree is the
---- treemux tmux sidebar, not part of nvim.)
+--- VimEnter entry point: restore this worktree/branch session, else open the
+--- repository's README.md. With neither, nvim stays on its empty buffer and
+--- snacks' dashboard (UIEnter, after this) takes it; a restored session or
+--- the README names that buffer, which keeps the dashboard away. (The file
+--- tree is the treemux tmux sidebar, not part of nvim.)
 ---
 --- Exception: when nvim was started with file arguments (`nvim foo.lua`, a
 --- directory, or `-`) the requested buffer is what the user asked for, so
---- neither the session nor the picker may take the screen. Same for an nvim
+--- neither the session nor the README may take the screen. Same for an nvim
 --- the treemux sidebar started to run a forwarded key ($TREEMUX_EDITOR, see
 --- ~/.config/tmux/treemux_init.lua): that key decides what it shows.
 function M.restore()
   if vim.fn.argc(-1) > 0 or vim.env.TREEMUX_EDITOR then return end
   if M.exists(M.name()) then
     M.load { silence_errors = true }
-  else
-    -- defer so the picker opens after startup finished drawing the UI
-    vim.schedule(pick_files)
+    return
   end
+  local path = readme()
+  if path then vim.cmd.edit(vim.fn.fnameescape(path)) end
 end
 
 return M

@@ -120,7 +120,9 @@ end
 --- Focus the omp pane right of Neovim, reusing one or splitting off
 --- `omp --continue`. The pane is marked @treemux-keep-width, so opening the
 --- treemux sidebar (scripts/toggle.sh in the prdlk fork) takes its columns
---- from the other panes and leaves omp's width as it was.
+--- from the other panes and leaves omp's width as it was; tmux.conf's
+--- even-out hooks skip windows holding such a pane. A new pane is marked in
+--- the same tmux command list as the split, before those hooks run.
 --- @return string|nil pane id
 local function tmux_open()
   local self = vim.env.TMUX_PANE
@@ -129,11 +131,11 @@ local function tmux_open()
   if here then
     ok = tmux { "select-pane", "-t", pane }
   elseif pane then
-    ok = tmux { "join-pane", "-h", "-l", "45%", "-s", pane, "-t", self }
+    local join = { "join-pane", "-h", "-l", "45%", "-s", pane, "-t", self }
+    return tmux(vim.list_extend(join, { ";", "set-option", "-p", "-t", pane, "@treemux-keep-width", "1" })) and pane
   else
     local split = { "split-window", "-h", "-l", "45%", "-t", self, "-c", vim.fn.getcwd(), "-P", "-F", "#{pane_id}" }
-    pane = tmux(vim.list_extend(split, { "omp", "--continue" }))
-    ok = pane
+    return tmux(vim.list_extend(split, { "omp", "--continue", ";", "set-option", "-p", "@treemux-keep-width", "1" }))
   end
   if not ok then return end
   tmux { "set-option", "-p", "-t", pane, "@treemux-keep-width", "1" }
