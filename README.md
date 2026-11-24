@@ -45,7 +45,7 @@ nvim
 ```
 init.lua               lazy.nvim bootstrap, terminal title, cursor shape
 lua/lazy_setup.lua     AstroNvim import, leader keys (<Space>, localleader ","), lazy options
-lua/community.lua      AstroCommunity imports (language packs, colorscheme, trouble, supermaven)
+lua/community.lua      AstroCommunity imports (language packs, colorscheme, trouble)
 lua/plugins/           plugin specs and AstroNvim overrides, one file per concern
 lua/config/            plain Lua modules used by the plugin specs
 lua/polish.lua         runs last; registers the <Leader>u toggles
@@ -73,9 +73,18 @@ scripts/               mermaid-validator.mjs (node process used by config/mermai
 
 **Table editor**: [mdtt.nvim](https://github.com/prdlk/mdtt.nvim) (`plugins/mdtt.lua`), a Lua port of [mdtt](https://github.com/szktkfm/mdtt) on snacks.nvim. In markdown and MDX buffers, `<C-i>t` (or `:Mdtt`) opens the pipe table under the cursor in a float laid over it; off a table, it picks one of the buffer's tables or a new one. `q` writes the table back as one undo step; `:q` discards it. It is a `dev = true` plugin: lazy loads `~/Code/github.com/prdlk/mdtt.nvim` (`dev.path` in `lua/lazy_setup.lua`) and clones it from GitHub where that checkout is missing.
 
-**AI**: Supermaven provides inline ghost-text completions (`<C-l>` accepts). It is disabled for Python and inside the LeetCode work directory. `<C-a><C-a>` opens Oh My Pi (`config/omp_term.lua`). Under tmux it is a pane right of nvim's, 45% of the width, and the bind reuses an omp pane before splitting a new one. It focuses one already in nvim's window, or moves one from another window of the session right of nvim, preferring one in nvim's cwd. Detection walks the process tree, so wrapped omp panes shown as `python3` count. Nvim never kills it. In visual mode the bind also pastes `@path:first-last ` for the selected lines into omp's input (bracketed, so nothing is submitted) and focuses the pane, ready for the question; a fresh pane gets it once omp's TUI is up. The path is relative to omp's cwd when possible. A modified or unnamed buffer is snapshotted to a temp file first, so omp never reads stale disk content. Elsewhere `<C-a><C-a>` toggles a snacks terminal on the right; the visual send needs tmux.
+**AI completion** (`config/minuet.lua`, [minuet-ai.nvim](https://github.com/milanglacier/minuet-ai.nvim)): ghost text while typing, and a next-edit prediction about 600 ms after a normal-mode change or after leaving an insert that changed the buffer. Both use the first reachable provider, in this order:
 
-**omp-continue**: the fish function `omp-continue` (chezmoi: `dot_config/fish/functions/omp-continue.fish`) runs `nvim +OmpContinue`. It is the pick-up-where-you-left-off layout. nvim restores this worktree/branch session as on any start. `:OmpContinue` (`config/omp_term.lua`) then splits omp right of nvim like `<C-a><C-a>` does, as `omp --continue` so it resumes the directory's latest omp session. It also opens the treemux file tree on the left (`config/treemux.lua`, without taking focus). Focus stays in nvim. An omp pane already running in the tmux session is reused instead of starting another. Outside tmux, the function starts a new tmux session for the layout.
+1. Inception: `mercury-coder` FIM; next edits on `mercury-3`.
+2. Ollama: the local `inkling-2-mini`. This is what being offline lands on. Ghost text uses raw `/api/generate` because the model has no FIM and its chat template always reasons. Next edits use chat and are slow.
+3. OpenCode Go: `deepseek-v4.1-flash`, sent with the `x-opencode-session` header Go requires.
+4. OpenRouter: `deepseek/deepseek-v4.1-flash`; next edits on `google/gemini-3.1-flash-lite`.
+
+Keys come from `INCEPTION_API_KEY`, `OPENCODE_GO_API_KEY` and `OPENROUTER_API_KEY` in the environment (fish `conf.d/secrets.fish`). A provider whose key is unset is skipped. The order is re-probed at startup and on `InsertEnter`/`FocusGained` at most once a minute, so going offline switches to Ollama by the next insert. A switch is announced in a notification. Nothing auto-triggers in Python, outside file buffers, or inside the LeetCode work directory. `<C-a><C-s>` turns both off and on.
+
+**AI**: `<C-a><C-a>` opens Oh My Pi (`config/omp_term.lua`). Under tmux it is a pane right of nvim's, 45% of the width, and the bind reuses an omp pane before splitting a new one. It focuses one already in nvim's window, or moves one from another window of the session right of nvim, preferring one in nvim's cwd. Detection walks the process tree, so wrapped omp panes shown as `python3` count. Nvim never kills it. A new omp runs as `omp --continue`: it resumes the latest omp session of nvim's cwd, or starts a fresh one if the directory has none. The bind marks the pane with the tmux pane option `@treemux-keep-width`, so opening the treemux sidebar takes its columns from nvim and leaves omp's width unchanged (the prdlk treemux fork's `scripts/toggle.sh` restores it after the sidebar's full-height split); closing the sidebar hands its columns back to nvim. In visual mode the bind also pastes `@path:first-last ` for the selected lines into omp's input (bracketed, so nothing is submitted) and focuses the pane, ready for the question; a fresh pane gets it once omp's TUI is up. The path is relative to omp's cwd when possible. A modified or unnamed buffer is snapshotted to a temp file first, so omp never reads stale disk content. Elsewhere `<C-a><C-a>` toggles a snacks terminal on the right, also running `omp --continue`; the visual send needs tmux.
+
+**omp-continue**: the fish function `omp-continue` (chezmoi: `dot_config/fish/functions/omp-continue.fish`) runs `nvim +OmpContinue`. It is the pick-up-where-you-left-off layout. nvim restores this worktree/branch session as on any start. `:OmpContinue` (`config/omp_term.lua`) then opens omp right of nvim exactly as `<C-a><C-a>` does (reusing a running omp pane, else resuming the directory's latest session). It also opens the treemux file tree on the left (`config/treemux.lua`, without taking focus). Focus stays in nvim. Outside tmux, the function starts a new tmux session for the layout.
 
 **Terminal tools** (`config/tui.lua`): under tmux, lazygit and lazydocker open in a 90% tmux popup in nvim's cwd (lazygit with its own config, like tmux's `prefix g`); elsewhere in a snacks float. Normal-mode `<CR>` (`<C-m>` is the same key to Neovim) opens pj's project tasks palette, tmux's `prefix t`, for nvim's cwd. It stays plain `<CR>` in special buffers (quickfix, command-line window), with a count, and outside tmux.
 
@@ -173,7 +182,11 @@ File pickers open the selection with `:tab drop` on `<CR>` and in a vsplit on `<
 | `<C-a>a` | Code actions |
 | `<C-a>s` / `<C-a>S` | Document / workspace symbols (`<C-t>` in the picker sends results to Trouble) |
 | `<C-a>d` | Diagnostics (`<C-t>` sends results to Trouble) |
-| `<C-a><C-s>` | Toggle Supermaven |
+| `<C-a><C-s>` | Toggle AI completion (ghost text and next edits) |
+| `<C-a>e` / `<C-a>x` | Predict / dismiss the next edit |
+| `<C-l>` (normal) | Apply the next-edit preview while one shows, else move right a split |
+| `<C-l>` / `<C-w>` / `<C-h>` (insert) | Accept the ghost text / accept its next word / dismiss it; each keeps its usual meaning when no ghost text shows |
+| `<M-]>` / `<M-[>` (insert) | Next / previous ghost-text suggestion, or request one |
 | `<C-a><C-a>` | Oh My Pi (tmux pane right / toggled snacks terminal); visual: send the selected lines to it |
 
 LSP binds are created only when the attached server supports the method (`plugins/astrolsp.lua`).
