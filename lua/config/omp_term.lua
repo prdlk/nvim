@@ -7,6 +7,9 @@
 --- window of the session (in Neovim's cwd first) is moved right of Neovim;
 --- only with none running is a new one split off. Neovim never kills it.
 ---
+--- A new omp, in tmux or not, runs `omp --continue`: it resumes the latest
+--- session of Neovim's cwd, or starts a fresh one when the cwd has none.
+---
 --- The visual bind pastes `@path:first-last ` into omp's input editor and
 --- focuses the pane, so the question follows the reference. The paste is
 --- bracketed: omp's `@` file autocomplete stays shut and nothing is submitted.
@@ -19,8 +22,7 @@
 ---
 --- :OmpContinue (fish's `omp-continue` runs `nvim +OmpContinue`, see
 --- ~/.config/fish/functions/omp-continue.fish) lays out the window: the same
---- omp pane, split off as `omp --continue` so it resumes this cwd's latest
---- session, plus the treemux file tree on the left (config.treemux.open).
+--- omp pane plus the treemux file tree on the left (config.treemux.open).
 --- Neovim's VimEnter restores its own buffers (config.session) and keeps
 --- focus.
 ---
@@ -115,17 +117,27 @@ local function find_omp()
   return best, rank == 3
 end
 
---- Focus the omp pane right of Neovim, reusing or splitting one that runs
---- `cmd` (default `omp`).
---- @param cmd? string[]
+--- Focus the omp pane right of Neovim, reusing one or splitting off
+--- `omp --continue`. The pane is marked @treemux-keep-width, so opening the
+--- treemux sidebar (scripts/toggle.sh in the prdlk fork) takes its columns
+--- from the other panes and leaves omp's width as it was.
 --- @return string|nil pane id
-local function tmux_open(cmd)
+local function tmux_open()
   local self = vim.env.TMUX_PANE
   local pane, here = find_omp()
-  if here then return tmux { "select-pane", "-t", pane } and pane end
-  if pane then return tmux { "join-pane", "-h", "-l", "45%", "-s", pane, "-t", self } and pane end
-  local split = { "split-window", "-h", "-l", "45%", "-t", self, "-c", vim.fn.getcwd(), "-P", "-F", "#{pane_id}" }
-  return tmux(vim.list_extend(split, cmd or { "omp" }))
+  local ok
+  if here then
+    ok = tmux { "select-pane", "-t", pane }
+  elseif pane then
+    ok = tmux { "join-pane", "-h", "-l", "45%", "-s", pane, "-t", self }
+  else
+    local split = { "split-window", "-h", "-l", "45%", "-t", self, "-c", vim.fn.getcwd(), "-P", "-F", "#{pane_id}" }
+    pane = tmux(vim.list_extend(split, { "omp", "--continue" }))
+    ok = pane
+  end
+  if not ok then return end
+  tmux { "set-option", "-p", "-t", pane, "@treemux-keep-width", "1" }
+  return pane
 end
 
 --- Bracketed-paste `text` into omp's input once its TUI has enabled
@@ -185,7 +197,7 @@ function M.toggle()
     term:toggle()
     return
   end
-  term = require("snacks").terminal.open("omp", {
+  term = require("snacks").terminal.open({ "omp", "--continue" }, {
     win = {
       position = "right",
       width = 0.45,
@@ -195,11 +207,11 @@ function M.toggle()
   })
 end
 
---- The :OmpContinue layout: omp (`--continue` when split off anew) right of
---- Neovim and the treemux tree left of it; focus stays in Neovim.
+--- The :OmpContinue layout: omp right of Neovim and the treemux tree left of
+--- it; focus stays in Neovim.
 function M.continue()
   if require("config.pane_nav").env() ~= "tmux" then return warn "The omp-continue layout needs tmux" end
-  if tmux_open { "omp", "--continue" } then tmux { "select-pane", "-t", vim.env.TMUX_PANE } end
+  if tmux_open() then tmux { "select-pane", "-t", vim.env.TMUX_PANE } end
   require("config.treemux").open()
 end
 
