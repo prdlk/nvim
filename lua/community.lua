@@ -25,16 +25,10 @@ return {
   { import = "astrocommunity.pack.terraform" },
   { import = "astrocommunity.pack.typescript" },
   { import = "astrocommunity.pack.tailwindcss" },
-  -- python: treesitter/debugpy/venv-selector + basedpyright (types/completion)
-  -- + ruff language server (lint diagnostics, organizeImports/fixAll actions)
-  -- + black. Imports are sorted by ruff, formatting is black's; the final
-  -- conform chain is pinned in plugins/conform.lua. Interpreter resolution is
-  -- overridden in plugins/python.lua.
   { import = "astrocommunity.pack.python.base" },
   { import = "astrocommunity.pack.python.basedpyright" },
   { import = "astrocommunity.pack.python.ruff" },
   { import = "astrocommunity.pack.python.black" },
-  { import = "astrocommunity.completion.supermaven-nvim" },
   { import = "astrocommunity.lsp.nvim-lsp-file-operations" },
   { import = "astrocommunity.colorscheme.cyberdream-nvim" },
 }
