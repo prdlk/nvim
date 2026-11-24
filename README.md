@@ -61,7 +61,7 @@ scripts/               mermaid-validator.mjs (node process used by config/mermai
 
 **Format on save** (`plugins/conform.lua`, `config/lsp_code_actions.lua`): on save, `source.organizeImports` and `source.fixAll` code actions run first, then conform formats. JavaScript buffers get the code actions but are not formatted. `<Leader>uf` turns the whole pipeline on or off.
 
-**Sessions** (`config/session.lua`): sessions are keyed by `<worktree root>@<branch>`, so each worktree and branch keeps its own layout. On `VimEnter`, the saved session is restored; with no saved session, the git files picker opens instead. None of this happens when nvim is started with file arguments, or by the treemux sidebar to run a forwarded key (`$TREEMUX_EDITOR`). Sessions save on exit.
+**Sessions** (`config/session.lua`): sessions are keyed by `<worktree root>@<branch>`, so each worktree and branch keeps its own layout. On `VimEnter`, the saved session is restored. With no saved session, the repository root's `README.md` opens (the cwd's outside a repository), and without one the snacks dashboard shows. None of this happens when nvim is started with file arguments, or by the treemux sidebar to run a forwarded key (`$TREEMUX_EDITOR`). Sessions save on exit.
 
 **Search**: `fff.nvim` handles files and grep (frecency, respects `.gitignore` and `.ignore`). snacks.picker handles everything else. `config/ignore_patterns.lua` holds the shared ignore list used by the snacks pickers and the treemux sidebar's Neo-tree.
 
