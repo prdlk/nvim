@@ -228,7 +228,7 @@ return {
         },
         {
           event = "VimEnter",
-          desc = "Restore worktree/branch session, else open the git files picker",
+          desc = "Restore worktree/branch session, else open README.md, else the dashboard",
           nested = true, -- trigger other autocommands as buffers open
           -- no-op when nvim was started with file arguments, see config.session
           callback = function() require("config.session").restore() end,

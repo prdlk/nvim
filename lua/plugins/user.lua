@@ -106,9 +106,10 @@ return {
         jump = { reuse_win = true },
         sources = picker_sources,
       },
-      -- no dashboard: startup either restores the worktree/branch session or
-      -- opens the git files picker (see config.session)
-      dashboard = { enabled = false },
+      -- startup restores the worktree/branch session, else opens the repo's
+      -- README.md, else shows this (config.session). Not in an nvim the
+      -- treemux sidebar starts for a forwarded key: that key decides.
+      dashboard = { enabled = not vim.env.TREEMUX_EDITOR },
 
       -- GitHub issue/PR pickers and buffers (`<C-g>` binds in astrocore.lua)
       gh = {},
