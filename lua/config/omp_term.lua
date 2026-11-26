@@ -22,9 +22,9 @@
 ---
 --- :OmpContinue (fish's `omp-continue` runs `nvim +OmpContinue`, see
 --- ~/.config/fish/functions/omp-continue.fish) lays out the window: the same
---- omp pane plus the treemux file tree on the left (config.treemux.open).
---- Neovim's VimEnter restores its own buffers (config.session) and keeps
---- focus.
+--- omp pane plus the treemux file tree on the left (config.treemux.open),
+--- and ends with focus in omp. Neovim's VimEnter restores its own buffers
+--- (config.session) behind it.
 ---
 --- Elsewhere it is a snacks terminal on the right, toggled; the visual send
 --- needs tmux. `Snacks.terminal.toggle` keys terminals by cmd + window-local
@@ -210,11 +210,10 @@ function M.toggle()
 end
 
 --- The :OmpContinue layout: omp right of Neovim and the treemux tree left of
---- it; focus stays in Neovim.
+--- it; focus ends in omp.
 function M.continue()
   if require("config.pane_nav").env() ~= "tmux" then return warn "The omp-continue layout needs tmux" end
-  if tmux_open() then tmux { "select-pane", "-t", vim.env.TMUX_PANE } end
-  require("config.treemux").open()
+  require("config.treemux").open(tmux_open())
 end
 
 return M

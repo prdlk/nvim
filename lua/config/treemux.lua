@@ -47,17 +47,22 @@ local function sidebar(pane)
 end
 
 --- Open a sidebar for `pane` the way treemux's `prefix <key>` does: BSpace
---- focuses it, Tab keeps focus on `pane`.
+--- focuses it, Tab keeps focus on `pane`. `after`, when given, is focused
+--- once the toggle is done (it runs in the background and selects `pane` at
+--- its end, so a select-pane issued here would be undone).
 --- @param pane string
 --- @param key "Bspace"|"Tab"
-local function toggle(pane, key)
+--- @param after? string pane id
+local function toggle(pane, key, after)
   local args = vim.trim(tmux { "show-options", "-gv", "@treemux-key-" .. key } or "")
   local script = vim.fn.expand "~/.config/tmux/plugins/treemux/scripts/toggle.sh"
   if args == "" or vim.fn.executable(script) == 0 then
     vim.notify("treemux is not loaded in this tmux server", vim.log.levels.WARN, { title = "treemux" })
     return
   end
-  tmux { "run-shell", "-b", ("%s %s %s"):format(vim.fn.shellescape(script), vim.fn.shellescape(args), pane) }
+  local command = ("%s %s %s"):format(vim.fn.shellescape(script), vim.fn.shellescape(args), pane)
+  if after then command = ("%s; tmux select-pane -t %s"):format(command, vim.fn.shellescape(after)) end
+  tmux { "run-shell", "-b", command }
 end
 
 function M.focus()
@@ -71,10 +76,17 @@ function M.focus()
   end
 end
 
---- Open a sidebar in this window unless it has one; focus stays here.
-function M.open()
+--- Open a sidebar in this window unless it has one. Focus ends on `focus`
+--- when given, else stays here.
+--- @param focus? string pane id
+function M.open(focus)
   local pane = own_pane()
-  if pane and not sidebar(pane) then toggle(pane, "Tab") end
+  if not pane then return end
+  if not sidebar(pane) then
+    toggle(pane, "Tab", focus)
+  elseif focus then
+    tmux { "select-pane", "-t", focus }
+  end
 end
 
 local channels = {} ---@type table<string, integer> sidebar RPC address -> channel
