@@ -2,9 +2,9 @@
 --- hands omp the selection as a file reference.
 ---
 --- Under tmux (config.pane_nav's env) omp is a tmux pane right of Neovim's,
---- 45% of its width. The bind reuses an omp pane before splitting a new one:
---- one already in Neovim's window is focused; otherwise one from another
---- window of the session (in Neovim's cwd first) is moved right of Neovim;
+--- 30% of the window's width. The bind reuses an omp pane before splitting
+--- a new one: one already in Neovim's window is focused; otherwise one from
+--- another window of the session (in Neovim's cwd first) is moved right of Neovim;
 --- only with none running is a new one split off. Neovim never kills it.
 ---
 --- A new omp, in tmux or not, runs `omp --continue`: it resumes the latest
@@ -77,18 +77,20 @@ end
 --- evidence: a wrapper (omp-session) or omp's own tool runs show as python3,
 --- so each omp process is walked up its parents to a pane's root process.
 --- An omp inside a Neovim terminal does not count: its pane is that Neovim.
+--- `anchor` is the pane omp belongs beside (default: Neovim's own).
+--- @param anchor string
 --- @return string|nil pane id
---- @return boolean here whether it is already in Neovim's window
-local function find_omp()
+--- @return boolean here whether it is already in the anchor's window
+local function find_omp(anchor)
   local format = "#{pane_id}\t#{pane_pid}\t#{window_id}\t#{pane_current_path}"
-  local out = tmux { "list-panes", "-s", "-t", vim.env.TMUX_PANE, "-F", format }
+  local out = tmux { "list-panes", "-s", "-t", anchor, "-F", format }
   if not out then return nil, false end
   local panes, window = {}, nil ---@type table<integer, { id: string, window: string, path: string }>
   for line in out:gmatch "[^\n]+" do
     local id, pid, win, path = line:match "^(%S+)\t(%d+)\t(%S+)\t(.*)$"
     if id then
       panes[tonumber(pid)] = { id = id, window = win, path = path }
-      if id == vim.env.TMUX_PANE then window = win end
+      if id == anchor then window = win end
     end
   end
   local cwd, best, rank = vim.fn.getcwd(), nil, 0
@@ -123,18 +125,26 @@ end
 --- from the other panes and leaves omp's width as it was; tmux.conf's
 --- even-out hooks skip windows holding such a pane. A new pane is marked in
 --- the same tmux command list as the split, before those hooks run.
+--- `anchor` is the pane to put omp right of: Neovim's own by default; the
+--- treemux sidebar passes its editor or shell pane (send_paths).
+--- @param anchor? string
 --- @return string|nil pane id
-local function tmux_open()
-  local self = vim.env.TMUX_PANE
-  local pane, here = find_omp()
+local function tmux_open(anchor)
+  local self = anchor or vim.env.TMUX_PANE
+  local pane, here = find_omp(self)
   local ok
   if here then
     ok = tmux { "select-pane", "-t", pane }
-  elseif pane then
-    local join = { "join-pane", "-h", "-l", "45%", "-s", pane, "-t", self }
-    return tmux(vim.list_extend(join, { ";", "set-option", "-p", "-t", pane, "@treemux-keep-width", "1" })) and pane
   else
-    local split = { "split-window", "-h", "-l", "45%", "-t", self, "-c", vim.fn.getcwd(), "-P", "-F", "#{pane_id}" }
+    -- 30% of the window, whatever share of it Neovim's pane has (the treemux
+    -- tree may already sit left of it)
+    local width = tmux { "display-message", "-p", "-t", self, "#{e|/:#{e|*:#{window_width},3},10}" }
+    if not width then return end
+    if pane then
+      local join = { "join-pane", "-h", "-l", width, "-s", pane, "-t", self }
+      return tmux(vim.list_extend(join, { ";", "set-option", "-p", "-t", pane, "@treemux-keep-width", "1" })) and pane
+    end
+    local split = { "split-window", "-h", "-l", width, "-t", self, "-c", vim.fn.getcwd(), "-P", "-F", "#{pane_id}" }
     return tmux(vim.list_extend(split, { "omp", "--continue", ";", "set-option", "-p", "@treemux-keep-width", "1" }))
   end
   if not ok then return end
@@ -193,6 +203,26 @@ function M.send_selection()
   paste(pane, reference(first, last, cwd))
 end
 
+--- `@path` mentions of `paths` into omp's input, focusing its pane (opened
+--- right of `anchor` when it is not running). omp inlines a file and lists a
+--- directory. Each path is relative to the omp pane's cwd when under it,
+--- else absolute; quoted when it has a space or an `@`. The treemux
+--- sidebar's <C-a><C-a> (~/.config/tmux/treemux_init.lua) sends its nodes.
+--- @param paths string[] absolute
+--- @param anchor? string pane id
+function M.send_paths(paths, anchor)
+  if #paths == 0 then return end
+  if not vim.env.TMUX then return warn "Sending files to omp needs tmux" end
+  local pane = tmux_open(anchor)
+  if not pane then return end
+  local cwd = tmux { "display-message", "-p", "-t", pane, "#{pane_current_path}" } or vim.fn.getcwd()
+  local mentions = vim.tbl_map(function(path)
+    path = vim.fs.relpath(cwd, path) or path
+    return path:find "[%s@\"]" and ("@'%s'"):format(path) or "@" .. path
+  end, paths)
+  paste(pane, table.concat(mentions, " ") .. " ")
+end
+
 function M.toggle()
   if require("config.pane_nav").env() == "tmux" then return tmux_open() end
   if term and term:buf_valid() then
@@ -202,7 +232,7 @@ function M.toggle()
   term = require("snacks").terminal.open({ "omp", "--continue" }, {
     win = {
       position = "right",
-      width = 0.45,
+      width = 0.3,
       -- buffer-local, so <C-a> keeps reaching other terminals unchanged
       keys = { omp_hide = { "<C-a><C-a>", "hide", mode = { "n", "t" }, desc = "Hide Oh My Pi" } },
     },
