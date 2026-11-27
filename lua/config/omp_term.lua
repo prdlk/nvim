@@ -2,7 +2,7 @@
 --- hands omp the selection as a file reference.
 ---
 --- Under tmux (config.pane_nav's env) omp is a tmux pane right of Neovim's,
---- 30% of the window's width. The bind reuses an omp pane before splitting
+--- 25% of the window's width. The bind reuses an omp pane before splitting
 --- a new one: one already in Neovim's window is focused; otherwise one from
 --- another window of the session (in Neovim's cwd first) is moved right of Neovim;
 --- only with none running is a new one split off. Neovim never kills it.
@@ -136,9 +136,9 @@ local function tmux_open(anchor)
   if here then
     ok = tmux { "select-pane", "-t", pane }
   else
-    -- 30% of the window, whatever share of it Neovim's pane has (the treemux
-    -- tree may already sit left of it)
-    local width = tmux { "display-message", "-p", "-t", self, "#{e|/:#{e|*:#{window_width},3},10}" }
+    -- 25% of the window, whatever share of it Neovim's pane has (the treemux
+    -- tree may already sit left of it): tree 10%, nvim 65%, omp 25%
+    local width = tmux { "display-message", "-p", "-t", self, "#{e|/:#{e|*:#{window_width},25},100}" }
     if not width then return end
     if pane then
       local join = { "join-pane", "-h", "-l", width, "-s", pane, "-t", self }
@@ -232,7 +232,7 @@ function M.toggle()
   term = require("snacks").terminal.open({ "omp", "--continue" }, {
     win = {
       position = "right",
-      width = 0.3,
+      width = 0.25,
       -- buffer-local, so <C-a> keeps reaching other terminals unchanged
       keys = { omp_hide = { "<C-a><C-a>", "hide", mode = { "n", "t" }, desc = "Hide Oh My Pi" } },
     },
