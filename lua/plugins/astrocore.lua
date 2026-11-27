@@ -285,8 +285,8 @@ return {
           desc = "Load current dirsession",
         },
         ["<leader><leader>"] = {
-          function() require("snacks").picker.smart() end,
-          desc = "Find files",
+          function() require("fff").live_grep { grep = { modes = { "fuzzy", "plain" } } } end,
+          desc = "Live fffuzzy grep",
         },
         -- needs a terminal that reports <S-Space> distinctly (kitty keyboard protocol)
         ["<S-Space><S-Space>"] = {
